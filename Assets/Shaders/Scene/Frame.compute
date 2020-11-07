@@ -1,0 +1,153 @@
+﻿#pragma kernel Set
+#pragma kernel Simulate
+
+struct Vert{
+  float3 pos;
+  float3 vel;
+  float3 nor;
+  float3 og;
+  float2 uv;
+  float2 debug;
+};
+
+RWStructuredBuffer<Vert> _VertBuffer;
+
+int _VertBuffer_COUNT;
+
+int _Size;
+int _SmoothSize;
+int _Locked;
+
+float _Distance;
+
+float3 _BottomLeft;
+float3 _BottomRight;
+float3 _TopLeft;
+float3 _TopRight;
+
+float _CanEdgeSwipe;
+
+
+#include "../Chunks/safeID.cginc"
+#include "../Chunks/nanCheckVert.cginc"
+
+#include "../Chunks/GetRayForce.cginc"
+
+
+
+#include "../Chunks/snoise.cginc"
+#include "../Chunks/curlNoise.cginc"
+
+
+Texture2D<float4> _HeightMap;
+SamplerState sampler_HeightMap;
+float _MapSize;
+float _MapHeight;
+
+float _Time;
+
+
+
+float3 worldPos( float3 pos ){
+  float4 c = _HeightMap.SampleLevel(sampler_HeightMap, (pos.xz-.5) * _MapSize  , 0);
+  pos.y =  c.x * _MapHeight;
+  return pos;
+}
+
+
+
+#define NR_THREADS 128
+[numthreads(NR_THREADS,1,1)]
+void Set(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID) {
+
+
+  int pID = safeID( threadID + u3GroupID.x * NR_THREADS , _VertBuffer_COUNT );
+
+  int dir = pID / _Size;
+
+  int inDir = pID % _Size;
+  float nDir = float(inDir)/float(_Size);
+
+  float3 dirs[4] = { _BottomLeft , _BottomRight, _TopRight, _TopLeft };
+
+  float3 down = dirs[dir];
+  float3 up   = dirs[(dir + 1)%4];
+
+  Vert v = _VertBuffer[pID];
+
+  v.og = down + ( up - down) * nDir;
+  v.pos = v.og;
+  v.uv = float2( nDir ,  float(dir));
+  v.debug = float2( length( up-down ) , 1  );
+
+  _VertBuffer[pID] = v;
+
+}
+
+
+
+#define NR_THREADS 128
+[numthreads(NR_THREADS,1,1)]
+void Simulate(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID) {
+
+
+  int pID = safeID( threadID + u3GroupID.x * NR_THREADS , _VertBuffer_COUNT );
+
+
+
+  Vert v = _VertBuffer[safeID(pID,_VertBuffer_COUNT)];
+  Vert vUp = _VertBuffer[safeID((pID+1)%(_VertBuffer_COUNT),_VertBuffer_COUNT)];
+
+  int tID= pID;
+  if(pID == 0){ tID = _VertBuffer_COUNT-1; }
+  Vert vDo = _VertBuffer[safeID((tID-1)%(_VertBuffer_COUNT),_VertBuffer_COUNT)];
+
+
+float3 force = 0;
+
+
+if( _Locked == 1 ){ 
+  force -= ( v.pos - v.og ) * 10 / _Distance;
+  force += GetRayForce( v.pos , -.3 * _Distance , .5 * _Distance ); 
+
+
+  if(_CanEdgeSwipe != 0 ){
+  if( _CanEdgeSwipe == 1 && v.uv.y == 3 ){
+    force += ( v.pos - v.og) * 9 / _Distance;
+     //force -= normalize(GetRayTangent( v.pos  )) ; 
+     force += GetRayForce( v.pos , -.3 * _Distance , .5 * _Distance ); 
+  }else if( _CanEdgeSwipe == 2 && v.uv.y == 1 ){
+    force += ( v.pos - v.og) * 9 / _Distance;
+    force += GetRayForce( v.pos , -.3 * _Distance , .5 * _Distance ); 
+     //force -= normalize(GetRayTangent( v.pos)); 
+  }else{
+
+force -= (v.pos - vUp.pos)*1 * _Distance;
+force -= (v.pos - vDo.pos)*1 * _Distance;
+  }
+
+}
+
+
+
+}else{
+  force += curlNoise( v.pos * .1 * _Distance )* .04;
+}
+force -= v.pos - vUp.pos;
+force -= v.pos - vDo.pos;
+
+
+  v.vel += force * .01;
+
+  if( _Locked == 1 ){ v.vel *= .8; }else{ v.vel *= .95; }
+
+  v.pos += v.vel;
+
+
+  nanCheck( v );
+
+  _VertBuffer[safeID(pID,_VertBuffer_COUNT)] = v;
+
+
+
+}

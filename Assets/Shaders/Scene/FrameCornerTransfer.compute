@@ -1,0 +1,85 @@
+﻿#pragma kernel Transfer
+
+struct Vert{
+    float3 pos;
+  float3 vel;
+  float3 nor;
+  float3 tang;
+  float2 uv;
+  float2 debug;
+};
+
+
+
+
+
+RWStructuredBuffer<Vert> _VertBuffer;
+RWStructuredBuffer<Vert> _BaseBuffer;
+RWStructuredBuffer<Vert> _SkeletonBuffer;
+
+int _VertBuffer_COUNT;
+int _SkeletonBuffer_COUNT;
+int _BaseBuffer_COUNT;
+
+
+float _Radius;
+int _VertsPerMesh;
+float _CountMultiplier;
+float _Distance;
+float _Fade;
+float _DeathTime;
+int _Locked;
+float _Time;
+
+float3 _CameraForward;
+float3 _CameraRight;
+float3 _CameraUp;
+
+
+#include "../Chunks/safeID.cginc"
+
+#define NR_THREADS 128
+[numthreads(NR_THREADS,1,1)]
+void Transfer (uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID) {
+
+  int pID = threadID + u3GroupID.x * NR_THREADS;
+
+  if( pID < _VertBuffer_COUNT ){
+    
+
+    int mID = pID / _VertsPerMesh;
+    int oM = mID;
+    mID =  int(float(mID) / _CountMultiplier);//_VertsPerSide;
+    Vert b = _BaseBuffer[safeID(pID %_VertsPerMesh, _BaseBuffer_COUNT )];
+    Vert p = _SkeletonBuffer[safeID( mID, _SkeletonBuffer_COUNT )];
+
+    Vert v = _VertBuffer[safeID(pID,_VertBuffer_COUNT)];
+
+
+  float r = _Radius * _Distance;
+
+   float fade = (1-_Fade);
+    if( _Locked == 1 ){
+      r *= fade; 
+    }else{
+      fade = 1/(1+pow( (_Time - _DeathTime),2));
+      r  *=  fade;
+      if( _Time - _DeathTime > 5 ){ r = 0; fade = 0; }
+    }
+
+
+  
+
+
+    v.pos      = p.pos + (b.pos.z * _CameraUp + b.pos.y * _CameraRight - _CameraForward * .01) * r * .5;// = v;
+    v.nor      = b.nor;
+    v.tang     = b.tang;
+    v.uv       = b.uv;
+    v.debug = float2(float(oM),fade);
+
+    _VertBuffer[safeID(pID,_VertBuffer_COUNT)] = v;
+
+
+  }
+
+}
