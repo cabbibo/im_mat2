@@ -71,7 +71,6 @@ public class Story : Cycle
 
     
     for( int i = 0; i < pages.Length; i ++ ){
-      DebugThis("STORY SETTER YANa");
       print(setter);
       pages[i].setter = setter;
       pages[i].story = this;
