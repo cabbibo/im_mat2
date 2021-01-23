@@ -111,7 +111,7 @@ public class Saveable {
 
     BinaryFormatter bf = new BinaryFormatter();
     
-    Debug.Log(name);
+//    Debug.Log(name);
     FileStream stream = new FileStream(Application.dataPath + "/"+name+".dna",FileMode.Create);
 
 

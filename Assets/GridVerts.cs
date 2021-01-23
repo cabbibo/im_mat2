@@ -24,7 +24,7 @@ public class GridVerts : Particles
 
       for( int j = 0; j < rows; j++){
         
-        float rowNor = (float)j / (float)rows;
+        float rowNor = (float)j / ((float)rows-1);
 
         p = new Vector3( rowNor - .5f , 0 , colNor - .5f);
 

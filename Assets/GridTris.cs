@@ -22,9 +22,9 @@ print("embody");
       for( int j = 0; j < (scv.rows-1); j++ ){
 
         int id1 = i * scv.rows + j;
-        int id2 = ((i+1) ) * scv.rows + j;
+        int id2 = (i+1) * scv.rows + j;
         int id3 = i * scv.rows + j+1;
-        int id4 = ((i+1)) * scv.rows + j+1;
+        int id4 = (i+1) * scv.rows + j+1;
 
         values[index++] = id1;
         values[index++] = id2;

@@ -88,13 +88,15 @@ public class Character : Cycle {
     // fixing error ( usually in edit mode ) of there being no runtime controller
      if(animator.runtimeAnimatorController==null){ animator.runtimeAnimatorController = runtime;}
 
+  if( lerping ){
 
+    DoMovement();  
+  }else{
     MyPhysics();
-
-    //DoMovement();   
+  }
 
     // once we assign all the values, then we update the animator
-    //animator.Update(Time.deltaTime); 
+    animator.Update(Time.deltaTime); 
 
     
   }
@@ -171,6 +173,7 @@ public class Character : Cycle {
 
     force = Vector3.zero;
 
+  print("doingMovement");
     // If we are moving towards something specific, 
     // Set our move target towards taht position
     if( movingTowardsTarget && moveTargetTransform ){
@@ -180,6 +183,7 @@ public class Character : Cycle {
     // This is if we are moving towards a locked position
     if( lerping ){
 
+      print( lerping );
       // get our current position in the lerp
       float v = Mathf.Clamp((Time.time - lerpStartTime)/lerpSpeed, 0 , 1);
       if( lerpSpeed == 0 ){ v = 1; }
@@ -550,7 +554,6 @@ animator.SetFloat("Turn",rotVel * .03f , 0.1f, Time.deltaTime);
 animator.SetBool("Uphill" ,hDifFront < 0 );
 animator.SetFloat("Steepness",-hDifFront * 1, 0.1f, Time.deltaTime);
 
-animator.Update(Time.deltaTime); 
 
   }
 

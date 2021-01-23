@@ -30,7 +30,7 @@ public static class HELP{
 
     Vector3 ave = v1 + v2 + v3;
     ave /= 3;
-    float nV =     ( Noise.Perlin3D(ave, size) + 1)/2;
+    float nV =      ( Noise.Perlin3D(ave, size).value + 1)/2;
 
    // if( nV > .4f ){ Debug.Log(nV);}
     return nV;

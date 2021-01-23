@@ -70,6 +70,8 @@ public class Data : Cycle
 
   public Transform soul;
 
+  public PostController postController;
+
 
   public override void Create(){
     god = (God)parent;

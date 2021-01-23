@@ -17,6 +17,9 @@ public class Page : Cycle
     public float fade;
     public float baseHue;
 
+
+    public float focusDistance;
+
     public MaterialPropertyBlock frameMPB;
 
     public EventTypes.BaseEvent  OnStartEnter;

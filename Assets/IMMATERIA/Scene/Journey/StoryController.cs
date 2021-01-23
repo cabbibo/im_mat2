@@ -212,6 +212,8 @@ public class StoryController : Cycle
       DebugThis("WHOA WE GOT AN AUDIO PROBLEM");
     }
 
+   data.postController.focusDistance = pages[currentPageID].frame.distance;
+
     if( pages[currentPageID].moveTarget ){ data.playerControls.SetMoveTarget( pages[currentPageID].moveTarget ); }
     if( pages[currentPageID].lerpTarget ){ data.playerControls.SetLerpTarget( pages[currentPageID].lerpTarget , transitionSpeed ); }
     if( pages[currentPageID].moveTarget &&  pages[currentPageID].lerpTarget ){ Debug.LogError("this page has multiple targets"); }

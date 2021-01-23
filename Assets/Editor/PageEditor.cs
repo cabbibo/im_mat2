@@ -25,6 +25,7 @@ public class PageEditor : CycleEditor
   SerializedProperty baseHue      ;
   SerializedProperty story        ;
   SerializedProperty setter      ;
+  SerializedProperty focusDistance      ;
 
   // Events
   SerializedProperty startEnter;
@@ -47,6 +48,7 @@ void OnEnable(){
     baseHue      = serializedObject.FindProperty("baseHue"     );
     story        = serializedObject.FindProperty("story"       );
     setter       = serializedObject.FindProperty("setter"      );
+    focusDistance       = serializedObject.FindProperty("focusDistance"      );
 
     startEnter  = serializedObject.FindProperty("OnStartEnter");
     startExit   = serializedObject.FindProperty("OnStartExit");
@@ -78,6 +80,7 @@ void OnEnable(){
             EditorGUILayout.PropertyField(baseHue      );
             EditorGUILayout.PropertyField(story        );
             EditorGUILayout.PropertyField(setter       );
+            EditorGUILayout.PropertyField(focusDistance       );
 
             GUILayout.EndVertical();
     

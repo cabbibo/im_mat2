@@ -6,6 +6,7 @@
     _MainTex ("Texture", 2D) = "white" {}
 
     _ColorMap ("ColorMap", 2D) = "white" {}
+    _ColorMap2 ("ColorMap2", 2D) = "white" {}
     _NormalMap ("NormalMap", 2D) = "white" {}
     _CubeMap( "Cube Map" , Cube )  = "defaulttexture" {}
     _Debug("DEBUG",float) = 0
@@ -59,6 +60,7 @@
       float _PlayerFalloff;
       sampler2D _MainTex;
       sampler2D _ColorMap;
+      sampler2D _ColorMap2;
       sampler2D _NormalMap;
       samplerCUBE _CubeMap;
 
@@ -106,7 +108,7 @@
         o.pos = mul(UNITY_MATRIX_VP, float4(fPos,1));
         o.eye = _WorldSpaceCameraPos - fPos;
         o.nor = fNor;
-        o.uv =  float2(.9,1)-fUV;
+        o.uv =  fUV;
         o.debug = float3(debug.x,debug.y,0);
 
         UNITY_TRANSFER_SHADOW(o,o.worldPos);
@@ -173,10 +175,12 @@ float l = saturate( (_PlayerFalloff-dif)/_PlayerFalloff);
 
 
 
-        float3 tCol = texCUBE(_CubeMap,refl) * color;
+      float3 cubeCol = texCUBE(_CubeMap,refl).xyz;
+
+        float3 tCol = cubeCol * color;
         color *= ( grassHeight + .5);
 
-        color *= texCUBE( _CubeMap , refl ) * 2;
+        color.xyz *= cubeCol * 2;
 
 
         float holeVal = length( v.worldPos - _TerrainHole)  + noise( v.worldPos * 4.2 + float3(0,_Time.y * .2,0) )  * .2;
@@ -190,7 +194,14 @@ float l = saturate( (_PlayerFalloff-dif)/_PlayerFalloff);
 
         tCol *= shadow;
         
-        color.xyz = lerp( color.xyz , 0 , v.uv.y * 10 );
+
+        int power = 8;
+
+        float lerpVal =  saturate(max( pow(abs(v.uv.y-.5) * 2.2 , power) , pow(abs(v.uv.x-.5) * 2.2 , power)));
+        
+
+        float3 col = cubeCol * tex2D(_ColorMap2,reflM);
+        color.xyz = lerp( col , color.xyz , lerpVal );
         //tCol = dif;
 
         //tCol = grassHeight;

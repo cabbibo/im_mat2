@@ -98,7 +98,10 @@ void TransferFlat (uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID) 
 
     float4 vWorld =   mul(_TransformBase, float4(inputPos,1));//terrainWorldPos( v.vertex ) - float4(0,0,_Vertical,0);
 
-    float3 fPos = worldPos( vWorld ) + float3(0,.2,0);
+int power = 4;
+        float lerpVal =  saturate(max( pow(abs(v.uv.y-.5) * 2.2 , power) , pow(abs(v.uv.x-.5) * 2.2 , power)));
+        
+    float3 fPos = worldPos( vWorld ) + float3(0,.2 * (1-lerpVal),0);
 
     float3 nor = getNormal( vWorld);/* normalize(cross( 
             normalize( tPos( vWorld + float3(.1,0,0) , v.uv ) - tPos( vWorld - float3(.1,0,0) , v.uv )), 

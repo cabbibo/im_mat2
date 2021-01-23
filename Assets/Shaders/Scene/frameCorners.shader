@@ -9,7 +9,7 @@
     SubShader
     {
                 // inside SubShader
-Tags { "Queue"="Transparent" "RenderType"="Transparent"  }
+//Tags { "Queue"="Transparent" "RenderType"="Transparent"  }
         LOD 100
 // inside Pass
 ZWrite On

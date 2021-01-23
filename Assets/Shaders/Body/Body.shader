@@ -202,6 +202,8 @@ float l = saturate( (20-dif)/20);
         float3 fNor = v.nor;
         //col.xyz = .4*pow(length(color.xyz),4);
 
+        
+
         float match = dot( fNor, _WorldSpaceLightPos0 );
 
         float3 refl = reflect( normalize(v.eye) , fNor );

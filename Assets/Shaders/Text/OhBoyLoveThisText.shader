@@ -25,6 +25,8 @@
       #pragma target 4.5
       #pragma vertex vert
       #pragma fragment frag
+
+      
         uniform sampler2D _TextMap;
     
       uniform sampler2D _CutoffMap;
@@ -98,12 +100,20 @@
 
        
     Pass {
-      //Tags {"Queue"="Transparent+10" "RenderType"="Transparent" }
+     //Tags {"Queue"="Transparent+10" "RenderType"="Transparent" }
       Tags{ "LightMode" = "ForwardBase" }
       Cull Off
-       //ZWrite Off
+      ZWrite On
         Blend One One
         ZTest Always
+
+
+
+     //CGPROGRAM
+     //#pragma target 4.5
+     //#pragma vertex vert
+     //#pragma fragment frag
+     //#pragma multi_compile_fwdbase nolightmap nodirlightmap nodynlightmap novertexlight
       CGPROGRAM
 
       #pragma multi_compile_fwdbase nolightmap nodirlightmap nodynlightmap novertexlight
