@@ -290,6 +290,20 @@ public Story story;
       hasFallen = s.state.hasFallen;
       monolithParticlesEmitting = s.state.monolithParticlesEmitting;
       whichMonolithEmitting = s.state.whichMonolithEmitting;
+      reincarnationNumber = s.state.reincarnationNumber;
+
+      for( int i = 0; i < s.state.storiesNotVisited.Length; i++  ){
+        if( storiesVisited.IndexOf( s.state.storiesNotVisited[i]) >= 0 ){
+          storiesVisited.Remove( s.state.storiesNotVisited[i]);
+        }
+      }
+      
+      for( int i = 0; i < s.state.storiesVisited.Length; i++  ){
+        if( storiesVisited.IndexOf( s.state.storiesVisited[i]) < 0 ){
+          storiesVisited.Add( s.state.storiesVisited[i]);
+        }
+      }
+      
     }
     
   }

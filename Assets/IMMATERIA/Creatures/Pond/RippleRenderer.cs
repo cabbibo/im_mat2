@@ -78,5 +78,8 @@ public class RippleRenderer : Cycle {
   void InitRenderTextures() {
     t1 = new RenderTexture((int)resolution.x, (int)resolution.y, 0, RenderTextureFormat.ARGBFloat);
     t2 = new RenderTexture((int)resolution.x, (int)resolution.y, 0, RenderTextureFormat.ARGBFloat);
+
+   //t1.filterMode = FilterMode.Point;
+   //t2.filterMode = FilterMode.Point;
   }
 }

@@ -28,8 +28,6 @@ public class StateSetter : MonoBehaviour
 
   public bool Check(){
 
-    print("CHECKINGIN");
-
     bool canStart = true;
     for( int i = 0; i < storiesVisited.Length; i++ ){
 
@@ -52,6 +50,8 @@ public class StateSetter : MonoBehaviour
       canStart = false;
     }
 
+
+    print( "CAN I START? : " + canStart );
     return canStart;
     
 
@@ -75,8 +75,9 @@ public class StateSetter : MonoBehaviour
 
 
   // Need to set all of the values for each story we have visited too!
-  public void Assign(){
+  public void AssignState(){
 
+    print( "Assgingin");
     for( int i = 0; i < storiesVisited.Length; i++  ){
         
       if( god.data.state.storiesVisited.IndexOf( storiesVisited[i]) < 0 ){

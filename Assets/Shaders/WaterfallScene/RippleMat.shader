@@ -93,10 +93,10 @@
 
 
                 float f = (((h_n + h_e + h_s + h_w)/4) - c.x);
-                float newVel = c.y + f ;
+                float newVel = c.y + f * .1 ;
                 ;// * .3;// * .9f;
                        
-                newVel *= .996;
+                newVel *= .999;
                 
                 float newPos = c.x/(edge+1) + newVel / (edge+1) ;
 
@@ -113,7 +113,7 @@
 
 
                     if( length(v.uv-_HitUV) < .01 && _Down == 1 ){
-                        result.x += 1;
+                        result.x += (.01- length(v.uv-_HitUV)) * 100;
                     }
 
                     float tPos = terrainWorldPos( v.worldPos ).y- v.worldPos.y;

@@ -173,7 +173,6 @@ public class Character : Cycle {
 
     force = Vector3.zero;
 
-  print("doingMovement");
     // If we are moving towards something specific, 
     // Set our move target towards taht position
     if( movingTowardsTarget && moveTargetTransform ){
@@ -183,7 +182,6 @@ public class Character : Cycle {
     // This is if we are moving towards a locked position
     if( lerping ){
 
-      print( lerping );
       // get our current position in the lerp
       float v = Mathf.Clamp((Time.time - lerpStartTime)/lerpSpeed, 0 , 1);
       if( lerpSpeed == 0 ){ v = 1; }

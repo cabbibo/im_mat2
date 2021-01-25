@@ -74,7 +74,7 @@
                 float3 dif = terrainPos - v.worldPos;
                 float dist = abs(dif.y) * 4;
 
-                 //col = 1/dist;// * 1.1;
+                 col = 1/dist;// * 1.1;
                 return col;
             }
             ENDCG
