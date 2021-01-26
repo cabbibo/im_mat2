@@ -39,8 +39,8 @@ public class Land : Cycle {
   for( int i = 0; i < 4; i++ ){
     infoTextures[i] =  new Texture2D(512,512,TextureFormat.RGBAFloat,false);
 
-    infoTextures[i].wrapMode = TextureWrapMode.Clamp;
-    infoTextures[i].filterMode = FilterMode.Trilinear;
+    infoTextures[i].wrapMode  = TextureWrapMode.Clamp;
+    infoTextures[i].filterMode = FilterMode.Bilinear;
     infoTextures[i].mipMapBias = 10000;
   }
 
@@ -48,6 +48,9 @@ public class Land : Cycle {
     //Graphics.CopyTexture( startTexture , heightMap);
 
    // heightMap.Apply();
+
+    LoadFromFile();
+
 
     Shader.SetGlobalTexture("_HeightMap", heightMap);
     Shader.SetGlobalTexture("_TerrainInfo1", infoTextures[0]);
@@ -61,7 +64,6 @@ public class Land : Cycle {
     Shader.SetGlobalVector("_TerrainHole", terrainHole.position );
 
 
-    LoadFromFile();
 
    // if( data.painter == null ){ LoadFromFile(); };
 
@@ -84,6 +86,21 @@ public class Land : Cycle {
     Shader.SetGlobalVector("_TerrainHole", terrainHole.position );
 
     camRay.position = Trace( data.cameraPosition , data.cameraForward );
+
+
+    Shader.SetGlobalTexture("_HeightMap", heightMap);
+
+    Shader.SetGlobalTexture("_TerrainInfo1", infoTextures[0]);
+    Shader.SetGlobalTexture("_TerrainInfo2", infoTextures[1]);
+    Shader.SetGlobalTexture("_TerrainInfo3", infoTextures[2]);
+    Shader.SetGlobalTexture("_TerrainInfo4", infoTextures[3]);
+
+
+    Shader.SetGlobalFloat("_TerrainSize", size);
+    Shader.SetGlobalFloat("_TerrainHeight", height);
+    Shader.SetGlobalFloat("_MapSize", size);
+    Shader.SetGlobalFloat("_MapHeight", height);
+    Shader.SetGlobalVector("_TerrainHole", terrainHole.position );
 
   }
 
@@ -231,8 +248,11 @@ public class Land : Cycle {
 
     float r; float g; float b; float a;
 
+    print ("DATALL : " + data.Length );
+
     for( int i = 0; i < data.Length / 20; i ++ ){
-      
+
+  
       r = data[ i * 20 + 3 ];
       g = data[ i * 20 + 4 ];
       b = data[ i * 20 + 5 ];
@@ -257,6 +277,11 @@ public class Land : Cycle {
       b = data[ i * 20 + 17 ];
       a = data[ i * 20 + 18 ];
       colors4[i] = new Color( r,g,b,a);
+
+      if( i  < 100 ){
+        print( colors1[i]);
+      }
+      
 
     }
 

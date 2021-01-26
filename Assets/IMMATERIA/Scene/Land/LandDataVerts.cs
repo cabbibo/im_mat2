@@ -37,30 +37,37 @@ public class LandDataVerts : Form
         //  print( c.r );
       }
 
+      // Position
       values[ index ++ ] = (((float)x + .5f)/(float)width) / data.land.size;
       values[ index ++ ] = c.r * data.land.height;
       values[ index ++ ] = (((float)y + .5f)/(float)width) / data.land.size;
 
+
+      // DATA
       values[ index ++ ] = 0;
       values[ index ++ ] = 0;
       values[ index ++ ] = 0;
       values[ index ++ ] = 0;
 
+      // DATA
       values[ index ++ ] = 0;
       values[ index ++ ] = 0;
       values[ index ++ ] = 0;
       values[ index ++ ] = 0;
 
+      // DATA
       values[ index ++ ] = 0;
       values[ index ++ ] = 0;
       values[ index ++ ] = 0;
       values[ index ++ ] = 0;
 
+      // DATA
       values[ index ++ ] = 0;
       values[ index ++ ] = 0;
       values[ index ++ ] = 0;
       values[ index ++ ] = 0;
 
+      // DEBUG
       values[ index ++ ] = .5f;
     
     }

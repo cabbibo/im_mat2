@@ -292,7 +292,8 @@ public void ResetToFlat(){
         brushType = i * 4;
         ExtractColors();
         UpdateLand();
-        SaveTextureAsPNG(textures[i] , Application.dataPath+"/" + path + i );
+        print("ULTRA SAVING");
+        SaveTextureAsPNG(textures[i] , Application.dataPath+"/" + path + i + ".png" );
     }
     brushType = oBrushType;
   
@@ -320,7 +321,7 @@ public void ResetToFlat(){
 
 
 public void UpdateLand(){
-//print( "APPLUIONG " + whichTexture);
+print( "APPLUIONG " + whichTexture);
     textures[whichTexture].SetPixels(colors,0);
     textures[whichTexture].Apply(true);
 
@@ -370,9 +371,9 @@ public void SetBrushOpacity(Slider s){
 
 public static void SaveTextureAsPNG(Texture2D _texture, string _fullPath)
 {
-    byte[] _bytes =_texture.EncodeToJPG(1000);
+    byte[] _bytes =_texture.EncodeToPNG();
     System.IO.File.WriteAllBytes(_fullPath, _bytes);
-    Debug.Log(_bytes.Length/1024  + "Kb was saved as: " + _fullPath + ".jpg");
+    Debug.Log(_bytes.Length/1024  + "Kb was saved as: " + _fullPath );
 }
 
 
