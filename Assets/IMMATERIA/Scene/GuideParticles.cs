@@ -25,6 +25,8 @@ public class GuideParticles : Simulation
 
   public void SetEmitterPosition( Vector3 position ){
     _EmitterPosition = position;
+    
+    print("EMITTIGN AT THIS POSITOIN4");
   }
 
   public void ToggleEmit(){
@@ -43,6 +45,8 @@ public class GuideParticles : Simulation
   public void EmitAtMonolith( int i ){
     SetEmitterPosition(data.journey.monoSetters[i].monolith.transform.position);
     EmitOn();
+    
+    print("EMITTIGN AT THIS POSITOIN2");
   }
   
 
@@ -51,6 +55,14 @@ public class GuideParticles : Simulation
     oldEmit -= 1;
     oldEmit = Mathf.Clamp(oldEmit,0,2);
     
+  }
+
+
+  public void EmitAtTransform( Transform t ){
+    _EmitterPosition = t.position;
+    EmitOn();
+
+    print("EMITTIGN AT THIS POSITOIN");
   }
 
 }

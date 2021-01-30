@@ -143,6 +143,15 @@ public class AudioPlayer : Cycle{
     }
 
 
+    public void FadeValue( string valueName  , float v  , float t ){
+
+        float sv; 
+        master.GetFloat( valueName , out sv );
+        StartCoroutine(FadeVal(valueName, sv,v,t));
+
+    }
+
+
      IEnumerator Fade( AudioSource a , float sv ,float v,  float time  ){
         for (float i = 0; i < time; i += Time.deltaTime ){
             a.volume = Mathf.SmoothStep( sv , v , (i/time));
@@ -162,6 +171,19 @@ public class AudioPlayer : Cycle{
             yield return null;
         }
     }
+
+
+    IEnumerator FadeVal( string valueName , float sv , float v , float time ){
+         for (float i = 0; i < time; i += Time.deltaTime ){
+
+             
+
+            float newVal =Mathf.SmoothStep( sv , v , (i/time));
+            master.SetFloat(valueName, newVal);
+            yield return null;
+        }
+    }
+
 
     public override void WhileLiving(float v){
 

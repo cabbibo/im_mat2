@@ -17,7 +17,7 @@ using UnityEngine;
 public class Data : Cycle
 {
     
-
+  
   public God god;
   public Transform camera;
   public Transform player;
@@ -71,6 +71,7 @@ public class Data : Cycle
   public Transform soul;
 
   public PostController postController;
+  public Texture fullColorMap;
 
 
   public override void Create(){
@@ -183,6 +184,8 @@ public class Data : Cycle
     Shader.SetGlobalVector("_PlayerRight"     , playerRight );
     Shader.SetGlobalVector("_PlayerPosition"  , playerPosition );
     Shader.SetGlobalVector("_PlayerSoul"      , playerSoul );
+
+    Shader.SetGlobalTexture("_FullColorMap", fullColorMap);
 
   }
 

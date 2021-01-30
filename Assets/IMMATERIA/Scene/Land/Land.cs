@@ -128,6 +128,7 @@ public class Land : Cycle {
     return c;
   }
 
+
   public Vector3 NewPosition( Vector3 v ){
     return new Vector3( v.x , SampleHeight( v ), v.z);
   }
@@ -278,9 +279,7 @@ public class Land : Cycle {
       a = data[ i * 20 + 18 ];
       colors4[i] = new Color( r,g,b,a);
 
-      if( i  < 100 ){
-        print( colors1[i]);
-      }
+    
       
 
     }

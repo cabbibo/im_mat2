@@ -105,6 +105,9 @@ public class StoryAudio : Cycle
   public void Exit(){
 
     playing = false;
+
+
+ 
     data.sound.globalLooper.FadeIn();
     for( int i = 0; i < audioInfo.Length; i++ ){
       data.sound.FadeLoop(i , 0 , data.sound.globalLooper.fadeInSpeed );
