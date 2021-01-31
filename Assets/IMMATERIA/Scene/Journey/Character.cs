@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+
 public class Character : Cycle {
 
   public Animator animator;
@@ -67,6 +68,14 @@ public class Character : Cycle {
   public bool downToLeft;
 
   public float steepnessVal;
+
+  public Transform head;
+
+  public float minHitY;
+
+  public bool onTerrainObject;
+  public GameObject terrainObject;
+  public bool cantGoForward;
 
 
 
@@ -198,7 +207,7 @@ public class Character : Cycle {
       animator.SetFloat("Turn", 0, 0.1f, Time.deltaTime);
       animator.SetFloat("Forward", 0, 0.1f, Time.deltaTime);
 
-    }else{
+    }/*else{
 
 
       
@@ -389,10 +398,22 @@ public class Character : Cycle {
 
 
 
-    baseRep.position = transform.position;
+    baseRep.position = transform.position;*/
   }
 
+  void OnCollisionEnter(Collision c){
+    print( "HIIII");
 
+  }
+
+    void OnCollisionStay(Collision c){
+    print( "HIIII");
+
+  }
+
+  void OnTriggerEnter( Collider c ){
+    print("HOOOy");
+  }
   public void SetMoveTarget( Vector3 p ){
 
   
@@ -464,6 +485,35 @@ public float myMaxRotSpeed;
         // Getting the height where we are
         float h = data.land.SampleHeight( transform.position );
 
+
+
+        
+// Bit shift the index of the layer (0) to get a bit mask
+int layerMask = 1 << 11;
+
+// This would cast rays only against colliders in layer 0.
+// But instead we want to collide against everything except layer 0. The ~ operator does this, it inverts a bitmask.
+layerMask = ~layerMask;
+RaycastHit hit;
+if( Physics.Raycast(head.position, -transform.up, out hit, Mathf.Infinity , layerMask) ){
+  minHitY = hit.point.y;
+  terrainObject = hit.collider.gameObject;
+}else{
+  minHitY = 0;
+}
+
+
+if( minHitY > h ){
+  onTerrainObject = true;
+  h = minHitY;
+}else{
+  terrainObject  = null;
+}
+
+
+
+
+
     // getting the height in front of us
         Vector3 f =  transform.position + transform.forward * 3 * .8f;
         float h2 = data.land.SampleHeight( f );
@@ -534,9 +584,32 @@ rotForce = angle * .3f;
 }
 
 
+// Checking to see if we are hitting anything in front of us
+// to make it so we can block off sections
+if( Physics.Raycast(transform.position, transform.forward, out hit, 1 , layerMask)){
+  
+  if( hit.collider.gameObject != terrainObject ){
+
+    // making sure that the object in front of us isn't a terrain object
+    // and also that we aren't on a terrain object!
+    if( onTerrainObject == false || hit.collider.gameObject.tag != "TerrainObject" ){
+      velocity = Vector3.zero;
+    }
+
+  }else{
+
+  
+    print("colliding with object im on");
+  }
+}
+
+
+
+
 if( velocity.magnitude > myMaxSpeed ){ velocity = velocity.normalized * myMaxSpeed; }
 transform.Rotate(0, rotVel * Time.deltaTime, 0);
 transform.position += velocity;
+
 
 
 

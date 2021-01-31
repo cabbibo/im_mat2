@@ -83,6 +83,24 @@ public class InputEvents: Cycle {
 
   void Start(){}
   
+
+
+  public void DoRaycast(){
+    if (Physics.Raycast( ray , out hit, Mathf.Infinity))
+        {
+          hitTag = hit.collider.tag;
+          hitNormal = hit.normal;
+          hitPosition = hit.point;
+          print(hitTag);
+        }else{
+          print("untaggted");
+          // Default if we don't hit anything!!!!
+          hitTag = "Untagged";
+          hitNormal = new Vector3(0,1,0);
+          hitPosition = new Vector3(0,0,0); 
+        }
+
+  }
    // Update is called once per frame
   public override void WhileLiving ( float v ){
 
@@ -100,6 +118,7 @@ public class InputEvents: Cycle {
 
     }
 
+    // We will use this input if its playing. if its in edit mode will be in the editor script?
     if( Application.isPlaying ){
       oP = p;
       oDown = Down;
@@ -129,18 +148,9 @@ public class InputEvents: Cycle {
     RD = ray.direction;
     
     // Does the ray intersect any objects excluding the player layer
-        if (Physics.Raycast( ray , out hit, Mathf.Infinity))
-        {
-          hitTag = hit.collider.tag;
-          hitNormal = hit.normal;
-          hitPosition = hit.point;
-        }else{
-          // Default if we don't hit anything!!!!
-          hitTag = "Untagged";
-          hitNormal = new Vector3(0,1,0);
-          hitPosition = new Vector3(0,0,0); 
-        }
+    DoRaycast();
 
+    print("hmmmmm");
 
 
 

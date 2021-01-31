@@ -197,16 +197,7 @@ public class GlobalEditWindow : EditorWindow
     events.RO = events.ray.origin;
     events.RD = events.ray.direction;
 
-
-
-    // Does the ray intersect any objects excluding the player layer
-        if (Physics.Raycast( events.ray , out events.hit, Mathf.Infinity))
-        {
-          events.hitTag = events.hit.collider.tag;
-        }else{
-          events.hitTag = "Untagged";
-        }
-
+    events.DoRaycast();
 
 
 

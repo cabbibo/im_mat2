@@ -16,6 +16,10 @@ public class TerrainTap : Cycle
     //print("helloos");
     //print(data.inputEvents.hitTag);
 
+    data.inputEvents.DoRaycast();
+
+    print( data.inputEvents.hitTag );
+
       if( ( data.inputEvents.hitTag == "Untagged" || data.inputEvents.hitTag == "Frame") && !data.state.inPages ){
        // print("double hello");
    
@@ -25,7 +29,29 @@ public class TerrainTap : Cycle
 
       data.guideParticles.EmitOn();
       tapTime = Time.time;
+    }else if( ( data.inputEvents.hitTag == "TerrainObject") && !data.state.inPages ){
+
+
+      Vector3 p =  data.land.Trace( data.inputEvents.ray.origin , data.inputEvents.ray.direction );
+
+      
+
+      transform.position = p;// data.land.Trace( data.inputEvents.ray.origin , data.inputEvents.ray.direction );
+      
+      print( data.inputEvents.hitPosition );
+      if( data.inputEvents.hitPosition.y > p.y ){
+        transform.position = data.inputEvents.hitPosition;
+      }
+      
+      data.playerControls.SetMoveTarget( transform );
+      data.guideParticles.SetEmitterPosition( transform.position );
+
+      data.guideParticles.EmitOn();
+      tapTime = Time.time;
+
     }
+
+
    }
 
 
