@@ -93,7 +93,6 @@ public class InputEvents : Cycle
             hitTag = hit.collider.tag;
             hitNormal = hit.normal;
             hitPosition = hit.point;
-            print(hitTag);
         }
         else
         {

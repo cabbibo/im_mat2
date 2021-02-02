@@ -1,15 +1,14 @@
 ﻿using UnityEngine;
 
 
-[ExecuteInEditMode]
-public class FadeToBlack : MonoBehaviour
+public class FadeToBlack : Cycle
 {
     public AnimationCurve FadeCurve = new AnimationCurve(new Keyframe(0, 1), new Keyframe(0.6f, 0.7f, -1.8f, -1.2f), new Keyframe(1, 0));
 
     private Material _material;
+    public float startFadeSpeed;
 
-
-    public void OnEnable()
+    public override void OnLive()
     {
 
         _material = GetComponent<Renderer>().sharedMaterial;
@@ -20,7 +19,7 @@ public class FadeToBlack : MonoBehaviour
         currentOpacity = 1;
         startOpacity = 1;
         fadeOpacity = 0;
-        FadeIn(5);
+        FadeIn(startFadeSpeed);
 
     }
 
@@ -57,7 +56,7 @@ public class FadeToBlack : MonoBehaviour
 
     }
 
-    public void Update()
+    public override void WhileLiving(float val)
     {
 
         if (fading == true)

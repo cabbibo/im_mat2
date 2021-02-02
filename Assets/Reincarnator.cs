@@ -4,10 +4,12 @@ using UnityEngine;
 
 
 
-[ExecuteInEditMode]
-public class Reincarnator : MonoBehaviour
+public class Reincarnator : Cycle
 {
 
+    public StorySetter theFall;
+
+    public Page firstPage;
 
     public bool reincarnating;
 
@@ -43,6 +45,17 @@ public class Reincarnator : MonoBehaviour
         reincarnating = true;
         reincarnationStartTime = Time.time;
         fadingIn = true;
+        data.player.position = firstPage.lerpTarget.position + new Vector3(0, 10, 0);
+        data.player.rotation = firstPage.lerpTarget.rotation;
+        data.cameraControls.CameraHolder.position = firstPage.transform.position;
+        data.cameraControls.CameraHolder.rotation = firstPage.transform.rotation;
+
+        data.state.reincarnationNumber++;
+        theFall.EnterOuter();
+        theFall.EnterInner();
+        theFall.StartStory();
+
+
 
     }
 
@@ -52,7 +65,7 @@ public class Reincarnator : MonoBehaviour
         fadingOut = false;
         reincarnating = false;
     }
-    public void Update()
+    public override void WhileLiving(float val)
     {
 
 

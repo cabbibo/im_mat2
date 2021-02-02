@@ -7,30 +7,43 @@ public class ToggleObjects : MonoBehaviour
     public GameObject[] meshes;
     public Cycle[] cycles;
 
-    public void TurnOff(){
-      for(int i = 0; i < meshes.Length; i++ ){
-        meshes[i].SetActive(false);
-      }
+    public void TurnOff()
+    {
+        for (int i = 0; i < meshes.Length; i++)
+        {
 
-      for( int i = 0; i < cycles.Length; i++ ){
-        cycles[i]._Deactivate();
-      }
+            if (meshes[i] == null)
+            {
+
+                print(gameObject);
+                print("YOOOOO");
+            }
+            meshes[i].SetActive(false);
+        }
+
+        for (int i = 0; i < cycles.Length; i++)
+        {
+            cycles[i]._Deactivate();
+        }
 
 
-     // print("TURNING OFF");
+        // print("TURNING OFF");
     }
 
-    public void TurnOn(){
-      for(int i = 0; i < meshes.Length; i++ ){
-        meshes[i].SetActive(true);
-      }
-    
+    public void TurnOn()
+    {
+        for (int i = 0; i < meshes.Length; i++)
+        {
+            meshes[i].SetActive(true);
+        }
 
-      for( int i = 0; i < cycles.Length; i++ ){
 
-        cycles[i]._Activate();
-      }
-    
-      //print("TURNING ON");
+        for (int i = 0; i < cycles.Length; i++)
+        {
+
+            cycles[i]._Activate();
+        }
+
+        //print("TURNING ON");
     }
 }
