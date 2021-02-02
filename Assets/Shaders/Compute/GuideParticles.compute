@@ -114,6 +114,30 @@ float3 ring( float id, float3 x , float3 y , float r ){
 
 }
 
+
+float3 ring( float id, float3 x , float3 y , float r , float aStart, float aSize ){
+
+  float a = (hash(id*100) * aSize + aStart) * 6.28;
+
+  float3 p = r*(sin( a )*x -cos(a)*y);
+
+  return p; 
+}
+
+
+float3 ringXZFull( float id , float r, float aStart, float aSize ){
+  float3 x = float3(1,0,0);//normalize(_Frame1 - _Frame2);
+  float3 y = float3(0,0,1);//normalize(_Frame4 - _Frame2);
+
+
+  float a = (hash(id*100) * aSize + aStart) * 6.28;
+
+  float3 p = r * hash(id * 1213) *(sin( a )*x -cos(a)*y);
+
+  return p; 
+
+}
+
 float4x4 rotation(float3 axis, float angle)
 {
     axis = normalize(axis);
@@ -424,7 +448,7 @@ void SourceClose(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID) {
    // float3 pos = float3(vert.uv.x/_MapSize,0, vert.uv.y/_MapSize );
     float p = float(pID);
     
-    float3 r = ringXZFull(p,5.6);
+    float3 r = ringXZFull(p,5.6 , .7,.8);
 
  
     

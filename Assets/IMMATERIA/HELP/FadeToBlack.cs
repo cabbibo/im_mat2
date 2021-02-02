@@ -1,51 +1,80 @@
 ﻿using UnityEngine;
- 
+
 
 [ExecuteInEditMode]
 public class FadeToBlack : MonoBehaviour
 {
     public AnimationCurve FadeCurve = new AnimationCurve(new Keyframe(0, 1), new Keyframe(0.6f, 0.7f, -1.8f, -1.2f), new Keyframe(1, 0));
- 
-    private float _alpha = 1;
-    private Texture2D _texture;
-    private bool _done;
-    private float _time;
+
     private Material _material;
- 
-    public void Reset()
+
+
+    public void OnEnable()
     {
-        _done = false;
-        _alpha = 1;
-        _time = 0;
-    }
-    public void OnEnable(){
 
         _material = GetComponent<Renderer>().sharedMaterial;
 
-        _material.SetColor("_Color",new Color(0, 0, 0, 0));
-        _done = true;
+        _material.SetColor("_Color", new Color(0, 0, 0, 0));
+
+        fadeColor = new Color(0, 0, 0, 1); ;
+        currentOpacity = 1;
+        startOpacity = 1;
+        fadeOpacity = 0;
+        FadeIn(5);
+
     }
-    public void RedoFade()
+
+
+    public bool fading;
+    public float fadeStartTime;
+    public float fadeSpeed;
+    public float fadeOpacity;
+    public Color fadeColor;
+
+    public float startOpacity;
+    public float currentOpacity;
+
+    public void FadeOut(Color color, float time)
     {
-        Reset();
+
+        fading = true;
+        fadeStartTime = Time.time;
+        fadeSpeed = time;
+        fadeColor = color;
+        fadeOpacity = 1;
+        startOpacity = currentOpacity;
+
     }
- 
+
+    public void FadeIn(float time)
+    {
+
+        fading = true;
+        fadeStartTime = Time.time;
+        fadeSpeed = time;
+        fadeOpacity = 0;
+        startOpacity = currentOpacity;
+
+    }
+
     public void Update()
     {
-        if (_done) return;
 
+        if (fading == true)
+        {
 
-        
-        
- 
-        _time += Time.deltaTime * .1f;
-        _alpha = FadeCurve.Evaluate(Mathf.Clamp(_time-.5f , 0 , 1));
+            float v = (Time.time - fadeStartTime) / fadeSpeed;
+            if (v >= 1)
+            {
+                fading = false;
+            }
+            else
+            {
+                currentOpacity = Mathf.Lerp(fadeOpacity, startOpacity, FadeCurve.Evaluate(v));
+                _material.SetColor("_Color", new Color(fadeColor.r, fadeColor.g, fadeColor.b, currentOpacity));
+            }
 
-        //print(_alpha);
+        }
 
-        _material.SetColor("_Color",new Color(0, 0, 0, 1-_alpha));
-        //_material.SetColor("_Color",new Color(1, 0, 0, 1));
- 
-        if (_alpha <= 0) _done = true;
     }
 }

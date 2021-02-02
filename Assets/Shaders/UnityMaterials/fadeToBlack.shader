@@ -10,7 +10,7 @@
     SubShader
     {
         // inside SubShader
-Tags { "Queue"="Transparent+3" "RenderType"="Transparent" "IgnoreProjector"="True" }
+        Tags { "Queue"="Transparent+3" "RenderType"="Transparent" "IgnoreProjector"="True" }
 
         LOD 100
 
@@ -18,9 +18,9 @@ Tags { "Queue"="Transparent+3" "RenderType"="Transparent" "IgnoreProjector"="Tru
         {
 
 
-// inside Pass
-ZWrite On
-Blend SrcAlpha OneMinusSrcAlpha
+            // inside Pass
+            ZWrite On
+            Blend SrcAlpha OneMinusSrcAlpha
             CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag
@@ -59,9 +59,9 @@ Blend SrcAlpha OneMinusSrcAlpha
             fixed4 frag (v2f i) : SV_Target
             {
                 // sample the texture
-                fixed4 col;
-                col.xyz = (1-tex2D(_MainTex,i.uv * float2(2,2) - .5).xyz);
-                col.a = _Color.a;
+                fixed4 col = _Color;
+                // col.xyz = _Color;(1-tex2D(_MainTex,i.uv * float2(2,2) - .5).xyz);
+                // col.a = _Color.a;
                 return col;
             }
             ENDCG

@@ -1,5 +1,6 @@
 ﻿#pragma kernel Transfer
 #pragma kernel TransferFlat
+#pragma kernel TransferFlat2
 
 struct Vert{
     float3 pos;
@@ -115,3 +116,51 @@ int power = 4;
    _VertBuffer[pID] = v;
 
 }
+
+
+
+
+float3 _WorldPos;
+#define NR_THREADS 128
+[numthreads(NR_THREADS,1,1)]
+void TransferFlat2 (uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID) {
+
+    int pID = threadID + u3GroupID.x * NR_THREADS;
+
+    int particleID = pID;
+
+
+    Vert v = _VertBuffer[safeID(particleID,_VertBuffer_COUNT)];
+
+
+    float3 inputPos = v.ogPos;
+    float tVal = (1-v.uv.y);
+    tVal = 3 * ( tVal * tVal ) - 2 * ( tVal * tVal * tVal );
+    inputPos.x *= tVal + .3;
+    inputPos.y -= v.uv.y * .6;
+
+    float4 vWorld =   mul(_TransformBase, float4(inputPos,1));//terrainWorldPos( v.vertex ) - float4(0,0,_Vertical,0);
+
+int power = 4;
+        float lerpVal =  saturate(max( pow(abs(v.uv.y-.5) * 2.2 , power) , pow(abs(v.uv.x-.5) * 2.2 , power)));
+        float3 nor = getNormal( vWorld);
+    float3 fPos = worldPos( vWorld ) -nor;
+
+    /* normalize(cross( 
+            normalize( tPos( vWorld + float3(.1,0,0) , v.uv ) - tPos( vWorld - float3(.1,0,0) , v.uv )), 
+            normalize( tPos( vWorld + float3(0,0,.1) , v.uv ) - tPos( vWorld - float3(0,0,.1) , v.uv )) ));
+*/
+
+
+if( fPos.y > _WorldPos.y-1 ){
+    fPos.y = _WorldPos.y-1;
+}
+   v.pos = fPos;
+   v.nor = nor;
+
+
+   _VertBuffer[pID] = v;
+
+}
+
+
