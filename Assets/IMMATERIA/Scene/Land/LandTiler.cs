@@ -5,314 +5,353 @@ using UnityEngine;
 public class LandTiler : Cycle
 {
 
-  public bool alwaysRespawn;
-  public LandTile[] Tiles;
+    public bool alwaysRespawn;
+    public LandTile[] Tiles;
 
-  public float tileSize;
-
-
-  public Life setTile;
+    public float tileSize;
 
 
-
-  public GameObject landTilePrefab;
-
-  public GameObject midQualityTilePrefab;
-  public GameObject lowQualityTilePrefab;
+    public Life setTile;
 
 
 
-  public int numTiles;
-  public int tileDimensions;
-  public int lowTileDimensions;
-  public int midTileDimensions;
+    public GameObject landTilePrefab;
 
-  public int idX;
-  public int idY;
-
-  public int oIDX;
-  public int oIDY;
-
-  public int currentCenterX;
-  public int currentCenterY;
-
-  public Material terrainMaterial;
+    public GameObject midQualityTilePrefab;
+    public GameObject lowQualityTilePrefab;
 
 
 
-  public Vector3 _Offset;
-  public int _ID;
+    public int numTiles;
+    public int tileDimensions;
+    public int lowTileDimensions;
+    public int midTileDimensions;
 
-  public GameObject[]  tileObjects;
+    public int idX;
+    public int idY;
 
-  public bool constantUpdate;
+    public int oIDX;
+    public int oIDY;
 
-  private float hT; // halfTile
-  private float t; // tile
+    public int currentCenterX;
+    public int currentCenterY;
 
-  public void DestroyMe(){
-    if( Tiles != null ){
-    for( int i=0; i < Tiles.Length; i++ ){
-
-          Cycles.Remove(tileObjects[i].GetComponent<LandTile>());
-          DestroyImmediate(tileObjects[i]);
-
-
-    }
-
-    Cycles.Remove(setTile );
-    Tiles = null;
-  }
-  }
+    public Material terrainMaterial;
 
 
 
-  public override void Create(){
+    public Vector3 _Offset;
+    public int _ID;
 
-    //print("OnCreate");
-    //print( landTilePrefab );
-    //print( landTilePrefab.GetComponent<LandTile>() );
-    //print( landTilePrefab.GetComponent<LandTile>().verts );
+    public GameObject[] tileObjects;
 
-    currentCenterX = 1;
-    currentCenterY = 1;
+    public bool constantUpdate;
 
-    tileSize = 1/(numTiles *data.land.size);
-    t = tileSize  * 3;
-        hT = t/2;
+    private float hT; // halfTile
+    private float t; // tile
 
-    if( Tiles.Length != 3 * 3  || Tiles == null || alwaysRespawn ){
-      
-    Cycles.Clear();
-      DestroyMe();
+    public void DestroyMe()
+    {
+        if (Tiles != null)
+        {
+            for (int i = 0; i < Tiles.Length; i++)
+            {
 
-        Tiles = new LandTile[3 * 3 ];
-        tileObjects = new GameObject[3 * 3 ];
+                Cycles.Remove(tileObjects[i].GetComponent<LandTile>());
+                DestroyImmediate(tileObjects[i]);
 
-        
-  
-        Tiles = new LandTile[3 * 3 ];
-        
-        
-        for( int i = 0; i < 3; i++ ){
-          for( int j = 0; j < 3; j++ ){
 
-            int id = i * 3 + j;
-            GameObject g = Instantiate( landTilePrefab );
-            g.transform.parent = transform;
-            tileObjects[id] = g;
+            }
 
-            Tiles[id]= g.GetComponent<LandTile>();
-            Tiles[id].size = tileSize;
-            Tiles[id].dimensions = tileDimensions;
-            Tiles[id].tiler = this;
-
-            SafeInsert(g.GetComponent<LandTile>());
-
-          }
+            Cycles.Remove(setTile);
+            Tiles = null;
         }
-      
-
-      SafeInsert(setTile);
-   
-  }   
-
-  for( int i = 0; i < Tiles.Length; i++ ){
-        _ID = i;
-
-        _Offset = -Vector3.left * ((i%3)+.5f) * tileSize;
-        _Offset += Vector3.forward * ((float)(i/3) + .5f) * tileSize;
-
-        tileObjects[i].transform.position = Vector3.zero + _Offset;
     }
 
-  }
 
-  public override void Bind(){
-    data.BindLandData( setTile );
-    
-    setTile.BindVector3("_Offset", () => this._Offset );
-    setTile.BindInt("_ID", () => this._ID );
- 
-  }
 
-  public override void OnLive(){
+    public override void Create()
+    {
 
-    for( int i = 0; i < Tiles.Length; i++ ){
-      _Offset = tileObjects[i].transform.position;
-      _ID = i;
-      OffsetTile(i);
+        //print("OnCreate");
+        //print( landTilePrefab );
+        //print( landTilePrefab.GetComponent<LandTile>() );
+        //print( landTilePrefab.GetComponent<LandTile>().verts );
+
+        currentCenterX = 1;
+        currentCenterY = 1;
+
+        tileSize = 1 / (numTiles * data.land.size);
+        t = tileSize * 3;
+        hT = t / 2;
+
+        if (Tiles.Length != 3 * 3 || Tiles == null || alwaysRespawn)
+        {
+
+            Cycles.Clear();
+            DestroyMe();
+
+            Tiles = new LandTile[3 * 3];
+            tileObjects = new GameObject[3 * 3];
+
+
+
+            Tiles = new LandTile[3 * 3];
+
+
+            for (int i = 0; i < 3; i++)
+            {
+                for (int j = 0; j < 3; j++)
+                {
+
+                    int id = i * 3 + j;
+                    GameObject g = Instantiate(landTilePrefab);
+                    g.transform.parent = transform;
+                    tileObjects[id] = g;
+
+                    Tiles[id] = g.GetComponent<LandTile>();
+                    Tiles[id].size = tileSize;
+                    Tiles[id].dimensions = tileDimensions;
+                    Tiles[id].tiler = this;
+
+                    SafeInsert(g.GetComponent<LandTile>());
+
+                }
+            }
+
+
+            SafeInsert(setTile);
+
+        }
+
+        for (int i = 0; i < Tiles.Length; i++)
+        {
+            _ID = i;
+
+            _Offset = -Vector3.left * ((i % 3) + .5f) * tileSize;
+            _Offset += Vector3.forward * ((float)(i / 3) + .5f) * tileSize;
+
+            tileObjects[i].transform.position = Vector3.zero + _Offset;
+        }
+
     }
-  }
+
+    public override void Bind()
+    {
+        data.BindLandData(setTile);
+
+        setTile.BindVector3("_Offset", () => this._Offset);
+        setTile.BindInt("_ID", () => this._ID);
+
+    }
+
+    public override void OnLive()
+    {
+
+        for (int i = 0; i < Tiles.Length; i++)
+        {
+            _Offset = tileObjects[i].transform.position;
+            _ID = i;
+            OffsetTile(i);
+        }
+    }
 
     // Use this for initialization
-  public override void WhileLiving (float l) {
+    public override void WhileLiving(float l)
+    {
 
 
-    //Vector3 oPos;
+        //Vector3 oPos;
 
-//    print(data.playerPosition);
-    oIDX = idX;
-    oIDY = idY;
-
-
-    idX = (int)Mathf.Floor(data.playerPosition.x / tileSize );
-    idY = (int)Mathf.Floor(data.playerPosition.z / tileSize );
+        //    print(data.playerPosition);
+        oIDX = idX;
+        oIDY = idY;
 
 
-    if( currentCenterX != idX ){
-      if( idX > currentCenterX ){
-        ShiftLeft();
-      }else{
-        ShiftRight();
-      }
-    }
+        idX = (int)Mathf.Floor(data.playerPosition.x / tileSize);
+        idY = (int)Mathf.Floor(data.playerPosition.z / tileSize);
 
 
-     if( currentCenterY != idY ){
-      if( idY > currentCenterY ){
-        ShiftForward();
-      }else{
-        ShiftBack();
-      }
-    }
-
-
-
-
-
-/*
-
-    for( int i = 0; i < Tiles.Length; i++ ){
-
-
-
-//  print("s");
-       oPos = tileObjects[i].transform.position;
-
-         _ID = i;
-         _Offset = Vector3.zero;
-
-      if( data.playerPosition.x - tileObjects[i].transform.position.x < -hT   ){     
-        _Offset += -Vector3.right * t;
-        tileObjects[i].transform.position += _Offset;
-      }
-
-      if( data.playerPosition.x - tileObjects[i].transform.position.x > hT   ){
-        _Offset += Vector3.right * t;
-        tileObjects[i].transform.position += _Offset;
-      }
-
-
-      if( data.playerPosition.z - tileObjects[i].transform.position.z < -hT   ){        
-        _Offset += -Vector3.forward * t;
-        tileObjects[i].transform.position += _Offset;
-      }
-
-      if( data.playerPosition.z - tileObjects[i].transform.position.z > hT   ){
-         _Offset += Vector3.forward * t;
-        tileObjects[i].transform.position += _Offset;
-  
-      }
-
-      _Offset = tileObjects[i].transform.position;
-
-
-      if( constantUpdate ){
-        OffsetTile(i);
-      }else{
-        //_Offset = tileObjects[i].transform.position;
-        if( oPos != tileObjects[i].transform.position ){
-          OffsetTile(i);
+        if (currentCenterX != idX)
+        {
+            if (idX > currentCenterX)
+            {
+                ShiftLeft();
+            }
+            else
+            {
+                ShiftRight();
+            }
         }
-      }
-    }*/
-    
-  }
 
 
-  void ShiftLeft(){
+        if (currentCenterY != idY)
+        {
+            if (idY > currentCenterY)
+            {
+                ShiftForward();
+            }
+            else
+            {
+                ShiftBack();
+            }
+        }
 
-currentCenterX ++;
 
-    for( int i = 0; i < 3*3; i++ ){
 
-       if( tileObjects[i].transform.position.x - data.player.position.x < -hT ){ 
-        tileObjects[i].transform.position -= Vector3.left * t; 
-        OffsetTile(i);
-    
-      }
+
+
+        /*
+
+            for( int i = 0; i < Tiles.Length; i++ ){
+
+
+
+        //  print("s");
+               oPos = tileObjects[i].transform.position;
+
+                 _ID = i;
+                 _Offset = Vector3.zero;
+
+              if( data.playerPosition.x - tileObjects[i].transform.position.x < -hT   ){     
+                _Offset += -Vector3.right * t;
+                tileObjects[i].transform.position += _Offset;
+              }
+
+              if( data.playerPosition.x - tileObjects[i].transform.position.x > hT   ){
+                _Offset += Vector3.right * t;
+                tileObjects[i].transform.position += _Offset;
+              }
+
+
+              if( data.playerPosition.z - tileObjects[i].transform.position.z < -hT   ){        
+                _Offset += -Vector3.forward * t;
+                tileObjects[i].transform.position += _Offset;
+              }
+
+              if( data.playerPosition.z - tileObjects[i].transform.position.z > hT   ){
+                 _Offset += Vector3.forward * t;
+                tileObjects[i].transform.position += _Offset;
+
+              }
+
+              _Offset = tileObjects[i].transform.position;
+
+
+              if( constantUpdate ){
+                OffsetTile(i);
+              }else{
+                //_Offset = tileObjects[i].transform.position;
+                if( oPos != tileObjects[i].transform.position ){
+                  OffsetTile(i);
+                }
+              }
+            }*/
+
     }
 
 
-  }
-  void ShiftRight(){
+    void ShiftLeft()
+    {
 
-    currentCenterX --;
+        currentCenterX++;
 
-    for( int i = 0; i < 3*3; i++ ){
+        for (int i = 0; i < 3 * 3; i++)
+        {
 
-      if( tileObjects[i].transform.position.x - data.player.position.x > hT ){ 
-        tileObjects[i].transform.position += Vector3.left * t; 
-        OffsetTile(i);
-      }
+            if (tileObjects[i].transform.position.x - data.player.position.x < -hT)
+            {
+                tileObjects[i].transform.position -= Vector3.left * t;
+                OffsetTile(i);
+
+            }
+        }
+
+
+    }
+    void ShiftRight()
+    {
+
+        currentCenterX--;
+
+        for (int i = 0; i < 3 * 3; i++)
+        {
+
+            if (tileObjects[i].transform.position.x - data.player.position.x > hT)
+            {
+                tileObjects[i].transform.position += Vector3.left * t;
+                OffsetTile(i);
+            }
+        }
+
+
+    }
+
+    void ShiftBack()
+    {
+
+        currentCenterY--;
+
+        for (int i = 0; i < 3 * 3; i++)
+        {
+
+            if (tileObjects[i].transform.position.z - data.player.position.z > hT)
+            {
+                tileObjects[i].transform.position -= Vector3.forward * t;
+                OffsetTile(i);
+            }
+        }
+
+
+    }
+
+    void ShiftForward()
+    {
+
+
+        currentCenterY++;
+        for (int i = 0; i < 3 * 3; i++)
+        {
+
+            if (tileObjects[i].transform.position.z - data.player.position.z < -hT)
+            {
+                tileObjects[i].transform.position += Vector3.forward * t;
+                OffsetTile(i);
+            }
+        }
+
+
+    }
+
+    public void OffsetTile(int i)
+    {
+        Tiles[i].Set();
+    }
+
+    public void ToggleWater()
+    {
+        for (int i = 0; i < Tiles.Length; i++)
+        {
+            Tiles[i].water.active = !Tiles[i].water.active;
+        }
     }
 
 
-  }
-
-  void ShiftBack(){
-
-currentCenterY --;
-
-    for( int i = 0; i < 3*3; i++ ){
-
-      if( tileObjects[i].transform.position.z - data.player.position.z > hT ){ 
-        tileObjects[i].transform.position -= Vector3.forward * t; 
-        OffsetTile(i);
-      }
+    public void ToggleWaterOff()
+    {
+        for (int i = 0; i < Tiles.Length; i++)
+        {
+            Tiles[i].water.active = false;
+        }
     }
 
 
-  }
-
-  void ShiftForward(){
-
-
-currentCenterY ++;
-     for( int i = 0; i < 3*3; i++ ){
-
-      if( tileObjects[i].transform.position.z - data.player.position.z < -hT ){ 
-        tileObjects[i].transform.position += Vector3.forward * t; 
-        OffsetTile(i);
-      }
+    public void ToggleWaterOn()
+    {
+        for (int i = 0; i < Tiles.Length; i++)
+        {
+            Tiles[i].water.active = true;
+        }
     }
-
-
-  }
-
-  public void OffsetTile(int i ){
-    Tiles[i].Set();
-  }
-
-  public void ToggleWater(){
-    for( int i = 0; i < Tiles.Length; i++ ){
-      Tiles[i].water.active = !Tiles[i].water.active;
-    } 
-  }
-
-
-public void ToggleWaterOff(){
-    for( int i = 0; i < Tiles.Length; i++ ){
-      Tiles[i].water.active = false;
-    } 
-  }
-
-
-public void ToggleWaterOn(){
-    for( int i = 0; i < Tiles.Length; i++ ){
-      Tiles[i].water.active = true;
-    } 
-  }
 
 }

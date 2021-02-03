@@ -413,9 +413,6 @@ public class State : Cycle
 
     public void SetterEnterOuter(StorySetter s)
     {
-
-        print("SETTER ENTERING OUTER");
-        print(s);
         oSetter = setter;
         setter = s;
         lastTimeStoryVisited = Time.time;
@@ -429,10 +426,6 @@ public class State : Cycle
 
     public void SetterExitOuter(StorySetter s)
     {
-
-        print("SETTER EXITING OUTER");
-        print(s);
-
         oSetter = setter;
         setter = null;
     }
