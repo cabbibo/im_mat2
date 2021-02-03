@@ -141,10 +141,10 @@ public class StorySetter : Cycle
         {
 
 
-            data.state.SetterEnterOuter(this);
 
             // Making sure that our story controller has the right story!
             data.journey.controller.EnterOuter(this);
+            data.state.SetterEnterOuter(this);
 
 
             // TODO: Make it so this is when the individual stories
@@ -166,14 +166,15 @@ public class StorySetter : Cycle
         if (currentStory < 0)
         {
             //This will happen if there is no story to be had!
-            //data.helper.NoCurrentStory();
+            data.helper.NoCurrentStory();
         }
         else
         {
 
-            print("HI IM ENTERING A STORYO");
+            print("Entering Inner");
             //using the page turn controller to set all the data!
             data.journey.controller.EnterInner(this);
+            data.state.SetterEnterInner(this);
 
             // Activating the settter, story and first page BUT NON RECURSIVELY!!!
             _Activate(false);
@@ -190,7 +191,7 @@ public class StorySetter : Cycle
         if (currentStory < 0)
         {
             //This will happen if there is no story to be had!
-            ///data.helper.NoCurrentStory();
+            data.helper.NoCurrentStory();
         }
         else
         {
@@ -206,7 +207,7 @@ public class StorySetter : Cycle
         if (currentStory < 0)
         {
             //This will happen if there is no story to be had!
-            //data.helper.NoCurrentStory();
+            data.helper.NoCurrentStory();
         }
         else
         {

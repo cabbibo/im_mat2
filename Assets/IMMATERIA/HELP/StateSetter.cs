@@ -33,6 +33,9 @@ public class StateSetter : MonoBehaviour
         for (int i = 0; i < storiesVisited.Length; i++)
         {
 
+            print(god.data.state.storiesVisited);
+            print(storiesVisited[i]);
+
             if (!god.data.state.storiesVisited.Contains(storiesVisited[i]))
             {
                 canStart = false;
@@ -51,7 +54,7 @@ public class StateSetter : MonoBehaviour
 
         }
 
-        print("INCARNATION NUMBER: " + god.data.state.reincarnationNumber);
+        //        print("INCARNATION NUMBER: " + god.data.state.reincarnationNumber);
         if (god.data.state.reincarnationNumber != reincarnationNumber)
         {
 

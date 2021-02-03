@@ -27,112 +27,125 @@ public class EpiphanyRing : Cycle
 
     public bool setting;
 
-    public override void Create(){
-      setting = false;
+    public override void Create()
+    {
+        setting = false;
 
-      //_Activate();
-      SafeInsert(body);
-      //SafeInsert(life);
+        //_Activate();
+        SafeInsert(body);
+        //SafeInsert(life);
 
-      for( int i = 0; i < rerenderers.Length; i++ ){
-        SafeInsert( rerenderers[i] );
-      }
-
-    }
-
-
-
-  public void SetGlowCircle(){
-
-      circle.body.mpb.SetFloat("_StartTime" , Time.time );
-      circle.body.mpb.SetFloat("_Setting" , 1 );
-
-      circle.body.mpb.SetFloat("_ScanTime" ,0 );
-
-
-      print( circle.body.mpb.GetFloat("_ScanTime"));
-  }
-
-    public void Set(){
-
-      print("SETTING");
-
-      data.sound.Play(epiphanyClip,1.0f,.3f);
-      
-
-      _Activate();
-      setting = true;
-
-      startTime = Time.time;
-
-      SetGlowCircle();
-
-      for( int i = 0; i < rerenderers.Length; i++ ){
-
-        rerenderers[i].mpb.SetFloat("_ID",i+1);
-        rerenderers[i].active = true;
-
-        rerenderers[i].mpb.SetFloat("_StartTime", Time.time );
-        rerenderers[i].mpb.SetVector("_SetPosition", transform.position );
-      }
-
-
-      scanRenderer.enabled = true;
-      data.sourceParticles.EmitOn();
-      print("ON");
+        for (int i = 0; i < rerenderers.Length; i++)
+        {
+            SafeInsert(rerenderers[i]);
+        }
 
     }
 
-    public override void Bind(){
-      
-      //life.BindFloat("_StartTime", () => this.startTime );
-      //life.BindVector3("_SetLocation", () => transform.position );
 
-      body.mpb.SetVector("_SetPosition", transform.position );
-      body.mpb.SetFloat("_StartTime", 10000*Time.time  );
-      body.active = false;
 
-      for( int i = 0; i < rerenderers.Length; i++ ){
-        rerenderers[i].mpb.SetFloat("_ID",i+1);
+    public void SetGlowCircle()
+    {
 
-        rerenderers[i].active = false;
-        rerenderers[i].mpb.SetFloat("_StartTime", 10000*Time.time );
-        rerenderers[i].mpb.SetVector("_SetPosition", transform.position );
-      }
-    } 
+        circle.body.mpb.SetFloat("_StartTime", Time.time);
+        circle.body.mpb.SetFloat("_Setting", 1);
 
-    public override void WhileLiving( float v ){
+        circle.body.mpb.SetFloat("_ScanTime", 0);
 
-      float scanTime = Time.time - startTime;
 
-      scanTime /= 10;
-      scanRenderer.sharedMaterial.SetFloat("_ScanTime", scanTime);
-      circle.body.mpb.SetFloat("_ScanTime" ,scanTime );
+        print(circle.body.mpb.GetFloat("_ScanTime"));
+    }
 
-      if( scanTime > .1 && setting ){
+    public void Set()
+    {
 
-        data.sourceParticles.EmitOff();
-      }
-      if( scanTime > 1 && setting ){
+        print("SETTING");
 
-        print("HERE IT IS");
-        circle._Deactivate();
+        data.sound.Play(epiphanyClip, 1.0f, .3f);
+
+
+        _Activate();
+        setting = true;
+
+        startTime = Time.time;
+
+        SetGlowCircle();
+
+        for (int i = 0; i < rerenderers.Length; i++)
+        {
+
+            rerenderers[i].mpb.SetFloat("_ID", i + 1);
+            rerenderers[i].active = true;
+
+            rerenderers[i].mpb.SetFloat("_StartTime", Time.time);
+            rerenderers[i].mpb.SetVector("_SetPosition", transform.position);
+        }
+
+
+        scanRenderer.enabled = true;
+        data.sourceParticles.EmitOn();
+        print("ON");
+
+    }
+
+    public override void Bind()
+    {
+
+        //life.BindFloat("_StartTime", () => this.startTime );
+        //life.BindVector3("_SetLocation", () => transform.position );
+
+        body.mpb.SetVector("_SetPosition", transform.position);
+        body.mpb.SetFloat("_StartTime", 10000 * Time.time);
+        body.active = false;
+
+        for (int i = 0; i < rerenderers.Length; i++)
+        {
+            rerenderers[i].mpb.SetFloat("_ID", i + 1);
+
+            rerenderers[i].active = false;
+            rerenderers[i].mpb.SetFloat("_StartTime", 10000 * Time.time);
+            rerenderers[i].mpb.SetVector("_SetPosition", transform.position);
+        }
+    }
+
+    public override void WhileLiving(float v)
+    {
+
+        float scanTime = Time.time - startTime;
+
+        scanTime /= 10;
+
+        scanRenderer.sharedMaterial.SetFloat("_ScanTime", scanTime);
+        circle.body.mpb.SetFloat("_ScanTime", scanTime);
+
+        if (scanTime > .1 && setting)
+        {
+
+            data.sourceParticles.EmitOff();
+        }
+        if (scanTime > 1 && setting)
+        {
+
+            print("HERE IT IS");
+            circle._Deactivate();
+            _Deactivate();
+            scanRenderer.enabled = false;
+        }
+    }
+
+
+    public void UnSet()
+    {
+        //circle._Activate();
         _Deactivate();
-        scanRenderer.enabled = false;
-      }
-    }
-
-
-    public void UnSet(){
-      //circle._Activate();
-      _Deactivate();
 
         scanRenderer.enabled = false;
         data.sourceParticles.EmitOff();
     }
 
-    public override void Activate(){
-      //print("ACTIVATOD");
+    public override void Activate()
+    {
+        //print("ACTIVATOD");
     }
 
 }

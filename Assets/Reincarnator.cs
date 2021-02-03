@@ -26,6 +26,15 @@ public class Reincarnator : Cycle
     public bool fadingOut;
     public bool fadingIn;
 
+    int nextFrame;
+    bool rebirthing;
+
+    public override void Create()
+    {
+        nextFrame = 100000;
+        rebirthing = false;
+    }
+
     public void Reincarnate()
     {
         print("Reincarnating");
@@ -39,23 +48,41 @@ public class Reincarnator : Cycle
 
     public void Rebirth()
     {
+
+        data.journey.controller.NextPage();
         fadingOut = false;
         print("Rebirthiing");
         fader.FadeIn(fadeInTime);
         reincarnating = true;
         reincarnationStartTime = Time.time;
         fadingIn = true;
+
         data.player.position = firstPage.lerpTarget.position + new Vector3(0, 10, 0);
         data.player.rotation = firstPage.lerpTarget.rotation;
         data.cameraControls.CameraHolder.position = firstPage.transform.position;
         data.cameraControls.CameraHolder.rotation = firstPage.transform.rotation;
 
+
         data.state.reincarnationNumber++;
+        nextFrame = 0;
+        rebirthing = true;
+
+
+
+
+
+    }
+
+
+    // Need to do this 1 frame later
+    // so that we will have already exited our previous 
+    public void NextFrame()
+    {
         theFall.EnterOuter();
         theFall.EnterInner();
         theFall.StartStory();
-
-
+        rebirthing = false;
+        nextFrame = 1000;
 
     }
 
@@ -88,6 +115,13 @@ public class Reincarnator : Cycle
                 Finished();
             }
         }
+
+
+        if (nextFrame == 1 && rebirthing == true)
+        {
+            NextFrame();
+        }
+        nextFrame++;
 
     }
 
