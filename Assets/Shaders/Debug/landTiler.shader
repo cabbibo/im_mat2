@@ -110,7 +110,7 @@ Shader "Debug/LandTileRing" {
 
                 
 
-                float3 worldPos = float3((_Center.x) * _Size , 0 , (_Center.y)  * _Size );
+                float3 worldPos = float3((_Center.x+.5 + (.5/float(_TileDimensions))) * _Size , 0 , (_Center.y+.5+ (.5/float(_TileDimensions)))  * _Size );
 
                 if( alternate == 0 || alternate == 3 ){
                     x += 0/float(_TileDimensions);
@@ -127,10 +127,13 @@ Shader "Debug/LandTileRing" {
                 }
                 
 
+                float _Extra = (_RingSize/3)-_Size;
+                
 
 
-                worldPos += (x- (2/3)) * _RingSize * float3( 1,0,0);
-                worldPos += (y- (2/3)) * _RingSize * float3( 0,0,1);
+
+                worldPos += (x-.5) * _RingSize * float3( 1,0,0);
+                worldPos += (y-.5) * _RingSize * float3( 0,0,1);
 
                 worldPos = terrainWorldPos(worldPos);
                 o.uv = (float2(x,y) + 1) / 3;

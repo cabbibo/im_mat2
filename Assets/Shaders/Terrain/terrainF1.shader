@@ -12,7 +12,6 @@
     _HueStart("_HueStart",float) = 0
     _PlayerFalloff("_PlayerFalloff",float) = 0
     
-    [Toggle(Enable12Struct)] _Struct12("12 Struct", Float) = 0
   }
 
   SubShader {
@@ -24,10 +23,10 @@
 
 
       Stencil {
-            Ref 1
-            Comp Always 
-            Pass Replace
-        }
+        Ref 1
+        Comp Always 
+        Pass Replace
+      }
 
       CGPROGRAM
       #pragma target 4.5
@@ -37,15 +36,15 @@
 
       #include "UnityCG.cginc"
       #include "AutoLight.cginc"
-    
-    struct Vert{
-      float3 pos;
-      float3 vel;
-      float3 nor;
-      float3 tan;
-      float2 uv;
-      float2 debug;
-    };
+      
+      struct Vert{
+        float3 pos;
+        float3 vel;
+        float3 nor;
+        float3 tan;
+        float2 uv;
+        float2 debug;
+      };
 
       #include "../Chunks/hsv.cginc"
       #include "../Chunks/noise.cginc"
@@ -63,12 +62,12 @@
       samplerCUBE _CubeMap;
 
 
-  StructuredBuffer<Vert> _VertBuffer;
-  StructuredBuffer<int> _TriBuffer;
+      StructuredBuffer<Vert> _VertBuffer;
+      StructuredBuffer<int> _TriBuffer;
 
 
 
-#include "../Chunks/ComputeTerrainInfo.cginc"
+      #include "../Chunks/ComputeTerrainInfo.cginc"
 
 
 
@@ -116,32 +115,32 @@
 
 
 
-#include "../Chunks/GetFullColor.cginc"
+      #include "../Chunks/GetFullColor.cginc"
       float4 frag(varyings v) : COLOR {
 
-       float4 color = tex2D(_MainTex,v.worldPos.xz * .1 );
+        float4 color = tex2D(_MainTex,v.worldPos.xz * .1 );
         float4 hCol = sampleColor(v.worldPos );
 
         float3 fNor = normalize(float3(
-            2*noise(v.worldPos* 2 )-1,
-            2*noise(v.worldPos* 2 +50)-1,
-            2*noise(v.worldPos* 2 +20 )-1
+        2*noise(v.worldPos* 2 )-1,
+        2*noise(v.worldPos* 2 +50)-1,
+        2*noise(v.worldPos* 2 +20 )-1
         ));
 
         fNor += 2*normalize(float3(
-            2*noise(v.worldPos* .4 )-1,
-            2*noise(v.worldPos* .4 +50)-1,
-            2*noise(v.worldPos* .4 +20 )-1
+        2*noise(v.worldPos* .4 )-1,
+        2*noise(v.worldPos* .4 +50)-1,
+        2*noise(v.worldPos* .4 +20 )-1
         ));
 
         fNor += .4 * normalize(float3(
-            2*noise(v.worldPos* 10 )-1,
-            2*noise(v.worldPos* 10 +50)-1,
-            2*noise(v.worldPos* 10 +20 )-1
+        2*noise(v.worldPos* 10 )-1,
+        2*noise(v.worldPos* 10 +50)-1,
+        2*noise(v.worldPos* 10 +20 )-1
         ));
 
         fNor = tex2D(_NormalMap , v.worldPos.xz * .04 );
-       // fNor += 2*v.nor;
+        // fNor += 2*v.nor;
         
 
         fNor = normalize(v.nor * fNor.z + float3(1,0,0) * (fNor.x)  + float3(0,0,1) * (fNor.y-.5));//normalize( fNor );
@@ -151,11 +150,11 @@
         glint = normalize((glint)-1);
 
         float eyeM = abs(dot(fNor, normalize(v.eye)));
-    
+        
         fixed shadow = UNITY_SHADOW_ATTENUATION(v,v.worldPos)  ;
-float dif = length( v.worldPos - _PlayerPosition );
+        float dif = length( v.worldPos - _PlayerPosition );
 
-float l = saturate( (_PlayerFalloff-dif)/_PlayerFalloff);
+        float l = saturate( (_PlayerFalloff-dif)/_PlayerFalloff);
         color.xyz = .4*pow(length(color.xyz),4);
 
         float match = dot( fNor, _WorldSpaceLightPos0 );
@@ -205,7 +204,7 @@ float l = saturate( (_PlayerFalloff-dif)/_PlayerFalloff);
     }
 
 
-   // SHADOW PASS
+    // SHADOW PASS
 
     Pass
     {
@@ -231,7 +230,7 @@ float l = saturate( (_PlayerFalloff-dif)/_PlayerFalloff);
       #include "../Chunks/Struct16.cginc"
       #include "../Chunks/ShadowCasterPos.cginc"
       #include "../Chunks/noise.cginc"
-   
+      
 
       StructuredBuffer<Vert> _VertBuffer;
       StructuredBuffer<int> _TriBuffer;
@@ -268,7 +267,7 @@ float l = saturate( (_PlayerFalloff-dif)/_PlayerFalloff);
 
       ENDCG
     }
-  
+    
 
 
   }

@@ -1,4 +1,5 @@
 ﻿#pragma kernel Transfer
+#pragma kernel SkirtTransfer
 
 struct Vert{
   float3 pos;
@@ -58,6 +59,91 @@ void Transfer (uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID) {
     v.pos.y = 0;
     v.nor = getNormal( v.pos );
     v.pos = worldPos(v.pos) ;
+
+    _VertBuffer[pID] =  v;
+
+  }
+
+}
+
+
+
+float _WhichGrid;
+float _Size;
+float _RingSize;
+int _TileDimensions;
+int _CenterX;
+int _CenterY;
+
+
+
+#define NR_THREADS 128
+[numthreads(NR_THREADS,1,1)]
+void SkirtTransfer (uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID) {
+
+  int pID = safeID( threadID + u3GroupID.x * NR_THREADS , _VertBuffer_COUNT );
+
+  if( pID < _VertBuffer_COUNT ){
+    
+    Vert v = _VertBuffer[pID];
+
+
+    float3 centerPos = float3((float(_CenterX)+.5 + (.5/float(_TileDimensions))) * _Size , 0 , (float(_CenterY)+.5+ (.5/float(_TileDimensions)))  * _Size );
+    float x;
+    float y;
+
+  int whichGrid = int(v.debug.y);
+
+
+    if( whichGrid == 0){
+        x = -1;
+        y = -1;
+    }
+
+    if( whichGrid == 1 ){
+        x = 0;
+        y = -1;
+    }
+
+    if( whichGrid == 2 ){
+        x = 1;
+        y = -1;
+    }
+
+    if( whichGrid == 3 ){
+        x = -1;
+        y = 0;
+    }
+    
+    if( whichGrid == 4 ){
+        x = 1;
+        y = 0;
+    }
+
+
+    if( whichGrid == 5){
+        x = -1;
+        y = 1;
+    }
+
+    if( whichGrid == 6 ){
+        x = 0;
+        y = 1;
+    }
+
+    if( whichGrid == 7 ){
+        x = 1;
+        y = 1;
+    }
+
+    x += v.uv.x;
+    y += v.uv.y;
+
+    centerPos += (x-.5) * _RingSize * float3( 1,0,0);
+    centerPos += (y-.5) * _RingSize * float3( 0,0,1);
+
+    v.pos = worldPos(centerPos); 
+    v.nor = getNormal( v.pos );
 
     _VertBuffer[pID] =  v;
 

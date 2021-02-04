@@ -8,10 +8,13 @@ public class LandTiler : Cycle
     public bool alwaysRespawn;
     public LandTile[] Tiles;
 
+    public LandSkirt[] skirts;
+
     public float tileSize;
 
 
     public Life setTile;
+    public Life setSkirt;
 
 
 
@@ -50,6 +53,8 @@ public class LandTiler : Cycle
     private float hT; // halfTile
     private float t; // tile
 
+    public float ringSize;
+    public int whichGrid;
     public void DestroyMe()
     {
         if (Tiles != null)
@@ -134,6 +139,14 @@ public class LandTiler : Cycle
             tileObjects[i].transform.position = Vector3.zero + _Offset;
         }
 
+
+        for (int i = 0; i < skirts.Length; i++)
+        {
+            SafeInsert(skirts[i]);
+        }
+
+        SafeInsert(setSkirt);
+
     }
 
     public override void Bind()
@@ -142,6 +155,14 @@ public class LandTiler : Cycle
 
         setTile.BindVector3("_Offset", () => this._Offset);
         setTile.BindInt("_ID", () => this._ID);
+
+        data.BindLandData(setSkirt);
+        setSkirt.BindFloat("_WhichGrid", () => this.whichGrid);
+        setSkirt.BindFloat("_Size", () => this.tileSize);
+        setSkirt.BindFloat("_RingSize", () => this.ringSize);
+        setSkirt.BindInt("_TileDimensions", () => this.tileDimensions);
+        setSkirt.BindInt("_CenterX", () => this.currentCenterX);
+        setSkirt.BindInt("_CenterY", () => this.currentCenterY);
 
     }
 
@@ -171,16 +192,18 @@ public class LandTiler : Cycle
         idX = (int)Mathf.Floor(data.playerPosition.x / tileSize);
         idY = (int)Mathf.Floor(data.playerPosition.z / tileSize);
 
-
+        bool hasChanged = false;
         if (currentCenterX != idX)
         {
             if (idX > currentCenterX)
             {
                 ShiftLeft();
+                hasChanged = true;
             }
             else
             {
                 ShiftRight();
+                hasChanged = true;
             }
         }
 
@@ -190,13 +213,20 @@ public class LandTiler : Cycle
             if (idY > currentCenterY)
             {
                 ShiftForward();
+                hasChanged = true;
             }
             else
             {
                 ShiftBack();
+                hasChanged = true;
             }
         }
 
+
+        if (hasChanged)
+        {
+            SetSkirts();
+        }
 
 
 
@@ -352,6 +382,26 @@ public class LandTiler : Cycle
         {
             Tiles[i].water.active = true;
         }
+    }
+
+    public void SetSkirts()
+    {
+        for (int i = 0; i < skirts.Length; i++)
+        {
+            SetSkirt(i);
+        }
+    }
+
+    public void SetSkirt(int which)
+    {
+
+        ringSize = tileSize * Mathf.Pow(3, (whichGrid + 1));
+        whichGrid = which;
+
+        setSkirt.RebindPrimaryForm("_VertBuffer", skirts[which].verts);
+        setSkirt.YOLO();
+
+
     }
 
 }
