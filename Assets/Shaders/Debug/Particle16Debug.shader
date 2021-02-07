@@ -21,6 +21,7 @@ Shader "Debug/Particles16" {
       #include "UnityCG.cginc"
       #include "../Chunks/Struct16.cginc"
       #include "../Chunks/debugVSChunk.cginc"
+      #include "../Chunks/hsv.cginc"
 
 
 
@@ -28,7 +29,9 @@ Shader "Debug/Particles16" {
       float4 frag (varyings v) : COLOR {
 
           if( length( v.uv2 -.5) > .5 ){ discard;}
-          return float4(_Color,1 );
+
+          float3 col = hsv(v.debug.y * .1 , 1,1);// float3(v.debug.xy ,1);
+          return float4(col,1 );
       }
 
       ENDCG

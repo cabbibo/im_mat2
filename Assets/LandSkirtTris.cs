@@ -36,11 +36,11 @@ public class LandSkirtTris : IndexForm
                     int id4 = (j + 1) * lsv.dimensions + k + 1;
 
                     values[index++] = baseID + id1;
+                    values[index++] = baseID + id4;
                     values[index++] = baseID + id2;
-                    values[index++] = baseID + id4;
                     values[index++] = baseID + id1;
-                    values[index++] = baseID + id4;
                     values[index++] = baseID + id3;
+                    values[index++] = baseID + id4;
 
                 }
 

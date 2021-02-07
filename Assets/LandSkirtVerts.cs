@@ -45,7 +45,7 @@ public class LandSkirtVerts : Form
                     Vector3 pos = Vector3.zero;
                     Vector3 nor = Vector3.up;
 
-                    Vector2 uv = new Vector2(((float)j / ((float)dimensions - 1)), ((float)k / ((float)dimensions - 1)));
+                    Vector2 uv = new Vector2(((float)j / ((float)dimensions - 2)), ((float)k / ((float)dimensions - 2)));
 
                     values[index++] = pos.x;
                     values[index++] = pos.y;
