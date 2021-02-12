@@ -173,6 +173,7 @@
 
         color = tex2D(_MainTex,v.worldPos.xz * .1);
         color = GetFullColor(color.x * .2 +.6 + grassHeight * .7 + _HueStart , v.worldPos.xz * _MapSize);//  _ColorMap, float2(color.x * .2 - dif * .01+.6 + grassHeight * .7 + _HueStart, 0)) * l ;
+        color = GetFullColor(color.x * .2 +.6 + grassHeight * .7 + _HueStart , v.worldPos.xz * _MapSize) * l;//  _ColorMap, float2(color.x * .2 - dif * .01+.6 + grassHeight * .7 + _HueStart, 0)) * l ;
 
 
 
