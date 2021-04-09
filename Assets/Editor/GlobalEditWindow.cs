@@ -50,6 +50,10 @@ public class GlobalEditWindow : EditorWindow
     private GUIContent label;
     private bool down;
     private GUISkin tSkin;
+
+
+     string[] setterOptions;
+
     // Add menu named "My Window" to the Window menu
     [MenuItem("Window/Global Edit Window")]
     static void Init()
@@ -70,6 +74,9 @@ public class GlobalEditWindow : EditorWindow
        
        // Debug.Log(skin);
 
+
+       
+
     }
 
 
@@ -86,6 +93,11 @@ public class GlobalEditWindow : EditorWindow
        state = data.state;
        skin = (GUISkin)Resources.Load("GlobalEditSkin");
       }
+
+       setterOptions = new string[god.data.journey.setters.Length];
+       for(int i =0; i < god.data.journey.setters.Length; i++){
+         setterOptions[i] = god.data.journey.setters[i].gameObject.name;
+       }
     }
 
      // Window has been selected
@@ -322,7 +334,7 @@ public class GlobalEditWindow : EditorWindow
         startInStory = EditorGUILayout.Toggle ("StartInStory", startInStory);
         startInPages = EditorGUILayout.Toggle ("StartInPages", startInPages);
 
-        startSetter = EditorGUILayout.IntField ("StartSetter", startSetter);
+        startSetter = EditorGUILayout.Popup("StartSetter", startSetter, setterOptions); 
         startStory = EditorGUILayout.IntField ("StartStory", startStory);
         startPage = EditorGUILayout.IntField ("StartPage", startPage);
         

@@ -95,7 +95,7 @@ void Transfer (uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID) {
 
 
     float3 ray = GetRayForce(p.pos);
-   force += .01 * normalize(ray) / length( ray ) ;
+   force += .1 * normalize(ray) / length( ray ) ;
 
    
     if( length(force) > 10 ){ force = normalize(force) * 10; }
@@ -206,7 +206,7 @@ void Resolve (uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID) {
 
 
       if( length( p.pos-p.resolver.xyz) != 0 ){
-        //p.vel -= clamp( pow( length(p.pos - p.resolver.xyz) , 2 )* 100 , -.1 , .1) * normalize(p.pos-p.resolver.xyz);//
+        p.vel -= clamp( pow( length(p.pos - p.resolver.xyz) , 2 )* 100 , -.1 , .1) * normalize(p.pos-p.resolver.xyz);//
       }
 
       float3 nor = float3(0,1,0);

@@ -2,12 +2,13 @@
 {
     Properties {
 
-       _ColorMap ("Color", 2D) = "white" {}
        _TextureMap ("Texture", 2D) = "white" {}
        _PainterlyLightMap ("Painterly", 2D) = "white" {}
        _NormalMap ("Normal", 2D) = "white" {}
        _CubeMap( "Cube Map" , Cube )  = "defaulttexture" {}
 
+       _ColorMap ("Color Map", 2D) = "white" {}
+      _ColorMapID("_ColorMapID", float ) = 0.1875
       _ColorSize("_ColorSize", float ) = 0.5
       _ColorBase("_ColorBase", float ) = 0
     
@@ -39,8 +40,9 @@
             #include "../Chunks/MapNormal.cginc"
             #include "../Chunks/Reflection.cginc"
             #include "../Chunks/SampleAudio.cginc"
-            #include "../Chunks/snoise.cginc"
+            #include "../Chunks/snoise3D.cginc"
 
+            float _ColorMapID;
             fixed4 frag (v2f v) : SV_Target
             {
 
@@ -55,14 +57,20 @@
 
                 m *= shadow;
 
-                float4 col  = tex2D(_ColorMap , m * _ColorSize  + _ColorBase );
+                float4 col  = tex2D(_ColorMap , float2( m * _ColorSize  + _ColorBase , 1-_ColorMapID + .5 /16 ));
                 float3 p = Painterly( m, v.uv.yx * 5) * .7 + .3;
 
-               // col.xyz *= p * .3+ p * r;
+
+                col.xyz *=  r ;
+                col *= 2;
+                col = 3.*SampleAudio( snoise(v.world * .3) * .1 + .1) * col;
+               // col = m;
+                //col = shadow;//
                 //col *= baseM;
 
-                col = 3.*SampleAudio( snoise(v.world * .5) * .2 + .2) * col;
+                //col = 3.*SampleAudio( snoise(v.world * .5) * .2 + .2) * col;
 
+                //col =
 
                 //col = shadow;
 

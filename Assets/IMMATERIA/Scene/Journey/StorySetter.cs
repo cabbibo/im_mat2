@@ -120,6 +120,8 @@ public class StorySetter : Cycle
             data.helper.MultipleStoriesDesired();
         }
 
+        print( "CSSS : " + currentStory );
+
 
     }
 

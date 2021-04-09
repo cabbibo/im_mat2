@@ -13,12 +13,12 @@
                         // inside SubShader
 
                         // inside SubShader
-//Tags { "Queue"="Transparent" "RenderType"="Transparent"  }
-        LOD 100
+Tags { "Queue"="Transparent" "RenderType"="Transparent"  }
+        //LOD 100
 // inside Pass
 ZWrite On
 Blend One One
-        LOD 100
+//        LOD 100
 
         Cull Off
         Pass
@@ -117,7 +117,9 @@ Blend One One
 
               
                // col = v.uv.x;
-                return float4(col  * v.debug.x, length(col) * v.debug.x);
+
+
+                return float4(saturate(col  * v.debug.x), saturate(length(col) * v.debug.x));
                 //return float( v.side )/4;//float4(col  * v.debug.x, length(col) * v.debug.x);
             }
 

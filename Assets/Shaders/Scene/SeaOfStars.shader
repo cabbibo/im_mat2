@@ -7,6 +7,7 @@
     _CubeMap( "Cube Map" , Cube )  = "defaulttexture" {}
         _HueStart("Hue start", float ) = 1
         _HueSize("Hue Size", float ) = 1
+        _BrightnessMultiplier("Brightness", float ) = 1
   }
 
     SubShader {
@@ -61,6 +62,7 @@
 
         float _ClosestGPUCollisionID;
         float _ClosestGPUCollisionTime;
+        float _BrightnessMultiplier;
 
         struct varyings {
             float4 pos      : SV_POSITION;
@@ -151,6 +153,8 @@
         //col += hsv(dot(v.eye,v.nor) * -.1,.6,1) * (1-length(col));
         col *= shadow;
         col *= 2*aCol;
+        col *= _BrightnessMultiplier;
+        
         return float4( col , 1.);
             }
 

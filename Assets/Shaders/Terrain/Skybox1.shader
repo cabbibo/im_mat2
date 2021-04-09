@@ -8,21 +8,18 @@ Shader "Terrain/Skybox1"
   
     _MainTex("_MainTex", 2D) = "white" {}
     _MapScale("MapScale", float) = 1
+    _Lightness("Light_Lightness", float) = 1
     }
 
 
   SubShader{
 
             // Draw ourselves after all opaque geometry
-        Tags { "Queue" = "Geometry+10" }
+       // Tags { "Queue" = "Geometry+10" }
 
-        // Grab the screen behind the object into _BackgroundTexture
-        GrabPass
-        {
-            "_BackgroundTexture"
-        }
 
-      Cull Off
+
+     // Cull Off
     Pass{
 CGPROGRAM
       
@@ -33,22 +30,13 @@ CGPROGRAM
 
       #include "UnityCG.cginc"
       
-    float4 _BaseColor;
-    float4 _SampleColor;
-    int _NumSteps;
-    float _Opaqueness;
-    float _ColorMultiplier;
-    float _RefractionBackgroundSampleExtraStep;
-    float _IndexOfRefraction;
-
-    float _ReflectionSharpness;
-    float _ReflectionMultiplier;
-    float4 _ReflectionColor;
+  
 
     sampler2D _SampleTexture;
     float _SampleSize;
 
     sampler2D _AudioMap;
+
 
 
       //A simple input struct for our pixel shader step containing a position.
@@ -113,6 +101,7 @@ float3 hsv(float h, float s, float v)
 float _MapScale;
 
 sampler2D _MainTex;
+float _Lightness;
 #include "../Chunks/noise.cginc"
 
 
@@ -132,9 +121,10 @@ float4 frag (varyings v) : COLOR {
     float n = noise( v.rd * .0002 ) +  .4 * noise (v.rd * .0006) + .1 * noise(v.rd * .001)  ;//* .3 + noise(v.rd * .0001) * .6 + noise(v.rd * .0003);
 
 
-    half4 cx = tex2D(_MainTex, tx )* bf.x* bf.x;
-    half4 cy = tex2D(_MainTex, ty )* bf.y* bf.y;
-    half4 cz = tex2D(_MainTex, tz )* bf.z* bf.z;
+    float4 cx = tex2D(_MainTex, tx )* bf.x* bf.x;
+    float4 cy = tex2D(_MainTex, ty )* bf.y* bf.y;
+    float4 cz = tex2D(_MainTex, tz )* bf.z* bf.z;
+
     col = (cx + cy + cz).xyz;
     col *= 10;
 
@@ -143,7 +133,7 @@ float4 frag (varyings v) : COLOR {
     col *= tex2D(_AudioMap,n * .1);
 
 
-    return float4( col.xyz , 1);//saturate(float4(col,3*length(col) ));
+    return fixed4( saturate(col.xyz) * _Lightness , 1);//saturate(float4(col,3*length(col) ));
 
 
 
@@ -155,7 +145,7 @@ float4 frag (varyings v) : COLOR {
     }
   }
 
-  Fallback Off
+  //Fallback Off
 
 
 }

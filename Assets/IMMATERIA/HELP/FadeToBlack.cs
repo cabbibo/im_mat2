@@ -8,20 +8,24 @@ public class FadeToBlack : Cycle
     private Material _material;
     public float startFadeSpeed;
 
+    public bool startFadeOut;
+
     public override void OnLive()
     {
 
         _material = GetComponent<Renderer>().sharedMaterial;
 
-        _material.SetColor("_Color", new Color(0, 0, 0, 0));
+        _material.SetColor("_Color", new Color(0, 0, 0, 1));
 
         fadeColor = new Color(0, 0, 0, 1); ;
         currentOpacity = 1;
         startOpacity = 1;
         fadeOpacity = 0;
-        FadeIn(startFadeSpeed);
+       
+        if( startFadeOut ){ FadeIn(startFadeSpeed); }
 
     }
+
 
 
     public bool fading;
@@ -33,6 +37,18 @@ public class FadeToBlack : Cycle
     public float startOpacity;
     public float currentOpacity;
 
+
+    public void FadeOut( float time ){
+        FadeOut( Color.black , time );
+    }
+
+    public void SetBlack(){
+         fadeColor = new Color(0, 0, 0, 1); ;
+        currentOpacity = 1;
+        startOpacity = 1;
+        fadeOpacity = 0;
+        _material.SetColor("_Color", new Color(0, 0, 0, 1));
+    }
     public void FadeOut(Color color, float time)
     {
 

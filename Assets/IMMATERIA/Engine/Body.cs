@@ -17,6 +17,8 @@ public class Body : Cycle
 
     public bool skipFormBind;
 
+    public Vector3 extents = new Vector3(10000,10000,10000);
+
     public override void _Create()
     {
 
@@ -58,10 +60,9 @@ public class Body : Cycle
 
 
             // Infinit bounds so its always drawn!
-            Graphics.DrawProcedural(material, new Bounds(transform.position, Vector3.one * 50000), MeshTopology.Triangles, triangles.count, 1, null, mpb, ShadowCastingMode.TwoSided, true, gameObject.layer);
+            Graphics.DrawProcedural(material, new Bounds(transform.position, extents), MeshTopology.Triangles, triangles.count, 1, null, mpb, ShadowCastingMode.TwoSided, true, gameObject.layer);
         }
     }
-
 
 
 

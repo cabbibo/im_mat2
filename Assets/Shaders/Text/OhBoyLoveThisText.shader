@@ -104,7 +104,7 @@
       Tags{ "LightMode" = "ForwardBase" }
       Cull Off
       ZWrite On
-        Blend One One
+      //  Blend One One
         ZTest Always
 
 

@@ -1,12 +1,13 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class State : Cycle
 {
 
 
-
+    public UnityEvent OnLiveEvent;
     public bool DOFULL; // Sets up our full state on rebuild
 
 
@@ -112,7 +113,7 @@ public class State : Cycle
     public override void OnLive()
     {
 
-
+        
         data.book.CloseBook();
 
         //public string 
@@ -179,6 +180,8 @@ public class State : Cycle
             data.playerControls.animator.SetBool("Falling", false);
             data.playerControls.animator.SetBool("GetUp", true);
             data.playerControls.animator.Play("Grounded");
+
+            storiesVisited.Add(data.journey.setters[0]);
         }
         else
         {
@@ -268,6 +271,8 @@ public class State : Cycle
            data.book.OpenStory(data.book.currentSetter);
          }*/
 
+
+        OnLiveEvent.Invoke();
     }
 
 
