@@ -18,7 +18,6 @@ public class TerrainTap : Cycle
 
     data.inputEvents.DoRaycast();
 
-    print( data.inputEvents.hitTag );
 
       if( ( data.inputEvents.hitTag == "Untagged" || data.inputEvents.hitTag == "Frame") && !data.state.inPages ){
        // print("double hello");

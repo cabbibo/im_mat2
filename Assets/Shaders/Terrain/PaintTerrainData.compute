@@ -124,6 +124,9 @@ void Paint(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID) {
         val = -val;
     }
 
+
+    v.pos = worldPos(v.pos);
+
     if( _Brush == 0 ){
         v.info1.x += val; v.info1.x = saturate(v.info1.x);
     }else if( _Brush == 1 ){
