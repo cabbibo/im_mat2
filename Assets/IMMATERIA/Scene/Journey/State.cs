@@ -49,6 +49,8 @@ public class State : Cycle
     public bool startInBook;
     public bool startInBookPages;
 
+    public bool startWithStoryState;
+
     // makes it so we can jump in for the fist story instead of transition;
     public bool firstStory;
 
@@ -90,7 +92,7 @@ public class State : Cycle
 
         currentSetter = startSetter;
 
-
+        // Regenerating when we create!
         storiesVisited = new List<StorySetter>();
         storiesCompleted = new List<StorySetter>();
 
@@ -142,8 +144,11 @@ public class State : Cycle
             // As long as we are starting correctly
             if (startStory >= 0)
             {
+
                 if (setter.stories[startStory] != null)
                 {
+                    print("Setting story info");
+
                     // Get our actual story
                     story = setter.stories[startStory];
 
@@ -163,6 +168,30 @@ public class State : Cycle
 
 
             //data.journey.setters[data.journey.currentSetter].
+        }else{
+
+
+            if( startWithStoryState ){
+
+                // Set our setter to the correct ID
+            currentSetter = startSetter;
+
+
+            // debug
+            if (startSetter > data.journey.setters.Length) { print("starting setter greater than total Setters"); }
+
+            // Get our actual setter
+            setter = data.journey.setters[startSetter];
+
+                print("Setting story info");
+
+                // Get our actual story
+                story = setter.stories[startStory];
+
+                // Set our state to our current story
+                SetStoryState(story);
+            }
+
         }
 
         inStory = startInStory;
@@ -354,6 +383,24 @@ public class State : Cycle
                 if (storiesVisited.IndexOf(s.state.storiesVisited[i]) < 0)
                 {
                     storiesVisited.Add(s.state.storiesVisited[i]);
+                }
+            }
+
+
+
+             for (int i = 0; i < s.state.storiesNotCompleted.Length; i++)
+            {
+                if (storiesCompleted.IndexOf(s.state.storiesNotCompleted[i]) >= 0)
+                {
+                    storiesCompleted.Remove(s.state.storiesNotCompleted[i]);
+                }
+            }
+
+            for (int i = 0; i < s.state.storiesCompleted.Length; i++)
+            {
+                if (storiesCompleted.IndexOf(s.state.storiesCompleted[i]) < 0)
+                {
+                    storiesCompleted.Add(s.state.storiesCompleted[i]);
                 }
             }
 

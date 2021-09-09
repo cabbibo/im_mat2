@@ -100,6 +100,8 @@ public class StorySetter : Cycle
         currentStory = -1;
 
 
+        print("Checking Story");
+
         int numChecked = 0;
         for (int i = 0; i < stories.Length; i++)
         {
@@ -107,6 +109,7 @@ public class StorySetter : Cycle
             {
                 numChecked++;
                 currentStory = i;
+                print(i);
             }
         }
 

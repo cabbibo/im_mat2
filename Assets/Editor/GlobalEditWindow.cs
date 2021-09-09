@@ -28,7 +28,11 @@ public class GlobalEditWindow : EditorWindow
     public int startSetter;
     public int startStory;
     public int startPage;
+    public bool startWithStoryState;
     public bool fast;
+
+    public bool showVisited;
+    public bool showCompleted;
 
 
     //LINKED OBJECTS
@@ -275,7 +279,7 @@ public class GlobalEditWindow : EditorWindow
 
 
 
-               ██▓ ███▄    █ ▄▄▄█████▓▓█████  ██▀███    █████▒▄▄▄       ▄████▄  ▓█████       ▓█████▄  ██▓  ██████  ██▓███   ██▓    ▄▄▄     ▓██   ██▓
+        ██▓ ███▄    █ ▄▄▄█████▓▓█████  ██▀███    █████▒▄▄▄       ▄████▄  ▓█████       ▓█████▄  ██▓  ██████  ██▓███   ██▓    ▄▄▄     ▓██   ██▓
         ▓██▒ ██ ▀█   █ ▓  ██▒ ▓▒▓█   ▀ ▓██ ▒ ██▒▓██   ▒▒████▄    ▒██▀ ▀█  ▓█   ▀       ▒██▀ ██▌▓██▒▒██    ▒ ▓██░  ██▒▓██▒   ▒████▄    ▒██  ██▒
         ▒██▒▓██  ▀█ ██▒▒ ▓██░ ▒░▒███   ▓██ ░▄█ ▒▒████ ░▒██  ▀█▄  ▒▓█    ▄ ▒███         ░██   █▌▒██▒░ ▓██▄   ▓██░ ██▓▒▒██░   ▒██  ▀█▄   ▒██ ██░
         ░██░▓██▒  ▐▌██▒░ ▓██▓ ░ ▒▓█  ▄ ▒██▀▀█▄  ░▓█▒  ░░██▄▄▄▄██ ▒▓▓▄ ▄██▒▒▓█  ▄       ░▓█▄   ▌░██░  ▒   ██▒▒██▄█▓▒ ▒▒██░   ░██▄▄▄▄██  ░ ▐██▓░
@@ -333,6 +337,7 @@ public class GlobalEditWindow : EditorWindow
 
         startInStory = EditorGUILayout.Toggle ("StartInStory", startInStory);
         startInPages = EditorGUILayout.Toggle ("StartInPages", startInPages);
+        startWithStoryState = EditorGUILayout.Toggle("startWithStoryState", startWithStoryState);
 
         startSetter = EditorGUILayout.Popup("StartSetter", startSetter, setterOptions); 
         startStory = EditorGUILayout.IntField ("StartStory", startStory);
@@ -343,9 +348,30 @@ public class GlobalEditWindow : EditorWindow
         state.startStory = startStory;
         state.startSetter = startSetter;
         state.startPage = startPage;
+        state.startWithStoryState = startWithStoryState;
         state.startInStory = startInStory;
         state.startInPages = startInPages;
         state.fast = fast;
+
+
+        
+      showVisited = EditorGUILayout.Foldout(showVisited, "showVisited");
+      if( showVisited ){
+        for( var i = 0; i < state.storiesVisited.Count; i++){
+
+           EditorGUILayout.LabelField(""+state.storiesVisited[i]);
+
+        }
+      }
+
+      showCompleted = EditorGUILayout.Foldout(showCompleted, "showCompleted");
+      if( showCompleted ){
+        for( var i = 0; i < state.storiesCompleted.Count; i++){
+
+           EditorGUILayout.LabelField(""+state.storiesCompleted[i]);
+
+        }
+      }
 
         EndGroup();
 

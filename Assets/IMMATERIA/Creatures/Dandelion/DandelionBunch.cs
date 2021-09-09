@@ -56,4 +56,15 @@ public class DandelionBunch : Cycle
   }
 
 
+  public void SetDisappeared(){
+    print("disappera");
+    releasing = 3;
+  }
+
+    public void ReleaseFinalDandelion(){
+    print("disappera");
+    releasing = 4;
+  }
+
+
 }

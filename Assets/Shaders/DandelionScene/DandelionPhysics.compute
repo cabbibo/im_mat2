@@ -183,6 +183,18 @@ if( _Releasing == 2 ){
   vert.info.x -= (sin(float(bID))+2) * .003;
   vert.info.x = max( -1, vert.info.x);
 }
+
+if( _Releasing == 3  && bID  != 0  ){
+  vert.info.x = -10;
+  vert.pos = 100000;
+}
+
+
+
+if( _Releasing == 4   ){
+  vert.info.x = -10;
+}
+
 // Force from ursula
 force += float3(xz.x , 0 , xz.y) * .3;
 
@@ -200,8 +212,14 @@ if( vert.info.x < 0 && bID != 0 ){
 }
 
 
-if( bID == 0 ){
+// Extra up force for placement, but dont need
+// once released
+if( bID == 0 && _Releasing < 4 ){
   force += float3(0,1,0) * 10;
+}
+
+if( bID == 0 && _Releasing == 4 ){
+  force += float3(0,1,0) * -1;
 }
 
     //force += .2*normalize((_HandL-vert.pos))/pow(length(_HandL-vert.pos),4);
@@ -246,10 +264,22 @@ if( bID == 0 ){
       vert.nor = bN;
 
     //  tb = true;
-      if( vert.info.x >= 0 || pID == 0  ){
+
+    // if we are still connected
+    // slash arent the first Dandelion
+      if( vert.info.x >= 0  ){
         tb = true;
+
+        if(pID != 0 ){
         vert.pos = bP; 
         vert.oPos = bP;
+        }else{
+          if(_Releasing < 4 ){
+
+            vert.pos = bP; 
+            vert.oPos = bP;
+          }
+        }
       }
     }else{
 
