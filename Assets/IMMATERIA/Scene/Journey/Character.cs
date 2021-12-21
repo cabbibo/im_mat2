@@ -650,6 +650,9 @@ public class Character : Cycle
         transform.position += velocity;
 
 
+            Quaternion q = Quaternion.FromToRotation(transform.up, Vector3.up) * transform.rotation;
+            transform.rotation = Quaternion.Slerp(transform.rotation, q, .1f);
+
 
 
 

@@ -20,7 +20,6 @@ public class StorySetter : Cycle
 
     public StoryAudio audio;
 
-    public Cycle[] localCycles;
 
     public override void Create()
     {
@@ -126,9 +125,8 @@ public class StorySetter : Cycle
     public void EnterOuter()
     {
 
-        //DebugThis("jumpStart");
-        // Adding any cycles that are just for this set of stories
-        JumpStart(localCycles);
+         // Adding any cycles that are just for this set of stories
+    
 
         CheckWhichStory();
 
@@ -201,8 +199,6 @@ public class StorySetter : Cycle
         }
 
 
-        //DebugThis("jumpDeath");
-        JumpDeath(localCycles);
     }
 
 

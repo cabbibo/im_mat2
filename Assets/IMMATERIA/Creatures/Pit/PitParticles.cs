@@ -18,8 +18,7 @@ public class PitParticles : Simulation
   public override void Bind(){
     data.land.BindData(life);
     life.BindVector3( "_EmitterPosition", () => this.position );
-    life.BindForm("_TransformBuffer",transforms);
-
+   
   }
 
   public override void WhileLiving(float v){

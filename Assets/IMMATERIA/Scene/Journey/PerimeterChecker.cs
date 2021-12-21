@@ -20,8 +20,8 @@ public class PerimeterChecker : Cycle
   public EventTypes.BaseEvent OnExitInner;
   public EventTypes.FloatEvent OnDoFade;
 
-  public GameObject[] meshes;
-  public Cycle[] cycles;
+  public GameObject[] localMeshes;
+  public Cycle[] localCycles;
 
 
 
@@ -122,27 +122,29 @@ public class PerimeterChecker : Cycle
 
 
 
-  public void TurnOff(){
+   public void TurnOff(){
 
-    if( meshes.Length > 0 ){
-      for(int i = 0; i < meshes.Length; i++ ){
-        meshes[i].SetActive(false);
+    print("turnOff");
+    if( localMeshes.Length > 0 ){
+      for(int i = 0; i < localMeshes.Length; i++ ){
+        localMeshes[i].SetActive(false);
       }
     }
 
-    JumpDeath(cycles);
+    JumpDeath(localCycles);
 
   }
 
   public void TurnOn(){
-    if( meshes.Length > 0 ){
-      for(int i = 0; i < meshes.Length; i++ ){
-        meshes[i].SetActive(true);
+    print("turnOn");
+    if( localMeshes.Length > 0 ){
+      for(int i = 0; i < localMeshes.Length; i++ ){
+        localMeshes[i].SetActive(true);
       }
     }
   
-    JumpStart(cycles);
-    
+    JumpStart(localCycles);
+
   }
 
   public void Fade( float v ){

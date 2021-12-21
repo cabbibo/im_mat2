@@ -715,7 +715,7 @@ public class Tree : MonoBehaviour
 
 
     public string basePath(){
-        return  Application.dataPath + "/FantasyTree/Trees/";
+        return  Application.dataPath + "/Plugins/FantasyTree/Trees/";
     }
     public string GetDataPath(){
         

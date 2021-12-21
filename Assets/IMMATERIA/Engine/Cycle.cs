@@ -677,5 +677,27 @@ void SetStates(){
   }
 
 
+  public void PrintParentStructure(){
+
+    bool hasParent = true;
+
+    string parentString = "";
+
+    Cycle parentCycle = this;
+    while( hasParent == true ){
+
+      if( parentCycle.parent != null ){
+        parentString += " || " +parentCycle.gameObject + ":" +parentCycle.GetType();
+        parentCycle = parentCycle.parent;
+      }else{
+        hasParent = false;
+      }
+
+    }
+
+
+    DebugThis(parentString);
+
+  }
 
 }

@@ -155,6 +155,7 @@ public class Life : Cycle {
   public virtual void GetNumGroups(){
 
     //print(primaryForm);
+    //PrintParentStructure();
     numGroups = (primaryForm.count*countMultiplier+((int)numThreads-1))/(int)numThreads;
   }
  
@@ -264,7 +265,7 @@ public class Life : Cycle {
 
 
       if( form._buffer != null ){
-        
+
         
         shader.SetBuffer( kernel , name , form._buffer);
         shader.SetInt(name+"_COUNT" , form.count );
