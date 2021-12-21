@@ -579,4 +579,74 @@ void SetStates(){
     }
   }
 
+
+  public void JumpStart(Cycle c){
+    SafeInsert(c);
+
+    c._Destroy();
+    c.Reset(); 
+    c._Create(); 
+    c._OnGestate();
+    c._OnGestated();
+    c._OnBirth(); 
+    c._OnBirthed();
+
+  }
+
+
+  // Add an array of cycles, to this cycle
+  // making sure that they get executed in
+  // order correctly
+  public void JumpStart(Cycle[] c){
+
+    for( int i = 0; i < c.Length; i++ ){
+      SafeInsert(c[i]);
+    }
+
+    for( int i = 0; i < c.Length; i++ ){
+      c[i]._Destroy();
+    }
+    for( int i = 0; i < c.Length; i++ ){
+      c[i].Reset();
+    } 
+    for( int i = 0; i < c.Length; i++ ){
+      c[i]._Create();
+    } 
+    for( int i = 0; i < c.Length; i++ ){
+      c[i]._OnGestate();
+    }
+    for( int i = 0; i < c.Length; i++ ){
+      c[i]._OnGestated();
+    }
+    for( int i = 0; i < c.Length; i++ ){
+      c[i]._OnBirth();
+    } 
+    for( int i = 0; i < c.Length; i++ ){
+      c[i]._OnBirthed();
+    }
+
+  }
+
+
+  public void JumpDeath( Cycle c ){
+    c._OnDie();
+    c._OnDied();
+    c._Destroy();
+    Cycles.Remove(c);
+  }
+
+
+  public void JumpDeath( Cycle[] c){
+    DebugThis(""+c.Length);
+    for( int i = 0; i < c.Length; i++ ){
+          DebugThis(""+c[i]);
+    c[i]._OnDie();
+    }
+    for( int i = 0; i < c.Length; i++ ){c[i]._OnDied();}
+    for( int i = 0; i < c.Length; i++ ){c[i]._Destroy();}
+    for( int i = 0; i < c.Length; i++ ){Cycles.Remove(c[i]);}
+  }
+
+
+
 }

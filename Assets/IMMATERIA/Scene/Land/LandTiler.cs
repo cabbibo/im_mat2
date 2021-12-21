@@ -57,13 +57,21 @@ public class LandTiler : Cycle
     public int whichGrid;
     public void DestroyMe()
     {
-        if (Tiles != null)
+
+        print(tileObjects);
+        if (Tiles != null )
         {
             for (int i = 0; i < Tiles.Length; i++)
             {
+               
+                    print(tileObjects);
+                if(tileObjects!= null){
+                if(tileObjects[i] != null){
 
+                    print(tileObjects);
                 Cycles.Remove(tileObjects[i].GetComponent<LandTile>());
                 DestroyImmediate(tileObjects[i]);
+                }}
 
 
             }
@@ -78,7 +86,7 @@ public class LandTiler : Cycle
     public override void Create()
     {
 
-        //print("OnCreate");
+        print("OnCreate");
         //print( landTilePrefab );
         //print( landTilePrefab.GetComponent<LandTile>() );
         //print( landTilePrefab.GetComponent<LandTile>().verts );
@@ -175,6 +183,8 @@ public class LandTiler : Cycle
             _ID = i;
             OffsetTile(i);
         }
+
+        SetSkirts();
     }
 
     // Use this for initialization

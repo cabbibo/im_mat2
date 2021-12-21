@@ -147,7 +147,7 @@ public class State : Cycle
 
                 if (setter.stories[startStory] != null)
                 {
-                    print("Setting story info");
+                   
 
                     // Get our actual story
                     story = setter.stories[startStory];

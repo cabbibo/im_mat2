@@ -62,7 +62,7 @@ public class StateSetter : MonoBehaviour
         }
 
 
-        print("CAN I START? : " + canStart);
+//        print("CAN I START? : " + canStart);
         return canStart;
 
 

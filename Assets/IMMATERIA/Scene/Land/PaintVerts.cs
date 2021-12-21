@@ -56,6 +56,9 @@ public class PaintVerts : Form
   }
 
 
+  public override int DNACompressionSize(){
+    return 4;
+  }
 
   public override float[] GetDNA(){
 

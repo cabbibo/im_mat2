@@ -91,6 +91,7 @@ public class Saveable {
       form.DebugThis("NULL BUFFER ON SAVE");
 
     }else{
+
     BinaryFormatter bf = new BinaryFormatter();
     FileStream stream = new FileStream(GetFullName(form.saveName),FileMode.Create);
 
@@ -143,7 +144,7 @@ public class Saveable {
           form.loadedFromFile = false;
           Saveable.Save(form,name);
         }else{
-          if( data.Length != form.count * form.structSize ){
+          if( data.Length != form.DNACompressionSize() * form.count  ){
             form.DebugThis("YOUR INPUT DATA IS OFF");
             form.saveName = GetSafeName();
             form.Embody();
@@ -167,7 +168,7 @@ public class Saveable {
             Saveable.Save(form,name);
           }else{
 
-          if( data.Length != form.count * form.structSize ){
+          if( data.Length != form.DNACompressionSize() * form.count ){
             form.DebugThis("YOUR INPUT DATA IS OFF");
             form.saveName = GetSafeName();
             form.Embody();
@@ -213,7 +214,7 @@ public class Saveable {
           Saveable.Save(form);
         }else{
 
-          if( data.Length != form.count * form.structSize ){
+          if( data.Length != form.DNACompressionSize() * form.count  ){
             form.DebugThis("YOUR INPUT DATA IS OFF");
             form.saveName = GetSafeName();
             form.Embody();
@@ -228,15 +229,17 @@ public class Saveable {
       }else{
         float[] data = bf.Deserialize(stream) as float[];
         if( data == null ){
-                form.DebugThis("NULL DATA");
+          form.DebugThis("NULL DATA");
           form.saveName = GetSafeName();
           form.Embody();
           form.loadedFromFile = false;
           Saveable.Save(form);
         }else{
 
-        if( data.Length != form.count * form.structSize ){
+        if( data.Length !=  form.DNACompressionSize() * form.count ){
           form.DebugThis("YOUR INPUT DATA IS OFF");
+          form.DebugThis("" + data.Length);
+          form.DebugThis("" + form.count * form.structSize);
           form.saveName = GetSafeName();
           form.Embody();
           form.loadedFromFile = false;

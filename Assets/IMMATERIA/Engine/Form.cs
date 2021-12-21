@@ -122,6 +122,11 @@ public class Form : Cycle {
   }
 
 
+  public virtual int DNACompressionSize(){
+    return structSize;
+  }
+
+
   public virtual void SetDNA(int[] dna){
     SetData(dna);
   }

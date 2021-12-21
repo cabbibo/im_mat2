@@ -48,11 +48,7 @@ public class StorySetter : Cycle
             SafeInsert(stories[i]);
         }
 
-        // Adding any cycles that are just for this set of stories
-        for (int i = 0; i < localCycles.Length; i++)
-        {
-            SafeInsert(localCycles[i]);
-        }
+ 
 
         // Setting up audio
         if (audio == null)
@@ -100,7 +96,7 @@ public class StorySetter : Cycle
         currentStory = -1;
 
 
-        print("Checking Story");
+       // print("Checking Story");
 
         int numChecked = 0;
         for (int i = 0; i < stories.Length; i++)
@@ -132,6 +128,9 @@ public class StorySetter : Cycle
     public void EnterOuter()
     {
 
+        DebugThis("jumpStart");
+        // Adding any cycles that are just for this set of stories
+        JumpStart(localCycles);
 
         CheckWhichStory();
 
@@ -203,6 +202,10 @@ public class StorySetter : Cycle
             data.journey.controller.ExitOuter(this);
             data.state.SetterExitOuter(this);
         }
+
+
+        DebugThis("jumpDeath");
+        JumpDeath(localCycles);
     }
 
 
