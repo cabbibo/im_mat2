@@ -19,10 +19,8 @@ public class SpacePupTarget : MonoBehaviour
 
     public void SetTarget(Transform t){
 
-      
-        print( "setting pos");
-        print( t.name );
-              target = t.position;
+
+        target = t.position;
     }
 
     public void Update(){

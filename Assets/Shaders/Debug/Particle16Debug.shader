@@ -30,7 +30,7 @@ Shader "Debug/Particles16" {
 
           if( length( v.uv2 -.5) > .5 ){ discard;}
 
-          float3 col = hsv(v.debug.y * .1 , 1,1);// float3(v.debug.xy ,1);
+          float3 col = _Color.xyz;//hsv(v.debug.y * .1 , 1,1);// float3(v.debug.xy ,1);
           return float4(col,1 );
       }
 

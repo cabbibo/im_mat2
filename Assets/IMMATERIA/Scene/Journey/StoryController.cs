@@ -352,7 +352,6 @@ public class StoryController : Cycle
     public void StartStory()
     {
 
-        print("Story Controller starting story");
         story.OnStoryStart.Invoke();
 
         setter.audio.Enter();

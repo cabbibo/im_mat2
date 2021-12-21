@@ -92,7 +92,8 @@ public class Cycle : MonoBehaviour{
 
 
 
-    foreach( Cycle c in Cycles ){
+    for( int i = 0; i < Cycles.Count; i++){
+      Cycle c = Cycles[i];
 
       if( c == null ){
         DebugThis( "SOME CYCLE NULL");
@@ -133,7 +134,8 @@ public class Cycle : MonoBehaviour{
     _Bind();
 
     OnGestate();
-    foreach( Cycle c in Cycles ){
+    for( int i = 0; i < Cycles.Count; i++){
+      Cycle c = Cycles[i];
       
       CheckSelfCycle(c);
       c._OnGestate();
@@ -151,7 +153,8 @@ public class Cycle : MonoBehaviour{
 
   protected void DoGestating(float v){
     WhileGestating(v);
-    foreach( Cycle c in Cycles ){
+    for( int i = 0; i < Cycles.Count; i++){
+      Cycle c = Cycles[i];
       
       CheckSelfCycle(c);
       c._WhileGestating(v);
@@ -169,8 +172,8 @@ public class Cycle : MonoBehaviour{
     if( debug ){ DebugThis("DoGestated"); }
     gestating = false;
     OnGestated();
-    foreach( Cycle c in Cycles ){
-
+    for( int i = 0; i < Cycles.Count; i++){
+      Cycle c = Cycles[i];
       CheckSelfCycle(c);
       c._OnGestated();
     }
@@ -195,7 +198,8 @@ public class Cycle : MonoBehaviour{
     if( debug ){ DebugThis("DoBirth"); }
     begunBirth = true;
     OnBirth();
-    foreach( Cycle c in Cycles ){
+    for( int i = 0; i < Cycles.Count; i++){
+      Cycle c = Cycles[i];
 
       CheckSelfCycle(c);
       c._OnBirth();
@@ -210,7 +214,8 @@ public class Cycle : MonoBehaviour{
 
   protected void DoBirthing(float v){
     WhileBirthing(v); 
-    foreach( Cycle c in Cycles ){
+    for( int i = 0; i < Cycles.Count; i++){
+      Cycle c = Cycles[i];
 
       CheckSelfCycle(c);
       c._WhileBirthing(v);
@@ -225,7 +230,8 @@ public class Cycle : MonoBehaviour{
     if( birthed ){ DebugThis("On Birthed Multiple Times"); }
     birthing = false;
     OnBirthed();
-    foreach( Cycle c in Cycles ){
+    for( int i = 0; i < Cycles.Count; i++){
+      Cycle c = Cycles[i];
 
       CheckSelfCycle(c);
       c._OnBirthed();
@@ -247,7 +253,8 @@ public class Cycle : MonoBehaviour{
     if( living ){ DebugThis("BegunLive Multiple Times"); }
     begunLive = true;
     OnLive();
-    foreach( Cycle c in Cycles ){
+    for( int i = 0; i < Cycles.Count; i++){
+      Cycle c = Cycles[i];
 
       CheckSelfCycle(c);
       c._OnLive();
@@ -263,7 +270,8 @@ public class Cycle : MonoBehaviour{
     if( active ){
       WhileLiving(v);
 
-      foreach( Cycle c in Cycles ){
+      for( int i = 0; i < Cycles.Count; i++){
+        Cycle c = Cycles[i];
         CheckSelfCycle(c);
         c._WhileLiving(v);
       }
@@ -278,7 +286,8 @@ public class Cycle : MonoBehaviour{
     if( lived ){ DebugThis("on lived Multiple Times"); }
     living = false;
     OnLived();
-    foreach( Cycle c in Cycles ){
+    for( int i = 0; i < Cycles.Count; i++){
+      Cycle c = Cycles[i];
 
       CheckSelfCycle(c);
       c._OnLived();
@@ -302,7 +311,8 @@ public class Cycle : MonoBehaviour{
     if( begunDeath ){ DebugThis("On Die Multiple Times"); }
     begunDeath = true;
     OnDie();
-    foreach( Cycle c in Cycles ){
+    for( int i = 0; i < Cycles.Count; i++){
+      Cycle c = Cycles[i];
 
       CheckSelfCycle(c);
       c._OnDie();
@@ -316,7 +326,8 @@ public class Cycle : MonoBehaviour{
   protected void DoDying(float v){
 
     WhileDying(v);    
-    foreach( Cycle c in Cycles ){
+    for( int i = 0; i < Cycles.Count; i++){
+      Cycle c = Cycles[i];
 
       CheckSelfCycle(c);
       c._WhileDying(v);
@@ -330,7 +341,8 @@ public class Cycle : MonoBehaviour{
     if( died ){ DebugThis("On Died Multiple Times"); }
     dying = false;
     OnDied();
-    foreach( Cycle c in Cycles ){
+    for( int i = 0; i < Cycles.Count; i++){
+      Cycle c = Cycles[i];
 
       CheckSelfCycle(c);
       c._OnDied();
@@ -358,7 +370,8 @@ public class Cycle : MonoBehaviour{
         }
     }
 
-    foreach( Cycle c in Cycles ){
+    for( int i = 0; i < Cycles.Count; i++){
+      Cycle c = Cycles[i];
 
       if( c == null ){
 
@@ -391,7 +404,8 @@ public class Cycle : MonoBehaviour{
 
 public virtual void _Activate(){
   Activate();
-  foreach( Cycle c in Cycles ){
+  for( int i = 0; i < Cycles.Count; i++){
+    Cycle c = Cycles[i];
 
     CheckSelfCycle(c);
     c._Activate();
@@ -405,7 +419,8 @@ public virtual void _Activate( bool propogate ){
   Activate();
 
   if( propogate ){
-    foreach( Cycle c in Cycles ){
+    for( int i = 0; i < Cycles.Count; i++){
+      Cycle c = Cycles[i];
 
       CheckSelfCycle(c);
       c._Activate();
@@ -420,7 +435,8 @@ public virtual void Activate(){}
 
 public virtual void _Deactivate(){
   Deactivate();
-  foreach( Cycle c in Cycles ){
+  for( int i = 0; i < Cycles.Count; i++){
+    Cycle c = Cycles[i];
     CheckSelfCycle(c);
     c._Deactivate();
   }
@@ -432,7 +448,8 @@ public virtual void _Deactivate(bool propogate){
   Deactivate();
   
   if( propogate ){
-    foreach( Cycle c in Cycles ){
+    for( int i = 0; i < Cycles.Count; i++){
+      Cycle c = Cycles[i];
       CheckSelfCycle(c);
       c._Deactivate();
     }
@@ -472,7 +489,8 @@ void SetStates(){
     
     if( debug ){ WhileDebug(); }
 
-    foreach( Cycle c in Cycles ){
+    for( int i = 0; i < Cycles.Count; i++){
+      Cycle c = Cycles[i];
       CheckSelfCycle(c);
      // print(c);
       c._WhileDebug();
@@ -486,7 +504,8 @@ void SetStates(){
 
     bool can = true;
 
-    foreach( Cycle c in Cycles ){
+    for( int i = 0; i < Cycles.Count; i++){
+      Cycle c = Cycles[i];
       if( c == c2 ) can = false;
     }
 
@@ -499,7 +518,8 @@ void SetStates(){
 
     bool can = true;
 
-    foreach( Cycle c in Cycles ){
+    for( int i = 0; i < Cycles.Count; i++){
+      Cycle c = Cycles[i];
       if( c == c2 ) can = false;
     }
 
@@ -548,9 +568,7 @@ void SetStates(){
   }
 
   public void SpinDown(){
-
         _Destroy();
-        
         Reset(); 
   }
 
@@ -581,6 +599,7 @@ void SetStates(){
 
 
   public void JumpStart(Cycle c){
+   
     SafeInsert(c);
 
     c._Destroy();
@@ -590,6 +609,7 @@ void SetStates(){
     c._OnGestated();
     c._OnBirth(); 
     c._OnBirthed();
+    c._Activate();
 
   }
 
@@ -606,23 +626,34 @@ void SetStates(){
     for( int i = 0; i < c.Length; i++ ){
       c[i]._Destroy();
     }
+    
     for( int i = 0; i < c.Length; i++ ){
       c[i].Reset();
     } 
+    
     for( int i = 0; i < c.Length; i++ ){
       c[i]._Create();
     } 
+    
     for( int i = 0; i < c.Length; i++ ){
       c[i]._OnGestate();
     }
+    
     for( int i = 0; i < c.Length; i++ ){
       c[i]._OnGestated();
     }
+    
     for( int i = 0; i < c.Length; i++ ){
       c[i]._OnBirth();
     } 
+    
     for( int i = 0; i < c.Length; i++ ){
       c[i]._OnBirthed();
+    }
+
+
+    for( int i = 0; i < c.Length; i++ ){
+      c[i]._Activate();
     }
 
   }
@@ -637,10 +668,8 @@ void SetStates(){
 
 
   public void JumpDeath( Cycle[] c){
-    DebugThis(""+c.Length);
     for( int i = 0; i < c.Length; i++ ){
-          DebugThis(""+c[i]);
-    c[i]._OnDie();
+        c[i]._OnDie();
     }
     for( int i = 0; i < c.Length; i++ ){c[i]._OnDied();}
     for( int i = 0; i < c.Length; i++ ){c[i]._Destroy();}

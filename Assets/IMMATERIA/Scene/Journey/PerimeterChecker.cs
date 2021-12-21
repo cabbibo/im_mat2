@@ -20,8 +20,11 @@ public class PerimeterChecker : Cycle
   public EventTypes.BaseEvent OnExitInner;
   public EventTypes.FloatEvent OnDoFade;
 
- public GameObject[] meshes;
-    public Cycle[] cycles;
+  public GameObject[] meshes;
+  public Cycle[] cycles;
+
+
+
 
    
   public float dif;
@@ -126,11 +129,8 @@ public class PerimeterChecker : Cycle
         meshes[i].SetActive(false);
       }
     }
-    if( cycles.Length > 0 ){
-      for( int i = 0; i < cycles.Length; i++ ){
-        cycles[i]._Deactivate();
-      }
-    }
+
+    JumpDeath(cycles);
 
   }
 
@@ -141,11 +141,8 @@ public class PerimeterChecker : Cycle
       }
     }
   
-    if( cycles.Length > 0 ){
-      for( int i = 0; i < cycles.Length; i++ ){
-        cycles[i]._Activate();
-      }
-    }
+    JumpStart(cycles);
+    
   }
 
   public void Fade( float v ){

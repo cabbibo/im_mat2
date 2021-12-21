@@ -33,8 +33,7 @@ public class StateSetter : MonoBehaviour
         for (int i = 0; i < storiesVisited.Length; i++)
         {
 
-            print(god.data.state.storiesVisited);
-            print(storiesVisited[i]);
+    
 
             if (!god.data.state.storiesVisited.Contains(storiesVisited[i]))
             {

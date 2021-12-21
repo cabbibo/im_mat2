@@ -17,11 +17,12 @@ public class Hair: Form {
 
   public override void SetCount(){
     
-   float newNum = (float)baseForm.count * (float)countMultiplier;
-   if(newNum - Mathf.Floor(newNum) != 0 ){ print("WATISS COUNT MULTIPLIER IS WACKY"); }
-   numHairs = (int)newNum;//(float)baseForm.count / (float)countMultiplier;
+    float newNum = (float)baseForm.count * (float)countMultiplier;
+    if(newNum - Mathf.Floor(newNum) != 0 ){ print("WATISS COUNT MULTIPLIER IS WACKY"); }
+    numHairs = (int)newNum;//(float)baseForm.count / (float)countMultiplier;
 
     count = numHairs * numVertsPerHair; 
+  
   }
 
 

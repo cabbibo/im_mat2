@@ -143,7 +143,7 @@ void Set (uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID, uint3 id 
 
   uint pID = threadID + u3GroupID.x * NR_THREADS;
   uint bID = pID / _NumVertsPerHair;
-  if( pID < _VertBuffer_COUNT && bID < _BaseBuffer_COUNT ){
+  //if( pID < _VertBuffer_COUNT && bID < _BaseBuffer_COUNT ){
 
 
     pID = safeID( pID , _VertBuffer_COUNT );
@@ -175,7 +175,7 @@ void Set (uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID, uint3 id 
 
     _VertBuffer[pID] = vert;
 
-  }
+ // }
   
 }
 
@@ -191,12 +191,14 @@ void Collision (uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID, uin
   uint pID = threadID + u3GroupID.x * NR_THREADS;
   uint bID = pID / _NumVertsPerHair;
 
-bool isTip = ((pID % _NumVertsPerHair) == _NumVertsPerHair-1);
+  bool isTip = ((pID % _NumVertsPerHair) == _NumVertsPerHair-1);
+
   if( pID < _VertBuffer_COUNT && bID < _BaseBuffer_COUNT ){
 
     pID = safeID( pID , _VertBuffer_COUNT );
     bID = safeID( bID , _BaseBuffer_COUNT );
     Vert vert = _VertBuffer[pID];
+   /* Vert vert = _VertBuffer[pID];
     Base base1 = _BaseBuffer[bID * 2 + 0];
     Base base2 = _BaseBuffer[bID * 2 + 1];
 
@@ -277,11 +279,13 @@ bool isTip = ((pID % _NumVertsPerHair) == _NumVertsPerHair-1);
       vert.pos = bP + bN * .1 * vert.uv.x; 
       vert.oPos = bP+ bN * .1 * vert.uv.x; 
       tb = true; 
-    }*/
+    }
 
+
+*/
     //vert.nor = normalize(vert.pos - vert.oPos);
 
-    if( _Delta  < .1 && tb == false ){
+    /*if( _Delta  < .1 && tb == false ){
 
       float dampening =.97;//_Dampening;//.99999;// - vert.life * .01;
       float3 next = vert.pos + vel  * dampening + force * .001;
@@ -291,8 +295,20 @@ bool isTip = ((pID % _NumVertsPerHair) == _NumVertsPerHair-1);
 
     }
 
+
+
+    float l = float(pID % _NumVertsPerHair ) / float(_NumVertsPerHair);
+    //vert.pos  = bP + bN * l *(length(s)/3)* _HairLength;
+    vert.uv = float2( l , float(bID)/float(_BaseBuffer_COUNT));
+    //vert.oPos = vert.pos;//base.pos + base.nor * l + _HairLength;
+
+
+    baseDelta = base1.pos - base2.pos;*/
+    vert.pos = float3(0,0,0);//base1.pos  - baseDelta * l ;
+    vert.oPos = float3(0,0,0);//vert.pos;
+
     //vert.pos = base.pos +float3(0,1,0) * vert.uv.x;
-    vert.debug = vert.length;
+    //vert.debug = vert.length;
     _VertBuffer[pID] = vert;
 
 
@@ -377,8 +393,8 @@ void Constraint(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID, uin
         
 
               // Set both the values in the proper buffer location!
-     _VertBuffer[ pID ] = v1;
-     _VertBuffer[ pUp ] = v2;
+    // _VertBuffer[ pID ] = v1;
+    // _VertBuffer[ pUp ] = v2;
 
 
 

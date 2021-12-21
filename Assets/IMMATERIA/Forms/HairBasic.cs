@@ -40,6 +40,8 @@ public class HairBasic : LifeForm {
 
   public override void Bind(){
 
+    DebugThis("Binding");
+
     set.BindPrimaryForm("_VertBuffer", Hair);
     set.BindForm("_BaseBuffer", Base );
 

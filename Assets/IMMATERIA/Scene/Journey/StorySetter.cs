@@ -105,7 +105,6 @@ public class StorySetter : Cycle
             {
                 numChecked++;
                 currentStory = i;
-                print(i);
             }
         }
 
@@ -119,7 +118,6 @@ public class StorySetter : Cycle
             data.helper.MultipleStoriesDesired();
         }
 
-        print( "CSSS : " + currentStory );
 
 
     }
@@ -128,7 +126,7 @@ public class StorySetter : Cycle
     public void EnterOuter()
     {
 
-        DebugThis("jumpStart");
+        //DebugThis("jumpStart");
         // Adding any cycles that are just for this set of stories
         JumpStart(localCycles);
 
@@ -175,7 +173,6 @@ public class StorySetter : Cycle
         else
         {
 
-            print("Entering Inner");
             //using the page turn controller to set all the data!
             data.journey.controller.EnterInner(this);
             data.state.SetterEnterInner(this);
@@ -204,7 +201,7 @@ public class StorySetter : Cycle
         }
 
 
-        DebugThis("jumpDeath");
+        //DebugThis("jumpDeath");
         JumpDeath(localCycles);
     }
 
