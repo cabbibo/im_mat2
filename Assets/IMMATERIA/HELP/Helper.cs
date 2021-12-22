@@ -31,9 +31,9 @@ public class Helper : Cycle
         print("GOOD JOB U ONLOCKTIOD!");
     }
 
-    public void NoCurrentStory()
+    public void NoCurrentStory(StorySetter setter)
     {
-        print("NO CURRENT STORY");
+        print("NO CURRENT STORY: " + setter.gameObject);
     }
 
 

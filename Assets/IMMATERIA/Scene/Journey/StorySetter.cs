@@ -134,7 +134,7 @@ public class StorySetter : Cycle
         {
 
             //This will happen if there is no story to be had!
-            data.helper.NoCurrentStory();
+            data.helper.NoCurrentStory(this);
 
         }
         else
@@ -166,7 +166,7 @@ public class StorySetter : Cycle
         if (currentStory < 0)
         {
             //This will happen if there is no story to be had!
-            data.helper.NoCurrentStory();
+            data.helper.NoCurrentStory(this);
         }
         else
         {
@@ -190,7 +190,7 @@ public class StorySetter : Cycle
         if (currentStory < 0)
         {
             //This will happen if there is no story to be had!
-            data.helper.NoCurrentStory();
+            data.helper.NoCurrentStory(this);
         }
         else
         {
@@ -208,7 +208,7 @@ public class StorySetter : Cycle
         if (currentStory < 0)
         {
             //This will happen if there is no story to be had!
-            data.helper.NoCurrentStory();
+            data.helper.NoCurrentStory(this);
         }
         else
         {

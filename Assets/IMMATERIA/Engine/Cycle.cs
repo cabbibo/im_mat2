@@ -599,7 +599,11 @@ void SetStates(){
 
 
   public void JumpStart(Cycle c){
-   
+     if( data != null ){
+          c.data = data;
+      }else{
+        DebugThis("NO DATA BAD BAD");
+      }
     SafeInsert(c);
 
     c._Destroy();
@@ -618,6 +622,16 @@ void SetStates(){
   // making sure that they get executed in
   // order correctly
   public void JumpStart(Cycle[] c){
+
+
+    for( int i = 0; i < c.Length; i++ ){
+      if( data != null ){
+          c[i].data = data;
+      }else{
+        DebugThis("NO DATA BAD BAD");
+      }
+    }
+
 
     for( int i = 0; i < c.Length; i++ ){
       SafeInsert(c[i]);
@@ -660,6 +674,12 @@ void SetStates(){
 
 
   public void JumpDeath( Cycle c ){
+
+    if( data != null ){
+          c.data = data;
+      }else{
+        DebugThis("NO DATA BAD BAD");
+      }
     c._OnDie();
     c._OnDied();
     c._Destroy();
@@ -668,6 +688,14 @@ void SetStates(){
 
 
   public void JumpDeath( Cycle[] c){
+    for( int i = 0; i < c.Length; i++ ){
+      if( data != null ){
+          c[i].data = data;
+      }else{
+        DebugThis("NO DATA BAD BAD");
+      }
+    }
+
     for( int i = 0; i < c.Length; i++ ){
         c[i]._OnDie();
     }
@@ -694,6 +722,7 @@ void SetStates(){
       }
 
     }
+
 
 
     DebugThis(parentString);

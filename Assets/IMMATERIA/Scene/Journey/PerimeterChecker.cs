@@ -124,7 +124,7 @@ public class PerimeterChecker : Cycle
 
    public void TurnOff(){
 
-    print("turnOff");
+//    print("turnOff :" + this.gameObject);
     if( localMeshes.Length > 0 ){
       for(int i = 0; i < localMeshes.Length; i++ ){
         localMeshes[i].SetActive(false);
