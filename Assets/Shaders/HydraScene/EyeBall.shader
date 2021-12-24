@@ -17,7 +17,10 @@ Shader "Scenes/Hydra/Eyeball" {
     _ColorMap ("Color Map", 2D) = "white" {}
     _ColorStart( "_ColorStart", Float ) = 0.16
     _ColorDepth( "_ColorDepth", Float ) = 0.16
+    _WhichColor( "_WhichColor", Float ) = 8
     _BackColor( "_BackColor", Float ) = 0.16
+    _OutlineColor( "_OutlineColor", Float ) = 0.16
+    _OutlineAmount( "_OutlineAmount", Float ) = 0.16
 
 
   }
@@ -29,7 +32,7 @@ Shader "Scenes/Hydra/Eyeball" {
 // Lighting/ Texture Pass
 Stencil
 {
-Ref 5
+Ref 4
 Comp always
 Pass replace
 ZFail keep
@@ -51,6 +54,7 @@ ZFail keep
       uniform float3 _EyePos;
       uniform float _ColorStart;
       uniform float _ColorDepth;
+      float _WhichColor;
       uniform sampler2D _ColorMap;
 
 
@@ -77,7 +81,7 @@ ZFail keep
 
         float d = length( pos - eyePos );
 
-        if( d < 0+ noise( pos * 20 ) * .1 ){ return 0; }else{ return .4 + noise( pos * 20 ) * .3; }
+        if( d < scale * .45 + noise( pos * 10 + _Time.y) * .1 ){ return 0; }else{ return .4 + noise( pos  * 10 + _Time.y) * .3; }
         //return noise( pos * 20 ) * 1+d*2;//abs( sin( pos.x * 40) + sin(pos.y * 40 ) + sin( pos.z * 40 ))*d * 4.;
       }
       
@@ -107,7 +111,13 @@ ZFail keep
         // draw a ray from the camera to the position shooting a ray through that point
         o.rd = normalize( v.position.xyz - camPos );
 
-        o.scale = mul( unity_ObjectToWorld , float4( 1,1,1 , 0)).x;
+      float3 worldScale = float3(
+        length(float3(unity_ObjectToWorld[0].x, unity_ObjectToWorld[1].x, unity_ObjectToWorld[2].x)), // scale x axis
+        length(float3(unity_ObjectToWorld[0].y, unity_ObjectToWorld[1].y, unity_ObjectToWorld[2].y)), // scale y axis
+        length(float3(unity_ObjectToWorld[0].z, unity_ObjectToWorld[1].z, unity_ObjectToWorld[2].z))  // scale z axis
+      );
+
+        o.scale = worldScale.x;
 
         return o;
 
@@ -141,14 +151,14 @@ ZFail keep
     
            // We get our value of how much of the volumetric material we have gone through
            // using the position
-           float val = getFogVal( p , v.eyePos , 10 ); 
+           float val = getFogVal( p , v.eyePos , 1 ); 
 
 
                     // Here we basically say 
                     // 'only care about this if we hit enough fog'
           if( val > .5 ){
             hit = 1;
-            col = tex2D(_ColorMap, float2( (float(i)/float(_NumberSteps)) *_ColorDepth  + _ColorStart , 0)).xyz;//float3( 1 ,1,1 ) * float(i);
+            col = tex2D(_ColorMap, float2( (val +(float(i)/float(_NumberSteps))) *_ColorDepth  + _ColorStart , (_WhichColor+.5)/16)).xyz;//float3( 1 ,1,1 ) * float(i);
             break;
           }
 
@@ -161,7 +171,6 @@ ZFail keep
         if( hit == 0 ){  discard; }
 
 
-col = v.scale * 100000000;
             fixed4 color;
         color = fixed4( col , 1. );
         return color;
@@ -179,7 +188,7 @@ ZWrite OFF
 ZTest ON
 Stencil
 {
-Ref 5
+Ref 4
 Comp notequal
 Fail keep
 Pass replace
@@ -190,6 +199,10 @@ Pass replace
       #pragma vertex vert
       #pragma fragment frag
 
+      uniform float _OutlineColor;
+      uniform float _OutlineAmount;
+      uniform float _WhichColor;
+      uniform sampler2D _ColorMap;
       #include "UnityCG.cginc"
 
       struct VertexIn{
@@ -205,7 +218,7 @@ Pass replace
         
         VertexOut o;
         // Getting the position for actual position
-        o.pos = UnityObjectToClipPos(  v.position + v.normal * .02f );
+        o.pos = UnityObjectToClipPos(  v.position + v.normal * _OutlineAmount );
     
 
         return o;
@@ -217,7 +230,7 @@ Pass replace
 
 
             fixed4 color;
-        color = 1;//fixed4( 1 , 1. );
+        color =  tex2D(_ColorMap, float2( _OutlineColor ,  (_WhichColor+.5)/16));
         return color;
       }
 
@@ -232,7 +245,7 @@ Pass replace
 // Lighting/ Texture Pass
 Stencil
 {
-Ref 5
+Ref 4
 Comp always
 Pass replace
 ZFail keep
@@ -253,6 +266,7 @@ ZFail keep
       uniform float3 _EyePos;
 
       uniform float _BackColor;
+      uniform float _WhichColor;
       uniform sampler2D _ColorMap;
 
       struct VertexIn{
@@ -313,7 +327,7 @@ ZFail keep
       // Fragment Shader
       fixed4 frag(VertexOut v) : COLOR {
 
-        float4 color =  tex2D(_ColorMap, float2( _BackColor , 0));
+        float4 color =  tex2D(_ColorMap, float2( _BackColor ,  (_WhichColor+.5)/16));
         return color;
       }
 

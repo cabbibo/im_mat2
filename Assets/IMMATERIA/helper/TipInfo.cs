@@ -47,10 +47,11 @@ public class TipInfo : Cycle
 
         float r = 2;
 
-        Vector3 offset = Mathf.Sin( a ) * r * hydra.brain.right +  Mathf.Cos( a ) * r * hydra.brain.up;
+        Vector3 offset = (Mathf.Sin( a ) * r * hydra.brain.right +  Mathf.Cos( a ) * r * hydra.brain.up) * (1+ .2f * Mathf.Sin( nID * 301 + Time.time * .3f ));
         
         Vector3 targetPos = hydra.brain.position + offset * hydra.armRingSize + hydra.brain.forward * hydra.armRingForwardSize;
 
+      
         
       
         closestDist = 10000;
@@ -72,7 +73,6 @@ public class TipInfo : Cycle
 
         }
 
-        force += (targetPos - transform.position) * hydra.armToRingForce  * (1.6f+Mathf.Sin( nID * 100 + Time.time * .3f ));
 
 // force += (targetPos - transform.position) * hydra.armToRingForce *100;//  * (1.6f+Mathf.Sin( nID * 100 + Time.time * .3f ));
 
@@ -84,28 +84,39 @@ public class TipInfo : Cycle
 
           Vector3 pDif = hydra.person.position - transform.position;
          
-         if( pDif.magnitude > closestDist ){
-          force -= ((hydra.armToFoodDist-tv1.magnitude)/hydra.armToFoodDist) * hydra.armToFoodForce * tv1.normalized;
-          currentTarget = closestFood;
-          hunting = true;
-        }
-          
-
-          if( closestDist < .1f ){
-            hunting = false;
-            hydra.food.EatFood(closestID);
+          if( pDif.magnitude > closestDist ){
+            force -= ((hydra.armToFoodDist-tv1.magnitude)/hydra.armToFoodDist) * hydra.armToFoodForce * tv1.normalized;
+            currentTarget = closestFood;
+            hunting = true;
           }
+            
+
+            if( closestDist < .1f ){
+              hunting = false;
+              hydra.food.EatFood(closestID);
+            }
 
 
+          force += (targetPos - transform.position) * .3f* hydra.armToRingForce  * (1.6f+Mathf.Sin( nID * 100 + Time.time * .3f ));
         }else{
 
           hunting = false;
           currentTarget = hydra.target;
+
+          
+          force += (targetPos - transform.position) * hydra.armToRingForce  * (1.6f+Mathf.Sin( nID * 100 + Time.time * .3f ));
         }
 
 
         //if( )
 
+
+        
+        float height =  data.land.SampleHeight( transform.position ) - transform.position.y;
+
+        if( height+1 > 0 ){
+          force += Vector3.up * 1* (height+1);
+        }
 
         vel += force;
         transform.position += vel;

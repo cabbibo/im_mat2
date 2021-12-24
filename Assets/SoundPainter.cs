@@ -18,6 +18,25 @@ public class SoundPainter : Simulation
 public int brushType;
 public int numberBrushTypes = 16;
 
+
+//0  BASE
+//1  Pickup
+//2  Monolith
+//3  Spacepup/Crystals
+//4  Dandelions/Lighthouse
+//5  Tenkys/Pit
+//6  Rocks/Fish
+//7  Waterfall/Pond/flowBlock/tree
+//8  Hydra
+//9 Jelly
+//10
+//11
+//12
+//13
+//14
+//15 SOURCE
+
+
 public int raiseLowerFlatten;
 
 public int numberTextures{

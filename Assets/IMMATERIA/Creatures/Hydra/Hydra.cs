@@ -289,7 +289,12 @@ public class Hydra : Cycle
  
 
 
+  
+        float height =  data.land.SampleHeight( brain.position ) - brain.position.y;
 
+        if( height+2 > 0 ){
+          force += Vector3.up * 1* (height+2);
+        }
 
 
       vel += force * .4f;

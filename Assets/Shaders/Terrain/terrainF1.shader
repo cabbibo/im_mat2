@@ -10,7 +10,11 @@
     _CubeMap( "Cube Map" , Cube )  = "defaulttexture" {}
     _Debug("DEBUG",float) = 0
     _HueStart("_HueStart",float) = 0
+    _GrassHueSize("_GrassHueSize",float) = 0
+    _TextureHueSize("_TextureHueSize",float) = 0
     _PlayerFalloff("_PlayerFalloff",float) = 0
+    _PainterlyLightMap ("Painterly", 2D) = "white" {}
+    _PaintSize("_PaintSize", Vector ) = (1,1,1,1)
     
   }
 
@@ -55,10 +59,14 @@
 
       bool _Debug;
       float _HueStart;
+      float _GrassHueSize;
+      float _TextureHueSize;
       float _PlayerFalloff;
       sampler2D _MainTex;
       sampler2D _ColorMap;
       sampler2D _NormalMap;
+      sampler2D _PainterlyLightMap;
+      float2 _PaintSize;
       samplerCUBE _CubeMap;
 
 
@@ -116,10 +124,13 @@
 
 
 
+            #include "../Chunks/PainterlyLight.cginc"
       #include "../Chunks/GetFullColor.cginc"
       float4 frag(varyings v) : COLOR {
 
         float4 color = tex2D(_MainTex,v.worldPos.xz * .1 );
+
+        float4 baseTextureColor = color;
         float4 hCol = sampleColor(v.worldPos );
 
         float3 fNor = normalize(float3(
@@ -192,7 +203,18 @@
         //tCol *=color;// pow(eyeM,100)  * 20;
         //tCol = 1;
 
-        tCol *= shadow;
+        //tCol *= shadow;
+
+       color = GetFullColor(baseTextureColor.x * _TextureHueSize + grassHeight * _GrassHueSize + _HueStart , v.worldPos.xz * _MapSize) * l;//  _ColorMap, float2(color.x * .2 - dif * .01+.6 + grassHeight * .7 + _HueStart, 0)) * l ;
+
+      //color  *= shadow;
+
+      float m = dot(v.nor, _WorldSpaceLightPos0 );
+
+      float4 p = Painterly( -m*m*m*shadow, v.uv.xy * _PaintSize );
+
+      color *= p;
+      color.xyz *= tCol*3;
 
         //tCol = dif;
 

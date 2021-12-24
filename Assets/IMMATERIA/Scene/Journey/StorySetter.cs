@@ -19,6 +19,8 @@ public class StorySetter : Cycle
     public int currentStory;
 
     public StoryAudio audio;
+    
+    public float colorType;
 
 
     public override void Create()

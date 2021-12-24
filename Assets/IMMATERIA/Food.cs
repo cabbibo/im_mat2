@@ -12,6 +12,8 @@ public class Food : Cycle
     public float radius;
     public float verticalStart;
 
+    public float rayDistance;
+
     public Transform[] foods;
     public Renderer[] renderers;
     public Vector3[] vels;
@@ -64,7 +66,23 @@ public class Food : Cycle
 
 
 
+      data.inputEvents.OnTap.AddListener(OnTap);
+
+
     }
+
+    public void OnTap(){
+      DebugThis("tapped");
+
+      Vector3  fPos = data.land.Trace( data.inputEvents.ray.origin , data.inputEvents.ray.direction );//* rayDistance;
+      Spawn(fPos);
+    }
+
+    public override void Destroy(){
+      DebugThis("ss");
+      data.inputEvents.OnTap.RemoveListener(OnTap);
+    }
+
 
     public override void WhileLiving(float v){
 
@@ -80,7 +98,7 @@ public class Food : Cycle
 
         force = Vector3.zero;
 
-        force += Vector3.up * .06f;
+        force += Vector3.up * .6f;
         vels[i] += force * .002f;
         foods[i].position += vels[i];
 
@@ -98,7 +116,7 @@ public class Food : Cycle
       }
 
       if( Time.time - lastSpawnTime > timeBetweenSpawns * (1.1f + Mathf.Sin(Time.time * .3f)) ){
-        Spawn();
+        //Spawn();
       }
 
     }
@@ -112,6 +130,22 @@ public class Food : Cycle
           foods[i].position += transform.right *radius* Random.Range(-0.5f , 0.5f);
           foods[i].position += transform.forward *radius* Random.Range(-0.5f , 0.5f);
           foods[i].position += transform.up *verticalStart;
+          foods[i].rotation = Random.rotation;
+          vels[i] = Vector3.zero;
+          lastSpawnTime = Time.time;
+          break;
+        }
+      }
+    }
+
+
+
+    public void Spawn(Vector3 position){
+      for( int i = 0; i < numFoods; i++ ){
+        if( canSpawn[i] ){
+          canSpawn[i] = false;
+          spawnTimes[i] = Time.time;
+          foods[i].position = position;
           foods[i].rotation = Random.rotation;
           vels[i] = Vector3.zero;
           lastSpawnTime = Time.time;

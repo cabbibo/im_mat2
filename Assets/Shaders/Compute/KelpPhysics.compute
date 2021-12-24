@@ -45,7 +45,9 @@ struct Vert{
 };
 
 
-struct Base{
+
+
+/*struct Base{
   float3 pos;
   float3 vel;
   float3 nor;
@@ -53,10 +55,10 @@ struct Base{
   float2 uv;
   float debug;
   float used;
-};
+};*/
 
 
-/*struct Base{
+struct Base{
   float3 pos;
   float3 vel;
   float3 nor;
@@ -66,7 +68,7 @@ struct Base{
   float3 triIDs;
   float3 triWeights;
   float3 debug;
-};*/
+};
 
 
 struct Bone{
@@ -79,7 +81,7 @@ struct Bone{
 
 float _NormalForce;
 float _NoiseForce;
-float _NoiseSpeed;
+float3 _NoiseSpeed;
 float _NoiseSize;
 float _Dampening;
 
@@ -180,7 +182,7 @@ void Set (uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID, uint3 id 
 
    float4 vals = _HeightMap.SampleLevel(sampler_HeightMap, (base.pos.xz-.5) * _MapSize  , 0);//tex2Dlod(_HeightMap , float4(pos.xz * _MapSize,0,0) );
  
-    vert.debug.x = vals.w * _HairLength;//  + hash( float(bID)) * .1 * _HairLength;//((sin(float(bID)*10000)+ _HairVariance) / _HairVariance ) * _HairLength;
+    //vert.debug.x = vals.w * _HairLength;//  + hash( float(bID)) * .1 * _HairLength;//((sin(float(bID)*10000)+ _HairVariance) / _HairVariance ) * _HairLength;
 
 
 
@@ -193,8 +195,7 @@ void Set (uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID, uint3 id 
 
 
         
- //   vert.debug.x = vals.w * _HairLength  + hash( float(bID)) * .1 * _HairLength;//((sin(float(bID)*10000)+ _HairVariance) / _HairVariance ) * _HairLength;
-
+    vert.debug.x = vals.w  * _HairLength * (1 + _HairVariance * sin(10000*float(bID)));
     _VertBuffer[pID] = vert;
 
   }
@@ -228,7 +229,7 @@ void Collision (uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID, uin
     float2 xz = 1*normalize( vert.pos.xz - _PlayerPosition.xz ) / (.1 + pow(length(vert.pos.xz - _PlayerPosition.xz), 10));
 
     force += float3(xz.x , 0 , xz.y );
-    force += curlNoise( vert.pos * _NoiseSize + float3(0,_Time*_NoiseSpeed,0) ) * _NoiseForce;
+    force += curlNoise( vert.pos * _NoiseSize + _Time*_NoiseSpeed ) * _NoiseForce;
    // force += float3(0,_UpForce*vert.uv.x,0);
 
  /*float2 d = map( vert.pos );
@@ -492,7 +493,7 @@ void BunchCollision (uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID
 
     float3 force = bN * _NormalForce;//float3( 0 , base.nor , 0.0 );
 
-    force += curlNoise( vert.pos * _NoiseSize + float3(0,_Time*_NoiseSpeed,0) ) * _NoiseForce;
+    force += curlNoise( vert.pos * _NoiseSize + _Time*_NoiseSpeed) * _NoiseForce;
     force += float3(0,_UpForce*vert.uv.x,0);
 
 
