@@ -25,7 +25,7 @@ SubShader
     {
         Tags
         { 
-            "Queue" = "Transparent+1"
+            "Queue" = "Transparent"
         }
 
         // Grab the screen behind the object into _BackgroundTexture
@@ -60,6 +60,17 @@ SubShader
       #include "../Chunks/noise.cginc"
 
 
+     
+      float3 _PlayerPosition; 
+      #include "../Chunks/SampleAudio.cginc"
+      #include "../Chunks/Reflection.cginc"
+      #include "../Chunks/Fog.cginc"
+
+      #include "../Chunks/PainterlyLight.cginc"
+      #include "../Chunks/GetFullColor.cginc"
+
+
+
   StructuredBuffer<Vert> _VertBuffer;
   StructuredBuffer<int> _TriBuffer;
 
@@ -83,9 +94,7 @@ SubShader
             sampler2D _BumpMap;
             sampler2D _MainTex;
             sampler2D _NoiseTex;
-            samplerCUBE _CubeMap;
 
-            float3 _PlayerPosition;
             float3 _Velocity;
             float3 _TrailPos1;
             float3 _TrailPos2;
@@ -288,6 +297,7 @@ float smin( float a, float b, float k )
             
 
 
+                    col *= FogMultiplier( v.world ) ;
                // col = tex2Dproj(_BackgroundTexture,ComputeGrabScreenPos( mul(UNITY_MATRIX_VP, float4(v.world + v.eye*.9,1)))).rgb;;// + saturate(aroundPerson * (lookup));
                 //col *= bg;// tex2Dproj(_BackgroundTexture, v.rR).rgb;;// + saturate(aroundPerson * (lookup));
 

@@ -61,7 +61,7 @@ public class DandelionBunch : Cycle
     releasing = 3;
   }
 
-    public void ReleaseFinalDandelion(){
+  public void ReleaseFinalDandelion(){
     print("disappera");
     releasing = 4;
   }

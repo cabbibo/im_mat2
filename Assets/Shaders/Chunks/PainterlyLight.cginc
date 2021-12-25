@@ -1,3 +1,6 @@
+
+sampler2D _PainterlyLightMap;
+
 float Painterly(float val , float2 uv ){
 
 

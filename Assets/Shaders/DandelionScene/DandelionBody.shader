@@ -1,108 +1,95 @@
-﻿Shader "Scenes/DandelionScene/dandelionBody"
+﻿Shader "Scenes/Dandelion/DandelionBody"
 {
     Properties {
 
-    _Color ("Color", Color) = (1,1,1,1)
-    _MainTex ("Texture", 2D) = "white" {}
-    _ColorMap ("Color Map", 2D) = "white" {}
-    _CubeMap( "Cube Map" , Cube )  = "defaulttexture" {}
+  
+       _PainterlyLightMap ("Painterly", 2D) = "white" {}
+       _NormalMap ("Normal", 2D) = "white" {}
+       _CubeMap( "Cube Map" , Cube )  = "defaulttexture" {}
 
-    _HueStart ("HueStart", Float) = 0
+      _ColorSize("_ColorSize", float ) = 0.5
+      _ColorBase("_ColorBase", float ) = 0
+      _OutlineColor("_OutlineColor", float ) = 0
+      _OutlineAmount("_OutlineAmount", float ) = .16
+      _PaintSize("_PaintSize", Vector ) = (1,1,1,1)
+      _NormalSize("_NormalSize", Vector ) = (1,1,1,1)
+      _NormalDepth("_NormalDepth", float ) = .4
 
   }
     SubShader
     {
         
+      
+
+
+
         Pass
         {
-Tags { "RenderType"="Opaque" }
-        LOD 100
 
-        Cull Off
+          Tags { "RenderType"="Opaque" }
+          LOD 100
+
+          Cull Off
+          // Lighting/ Texture Pass
+          Stencil
+          {
+            Ref 4
+            Comp always
+            Pass replace
+            ZFail keep
+          }
 
           Tags{ "LightMode" = "ForwardBase" }
+
             CGPROGRAM
+            
             #pragma vertex vert
             #pragma fragment frag
             #pragma target 4.5
-            // make fog work
-            #pragma multi_compile_fogV
- #pragma multi_compile_fwdbase nolightmap nodirlightmap nodynlightmap novertexlight
-
-      #include "UnityCG.cginc"
-      #include "AutoLight.cginc"
-    
-
-
-            #include "../Chunks/Struct16.cginc"
-
-            sampler2D _MainTex;
-            sampler2D _ColorMap;
-      samplerCUBE _CubeMap;
-
-            float _HueStart;
-
-            struct v2f { 
-              float4 pos : SV_POSITION; 
-              float3 nor : NORMAL;
-              float2 uv :TEXCOORD0; 
-              float3 worldPos :TEXCOORD1;
-              float  kelpID :TEXCOORD3;
-              float3  eye :TEXCOORD4;
-              UNITY_SHADOW_COORDS(2)
-            };
-            float4 _Color;
-
-            StructuredBuffer<Vert> _VertBuffer;
-            StructuredBuffer<int> _TriBuffer;
-
-            v2f vert ( uint vid : SV_VertexID )
-            {
-                v2f o;
-
-        UNITY_INITIALIZE_OUTPUT(v2f, o);
-                Vert v = _VertBuffer[_TriBuffer[vid]];
-                o.pos = mul (UNITY_MATRIX_VP, float4(v.pos,1.0f));
+            #pragma multi_compile_fwdbase nolightmap nodirlightmap nodynlightmap novertexlight
+          
+            #include "../Chunks/struct16.cginc"
+            #include "../Chunks/ShadowVertPassthrough.cginc"
+            #include "../Chunks/PainterlyLight.cginc"
+            #include "../Chunks/TriplanarTexture.cginc"
+            #include "../Chunks/MapNormal.cginc"
+            #include "../Chunks/Reflection.cginc"
+            #include "../Chunks/SampleAudio.cginc"
+            #include "../Chunks/ColorScheme.cginc"
 
 
-                o.nor = v.nor;
-                o.uv = v.uv;
-                o.worldPos = v.pos;
-
-                o.kelpID = v.debug.x;
-
-        UNITY_TRANSFER_SHADOW(o,o.worldPos);
-
-                return o;
-            }
-
-      float DoShadowDiscard( float3 pos , float2 uv , float3 nor ){
-        float v = dot(normalize(_WorldSpaceLightPos0.xyz), normalize(nor));
-        return v;//sin( uv.y * 100 + _Time.y);
-      }
+            float _WhichColor;
 
             fixed4 frag (v2f v) : SV_Target
             {
-                // sample the texture
-fixed shadow = UNITY_SHADOW_ATTENUATION(v,v.worldPos) * .5 + .5;
-                float val = -dot(normalize(_WorldSpaceLightPos0.xyz),normalize(v.nor));// -DoShadowDiscard( i.worldPos , i.uv , i.nor );
 
-                float lookupVal =  max(min( v.uv.y * 2,( 1- v.uv.y ) ) * 1.5,0);//2 * tex2D(_MainTex,v.uv * float2(4 * saturate(min( v.uv.y * 4,( 1- v.uv.y ) )) ,.8) + float2(0,.2));
-          
-float3 refl = reflect( normalize(_WorldSpaceCameraPos-v.worldPos) , v.nor);
-        float reflM = dot( refl , _WorldSpaceLightPos0 );
+                fixed shadow = UNITY_SHADOW_ATTENUATION(v,v.world) * .5 + .5;
 
-                float4 tCol = tex2D(_MainTex, v.uv * float2( 4  ,1 ) ) * 3;
-                float4 cutOff = tex2D(_MainTex,  v.uv * float2( 3 , 1  ) ) * v.uv.x * 2;
-                //if( length(cutOff)  <  v.uv.x *1.2){ discard; }
-                //tCol = lerp(  tCol  , cutOff  , (cutOff * cutOff* cutOff));
-                float3 cCol = texCUBE(_CubeMap,refl);;// * color;
+                float3 n = MapNormal( v , v.uv * _NormalSize , _NormalDepth );
+                float3 reflectionColor = Reflection( v.pos , n );
 
-               // if( ( lookupVal + 1.3) - 1.2*length( tCol ) < .5 ){ discard;}
-                fixed4 col = float4( cCol , 1 ) * 2 * shadow * v.uv.x * 1.4 * tex2D(_ColorMap , float2( -length(tCol) * .2 * v.uv.x * v.uv.x*v.uv.x* .5 - val * .1  + sin( v.kelpID) * .02 +  _HueStart, 0) );// * saturate(20*-val);//* 20-10;//*tCol* lookupVal*4;//* 10 - 1;
+                float m = dot( n, _WorldSpaceLightPos0.xyz);
+                m *= shadow;
+                m = saturate(m);
+                m = 1-m;
+
+                float3 col;
                 
-                //if( v.uv.x >.83){ col = 1;}
-                return col;
+                float3 mapColor = GetGlobalColor( m * _ColorSize  + _ColorBase );
+                float3 p = Painterly( m, v.uv.xy * _PaintSize );
+
+                float3 refl = normalize(reflect( v.eye,n ));
+                float rM = saturate(dot(refl,_WorldSpaceLightPos0.xyz));
+                
+                float4 audio = SampleAudio(length(reflectionColor.xyz) * .05 + v.uv.x * .2) * 2;
+                
+                
+                col = mapColor*p;     
+                col.xyz *= reflectionColor * 4;
+                col  +=  (1-saturate(length(col.xyz)*10))* audio.xyz;
+
+
+                return float4(col,1);
             }
 
             ENDCG
@@ -124,6 +111,10 @@ float3 refl = reflect( normalize(_WorldSpaceCameraPos-v.worldPos) , v.nor);
       Offset 1, 1
       CGPROGRAM
 
+      float DoShadowDiscard( float3 pos , float2 uv ){
+         return 1;
+      }
+
       #pragma target 4.5
       #pragma vertex vert
       #pragma fragment frag
@@ -133,19 +124,92 @@ float3 refl = reflect( normalize(_WorldSpaceCameraPos-v.worldPos) , v.nor);
       #include "UnityCG.cginc"
       sampler2D _MainTex;
 
-      float DoShadowDiscard( float3 pos , float2 uv ){
-         return 1;//float lookupVal =  max(min( uv.y * 2,( 1- uv.y ) ) * 1.5,0);//2 * tex2D(_MainTex,uv * float2(4 * saturate(min( uv.y * 4,( 1- uv.y ) )) ,.8) + float2(0,.2));
-         // float4 tCol = tex2D(_MainTex, uv *   float2( 6,(lookupVal)* 1 ));
-         // if( ( lookupVal + 1.3) - 1.2*length( tCol ) < .5 ){ return 0;}else{return 1;}
-      }
-#include "../Chunks/Struct16.cginc"
+
+      #include "../Chunks/struct16.cginc"
       #include "../Chunks/ShadowDiscardFunction.cginc"
       ENDCG
     }
-  
+
+
+
+
+               // SHADOW PASS
+
+    Pass
+    {
+
+    // Outline Pass
+    Cull OFF
+    ZWrite OFF
+    ZTest ON
+
+    Stencil
+    {
+      Ref 4
+      Comp notequal
+      Fail keep
+      Pass replace
     }
+          
+            CGPROGRAM
+            #pragma vertex vert
+            #pragma fragment frag
+            #pragma target 4.5
+            // make fog work
+            #pragma multi_compile_fogV
+ #pragma multi_compile_fwdbase nolightmap nodirlightmap nodynlightmap novertexlight
+
+      #include "UnityCG.cginc"
+      #include "AutoLight.cginc"
+    
 
 
+            #include "../Chunks/Struct16.cginc"
+
+
+            struct v2f { 
+              float4 pos : SV_POSITION; 
+            };
+            float4 _Color;
+
+            StructuredBuffer<Vert> _VertBuffer;
+            StructuredBuffer<int> _TriBuffer;
+            sampler2D _ColorMap;
+            float _OutlineColor;
+            float _OutlineAmount;
+            float _WhichColor;
+
+            v2f vert ( uint vid : SV_VertexID )
+            {
+                v2f o;
+
+        
+                Vert v = _VertBuffer[_TriBuffer[vid]];
+                float3 fPos = v.pos + v.nor * _OutlineAmount;
+                o.pos = mul (UNITY_MATRIX_VP, float4(fPos,1.0f));
+
+
+                return o;
+            }
+
+      
+            #include "../Chunks/ColorScheme.cginc"
+            fixed4 frag (v2f v) : SV_Target
+            {
+              
+                fixed4 col =GetGlobalColor( _OutlineColor );
+                col *= 1;
+                return col;
+            }
+
+            ENDCG
+        }
+
+    
+  
+  
+  
+  }
 
 
 }

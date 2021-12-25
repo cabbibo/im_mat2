@@ -34,8 +34,6 @@ sampler2D _ColorMap;
 sampler2D _TextureMap;
 sampler2D _NormalMap;
 
-sampler2D _PainterlyLightMap;
-samplerCUBE _CubeMap;
 
 float2 _NormalSize;
 float2 _PaintSize;

@@ -31,6 +31,7 @@ Blend SrcAlpha OneMinusSrcAlpha
 
             #include "../Chunks/Struct16.cginc"
             #include "../Chunks/hash.cginc"
+            #include "../Chunks/ColorScheme.cginc"
 
 
             struct v2f { 
@@ -82,6 +83,8 @@ Blend SrcAlpha OneMinusSrcAlpha
                 col = tex2D( _MainTex , v.uv );
                 if( col.a < .3 ){ discard; }
                 col *= v.debug.y;
+
+                col *= GetGlobalColor(1);
                 
                 return col;
             }

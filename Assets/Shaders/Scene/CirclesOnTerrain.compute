@@ -1,5 +1,6 @@
 ﻿#pragma kernel SceneCircle
 #pragma kernel CircleOnTerrain
+#pragma kernel CircleOnTerrainOscillate
 
 struct Vert{
   float3 pos;
@@ -23,6 +24,7 @@ float _Height;
 
 #include "../Chunks/safeID.cginc"
 #include "../Chunks/ComputeTerrainInfo.cginc"
+#include "../Chunks/snoise.cginc"
 
 
 
@@ -78,4 +80,29 @@ void CircleOnTerrain (uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupI
 
 
 }
+
+
+float _Time;
+#define NR_THREADS 128
+[numthreads(NR_THREADS,1,1)]
+void CircleOnTerrainOscillate (uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID) {
+
+  int pID = safeID( threadID + u3GroupID.x * NR_THREADS , _VertBuffer_COUNT );
+
+    
+    Vert v = _VertBuffer[pID];
+
+    v.pos = _SetLocation + v.og * _Radius;
+    v.pos.y = 0;
+
+    v.nor = getNormal( v.pos );
+    v.pos = worldPos(v.pos) ;
+    v.pos -= v.nor * _Height - (snoise(v.pos * .1 + float3(0,_Time * .1,0))+1) * _Height;
+
+    _VertBuffer[pID] = v;
+
+
+
+}
+
 

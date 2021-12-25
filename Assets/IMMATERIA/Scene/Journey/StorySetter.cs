@@ -21,6 +21,8 @@ public class StorySetter : Cycle
     public StoryAudio audio;
     
     public float colorType;
+    public float fogCutoff = 200;
+    public Vector3 lightDirection;
 
 
     public override void Create()
@@ -196,8 +198,8 @@ public class StorySetter : Cycle
         }
         else
         {
-            data.journey.controller.ExitOuter(this);
             data.state.SetterExitOuter(this);
+            data.journey.controller.ExitOuter(this);
         }
 
 

@@ -21,6 +21,7 @@
 
       #include "UnityCG.cginc"
       #include "../Chunks/noise.cginc"
+      #include "../Chunks/ColorScheme.cginc"
 
 
       int _NumStories;
@@ -154,7 +155,8 @@ float sdCapsule( float3 p, float3 a, float3 b, float r )
         // Our color starts off at zero,   
         //float3 col = tex2D(_ColorMap, float2( _HueStart + (((dif * 6 - _Time.y * .3 + length( tCol) *5 ) % 1) * .4) + length( tCol) * .01 ,0 )).xyz / ( .4 + .2*thisDif *thisDif + dif);
         float3 col = tex2D(_ColorMap, float2(thisDif * .1 + dif * .3+ _HueStart,0)).xyz / ( .4 + .2*thisDif *thisDif + dif);
-
+        col = GetGlobalColor(thisDif * .4 + dif * .3+ _HueStart );
+        col /= dif*dif * 10 + thisDif * .3;
          //if( closestID == _WhichStory ){ col *= 4;}
 
          float distToLine = DistToLine( _StoryPositions[_WhichStory].xy , _StoryPositions[_ConnectedStory] , ro.xy );
@@ -165,7 +167,7 @@ float sdCapsule( float3 p, float3 a, float3 b, float r )
           distToLine = 10000000;
          }
        
-        col *= tex2D(_AudioMap , float2(dif * .1 + tCol.x * .01 ,0)) / (10 *dif);
+        col *= tex2D(_AudioMap , float2(dif * .1 + tCol.x * .03 ,0)) / (10 *dif);
         if( thisDif < .18 + .005 * sin(_Time.y*4) + tCol.x * .1  ){ col *= 2;}
         if( connectedDif < .135 + .005 * sin(_Time.y*2)+ tCol.x * .1   && _ConnectedStory >= 0){ col *= .1;}
         

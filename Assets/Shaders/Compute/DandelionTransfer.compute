@@ -20,6 +20,7 @@ int _VertBuffer_COUNT;
 int _DandelionBuffer_COUNT;
 int _SkeletonBuffer_COUNT;
 #include "../Chunks/safeID.cginc"
+#include "../Chunks/snoise.cginc"
 
 int _VertsPerVert;
 int _NumVertsPerHair;
@@ -27,7 +28,7 @@ float3 _CameraUp;
 float3 _CameraRight;
 float3 _CameraForward;
 float _Radius;
-
+float _Time;
 
 #define NR_THREADS 64
 [numthreads(NR_THREADS,1,1)]
@@ -40,7 +41,7 @@ void Transfer (uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID) {
 
     int hairID = (transferID / _VertsPerVert);
 
-    if( hairID <3 ){ hairID = 0; }
+    if( hairID <6 ){ hairID = 0; }
     int sID = (hairID + 1) * _NumVertsPerHair -1;
     
     Vert p1 = _DandelionBuffer[safeID( transferID , _DandelionBuffer_COUNT )];
@@ -58,7 +59,7 @@ void Transfer (uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID) {
 
     x = _CameraRight;
     y = _CameraUp;
-    float r = _Radius;
+    float r = _Radius * p1.debug.x;
 
 
     fPos = p1.pos + .001*(float(which) * float3(1,0,0) + float(which%2) * float3(0,1,0)); 
@@ -70,33 +71,45 @@ void Transfer (uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID) {
 
     float3 dir = p1.pos - s1.pos;
 
+
+    float noiseVal = .8*snoise( s1.pos * .1 + float3(_Time * .1,0,0));
+     noiseVal += 1*snoise( s1.pos * 1 + float3(_Time * .03,0,0));
+
     if( which == 0 ){
       fPos = p1.pos - x * r - y * r;
+      fNor = -normalize( p1.pos - fPos );
       fUV = float2( 0, 0); 
-      fDebug = float2( float(transferID) , 0 );
+      fDebug = float2( float(transferID) , noiseVal );
     }else if( which  == 1 ){
       fPos = p1.pos + x * r - y * r;
-      fDebug = float2( float(transferID) , 0 );
+      fNor = -normalize( p1.pos - fPos );
+      fDebug = float2( float(transferID) , noiseVal  );
       fUV = float2( 1 , 0 );
     }else if( which == 2 ){
       fPos = p1.pos - x * r + y * r;
-      fDebug = float2( float(transferID) , 0 );
+      fNor = -normalize( p1.pos - fPos );
+      fDebug = float2( float(transferID) , noiseVal  );
       fUV = float2( 0 , 1 );
     }else if( which == 3 ){
       fPos = p1.pos + x * r + y * r;
-      fDebug = float2( float(transferID) , 0 );
+      fNor = -normalize( p1.pos - fPos );
+      fDebug = float2( float(transferID), noiseVal  );
       fUV = float2( 1 , 1 );
     }else if( which == 4 ){
       fPos = dir * -.1 + p1.pos - x * r * .3 - y * r * .1;
-      fDebug = float2( s1.uv.x , 1 );
+      
+      fNor = -normalize( (p1.pos+s1.pos)/2 - fPos );
+      fDebug = float2( s1.uv.x , noiseVal  );
       fUV = float2( 0 , 1 );
     }else if( which == 5 ){
       fPos = dir * -.1 + p1.pos + x * r * .3 - y * r * .1;
-      fDebug = float2( s1.uv.x , 1 );
+      fNor = -normalize( (p1.pos+s1.pos)/2 - fPos );
+      fDebug = float2( s1.uv.x , noiseVal  );
       fUV = float2( 1 , 1 );
     }else{
       fPos = s1.pos;
-      fDebug = float2( s1.uv.x , 1 );
+      fNor = -normalize( (p1.pos+s1.pos)/2 - fPos );
+      fDebug = float2( s1.uv.x, noiseVal  );
       fUV = float2( .5, 0 );
     }
 

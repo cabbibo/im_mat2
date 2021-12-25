@@ -188,6 +188,8 @@ Blend One One
                 // using the deltas to get the 'normal' of our collision point
                 float3 nor = normalize(cross(endPosX - endPosX1 , endPosY-endPosY1));
 
+                endPos -= nor * _NormalOffset;
+
                 float m = abs(dot(forward,nor));
 
                 float3 xDir = normalize(cross(nor,float3(1,0,0)));

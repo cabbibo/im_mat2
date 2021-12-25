@@ -4,7 +4,6 @@
 
     _Color ("Color", Color) = (1,1,1,1)
     _MainTex ("Texture", 2D) = "white" {}
-    _ColorMap ("Color Map", 2D) = "white" {}
 
   }
     SubShader
@@ -33,9 +32,9 @@ Tags { "RenderType"="Opaque" }
 
             #include "../Chunks/Struct16.cginc"
             #include "../Chunks/SampleAudio.cginc"
+            #include "../Chunks/ColorScheme.cginc"
 
             sampler2D _MainTex;
-            sampler2D _ColorMap;
 
             struct v2f { 
               float4 pos : SV_POSITION; 
@@ -85,8 +84,11 @@ fixed shadow = UNITY_SHADOW_ATTENUATION(v,v.worldPos) * .5 + .5;
                 float4 tCol = tex2D(_MainTex, v.uv *   float2( 6,(lookupVal)* 1 ));
                 float4 aCol = SampleAudio(  (tCol.x +lookupVal+ _Time.x )%.5 );//tex2D(_AudioMap, v.uv *   float2( 6,(lookupVal)* 1 ));
                 if( ( lookupVal + 1.3) - 1.2*length( tCol ) < .5 ){ discard;}
-                fixed4 col =aCol* 2* tex2D(_ColorMap , float2( length(tCol) * 1.6 + (1-shadow  * .05)+ .0 + lookupVal* lookupVal * .5 + .03*sin(_Time.y) , 0) );//* 20-10;//*tCol* lookupVal*4;//* 10 - 1;
-                return col;
+
+                float4 colorMap = GetGlobalColor( length(tCol) * 1.6 + (1-shadow  * .05)+ .0 + lookupVal* lookupVal * .5 + .03*sin(_Time.y) );
+                fixed4 col = aCol* 2* colorMap;
+                
+                   return col;
             }
 
             ENDCG

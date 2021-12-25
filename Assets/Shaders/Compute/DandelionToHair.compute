@@ -68,6 +68,8 @@ void FlatForce (uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID, uin
 
   uint pID = threadID + u3GroupID.x * NR_THREADS;
   uint bID = pID / _VertsPerVert;
+
+  // Getting the tip vert!
   bID = (bID+1) * _NumVertsPerHair - 1;
 
   if( pID < _VertBuffer_COUNT && bID < _SkeletonBuffer_COUNT ){
@@ -78,6 +80,8 @@ void FlatForce (uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID, uin
     Vert vert = _VertBuffer[pID];
     Vert base = _SkeletonBuffer[bID];
     Vert base1 = _SkeletonBuffer[bID-1];
+
+    float3 stemLength = base.debug.x;
     //Vert base2 = _SkeletonBuffer[bID-2];
 
     float3 nor = normalize(base.pos - base1.pos);
@@ -215,15 +219,29 @@ void Constraint(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID, uin
     int bID = pID/_VertsPerVert;
 
 
+      int oldBase = bID;
+
+      // Getting a big bunch by stealing from 2 other stems
       if( bID == 2){ bID = 0; }
       if( bID == 1){ bID = 0; }
+      if( bID == 3){ bID = 0; }
+      if( bID == 4){ bID = 0; }
+      if( bID == 5){ bID = 0; }
+
+      int tmpBase = bID;
       bID = (bID+1) * _NumVertsPerHair - 1;
 
     int pUp = uint(safeID(bID,_SkeletonBuffer_COUNT));
     Vert v1 = _VertBuffer[pID];
     Vert v2 = _SkeletonBuffer[pUp];
 
+    
 
+
+    float stemLength = v2.debug.x;
+    if( tmpBase == 0 ){ stemLength = 1 * (float(oldBase) + 5) * .2;}
+
+    v1.debug.x = stemLength;
 
       float n = (sin( float( pID ) * 10 ) + 10) / 10;
 
@@ -237,7 +255,10 @@ void Constraint(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID, uin
       // We want to make sure that l isn't zero, 
       // or we will get some NaNs
       if( l > 0.001 ){
-        difference = ( min(v2.uv.x * 3  , (1-v2.uv.x))*_Length*n - l ) / l;
+       /// difference = ( min(v2.uv.x * 3  , (1-v2.uv.x))*_Length*n - l ) / l;
+
+        
+        difference = (stemLength * .2 - l ) / l;
       }
 
       // Here is where the actual verlet goes down!

@@ -134,7 +134,7 @@ void Set (uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID, uint3 id 
 
     vert.info.x = 1;
       
-    vert.length = _HairLength * base.debug.y;//base.uv.y),2);//((sin(float(bID)*10000)+ _HairVariance) / _HairVariance ) * _HairLength;
+    //vert.length = _HairLength * base.debug.y;//base.uv.y),2);//((sin(float(bID)*10000)+ _HairVariance) / _HairVariance ) * _HairLength;
 
     _VertBuffer[pID] = vert;
 
@@ -166,6 +166,7 @@ bool isTip = ((pID % _NumVertsPerHair) == _NumVertsPerHair-1);
 
     float3 bP = base.pos;//mul( transform,  float4(base.pos,1)).xyz;
     float3 bN = base.nor;//normalize(mul( transform,  float4(base.nor,0))).xyz;
+    float2 bUV = base.uv;//normalize(mul( transform,  float4(base.nor,0))).xyz;
     float3 s = float3(1,1,1);//mul( transform , float4(1,1,1,0)).xyz;
 
     float3 force = -1*bN * 1;//float3( 0 , base.nor , 0.0 );
@@ -204,6 +205,8 @@ force += float3(xz.x , 0 , xz.y) * .3;
   force += float3(0,vert.uv.x,0);
 
 
+    vert.length = ((.5-abs(.5 - bUV.y))+.5) * _HairLength * (1 + _HairVariance * sin(10000*float(bID)));
+  if( pID == 0 ){ vert.length = _HairLength * 8; }
 
 // in the air
 if( vert.info.x < 0 && bID != 0 ){

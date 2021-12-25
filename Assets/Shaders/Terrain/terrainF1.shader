@@ -12,7 +12,6 @@
     _HueStart("_HueStart",float) = 0
     _GrassHueSize("_GrassHueSize",float) = 0
     _TextureHueSize("_TextureHueSize",float) = 0
-    _PlayerFalloff("_PlayerFalloff",float) = 0
     _PainterlyLightMap ("Painterly", 2D) = "white" {}
     _PaintSize("_PaintSize", Vector ) = (1,1,1,1)
     
@@ -61,13 +60,11 @@
       float _HueStart;
       float _GrassHueSize;
       float _TextureHueSize;
-      float _PlayerFalloff;
       sampler2D _MainTex;
       sampler2D _ColorMap;
       sampler2D _NormalMap;
-      sampler2D _PainterlyLightMap;
+
       float2 _PaintSize;
-      samplerCUBE _CubeMap;
 
 
       StructuredBuffer<Vert> _VertBuffer;
@@ -79,8 +76,12 @@
       #include "../Chunks/Noise.cginc"
 
 
-            #include "../Chunks/SampleAudio.cginc"
+      #include "../Chunks/SampleAudio.cginc"
+      #include "../Chunks/Reflection.cginc"
+      #include "../Chunks/Fog.cginc"
 
+      #include "../Chunks/PainterlyLight.cginc"
+      #include "../Chunks/GetFullColor.cginc"
 
       struct varyings {
         float4 pos    : SV_POSITION;
@@ -125,8 +126,6 @@
 
 
 
-            #include "../Chunks/PainterlyLight.cginc"
-      #include "../Chunks/GetFullColor.cginc"
 
    float2 rotateUV(float2 uv, float rotation)
 {
@@ -190,9 +189,6 @@ float v2 = -m * shadow;
 
 float3 refl = reflect( normalize(v.eye) , fNor );
 
-float dif = length( v.worldPos - _PlayerPosition );
-float playerFalloffAmount = saturate( (_PlayerFalloff-dif)/_PlayerFalloff);
-
 
 
 
@@ -201,7 +197,7 @@ float playerFalloffAmount = saturate( (_PlayerFalloff-dif)/_PlayerFalloff);
 
 float4 terrainCol =  GetFullColor(.5 -v2 * .5 , v.worldPos.xz * _MapSize);
 float4 p1 = Painterly( v2, v.worldPos.xz * _PaintSize );
-float3 tCol = texCUBE(_CubeMap,refl);
+float3 tCol = Reflection(normalize(v.eye),fNor);//texCUBE(_CubeMap,refl);
 
 tCol = length(tCol)*length(tCol)/3;
 
@@ -210,7 +206,7 @@ tCol = length(tCol)*length(tCol)/3;
     //color = terrainCol;
     color *=  p1 * .7 + .5;
     color.xyz *= tCol;
-    color *=  playerFalloffAmount ;
+    color *= FogMultiplier( v.worldPos ) ;
 
    //float4 audio = SampleAudio(abs(refl.y)*.3) * 2;
    //color += (1-saturate(length(color.xyz)*10))* audio;

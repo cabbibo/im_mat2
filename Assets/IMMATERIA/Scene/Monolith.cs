@@ -23,6 +23,9 @@ public class Monolith : Cycle
     public MaterialPropertyBlock mpb;
 
     public bool dynamicPositions;
+    public bool forceUpdateStoryMarkers;
+
+    
 
     public void DestroyMe(){
      // print( storyMarkers.Length );
@@ -38,12 +41,14 @@ public class Monolith : Cycle
     }
 
 
- public override void Destroy(){
+    public override void Destroy(){
       data.inputEvents.OnTap.RemoveListener( CheckHit );
     }
 
 
     public override void Create(){
+
+      print("recreating");
 
       if( cameraLerp == null ){ 
         GameObject go = new GameObject();
@@ -75,12 +80,16 @@ public class Monolith : Cycle
 
 
 
-      if( data.journey.monoSetters.Length != storyMarkers.Length  || storyMarkers == null ){
+      if( data.journey.monoSetters.Length != storyMarkers.Length  || storyMarkers == null || forceUpdateStoryMarkers ){
 
 
       DestroyMe();
       storyMarkers = new GameObject[data.journey.monoSetters.Length];
+
+      print( data.journey.monoSetters.Length );
       for( int i = 0; i < data.journey.monoSetters.Length; i++ ){
+
+        print("DOING IT");
           storyMarkers[i] = Instantiate( storyMarkerPrefab);
           
           storyMarkers[i].transform.parent = transform;

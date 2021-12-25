@@ -208,4 +208,9 @@ public class Data : Cycle
         Shader.SetGlobalFloat("_GlobalColorSchemeID", colorSchemeID);
     }
 
+
+    public void SetGlobalFogCutoff(float fogCutoff){
+        Shader.SetGlobalFloat("_FogCutoff", fogCutoff);
+    }
+
 }

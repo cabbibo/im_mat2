@@ -28,7 +28,6 @@ ZFail keep
 
             #include "UnityCG.cginc"
 
-samplerCUBE _CubeMap;
             #include "../Chunks/Reflection.cginc"
       
       #include "../Chunks/ColorScheme.cginc"

@@ -480,12 +480,13 @@ public class State : Cycle
     {
         oSetter = setter;
         setter = null;
+        data.state.inStory = false;
+        data.state.lastTimeStoryVisited = Time.time;
+        
     }
 
     public void SetterExitInner(StorySetter s)
     {
-        data.state.lastTimeStoryVisited = Time.time;
-        data.state.inStory = false;
 
 
     }

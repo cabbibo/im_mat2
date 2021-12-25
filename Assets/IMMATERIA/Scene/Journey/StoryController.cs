@@ -21,6 +21,8 @@ public class StoryController : Cycle
 
     public float transitionStartTime;
 
+    public float fogDistance;
+
     // The first page's collider needs to be clicked 
     // in order for the story to start
     // The collider will be turned on when we enter the inner circle?
@@ -508,7 +510,7 @@ public class StoryController : Cycle
 
         DoFade(0);
         story.OnExitOuter.Invoke();
-
+        data.sceneCircle.Unset(s.perimeter);
         setter.perimeter.OnDoFade.RemoveListener(DoFade);
 
         /*for( int i = 0; i < localCycles.Length; i ++ ){
@@ -521,7 +523,6 @@ public class StoryController : Cycle
     {
         //print("exiting the inner");
 
-        data.sceneCircle.Unset(s.perimeter);
         data.inputEvents.OnTap.RemoveListener(CheckForStart);
         data.inputEvents.OnEdgeSwipeLeft.RemoveListener(NextPage);
         data.inputEvents.OnEdgeSwipeRight.RemoveListener(PreviousPage);
