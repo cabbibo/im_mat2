@@ -35,9 +35,6 @@ public class TipInfo : Cycle
   private Vector3 tv1;
 
 
-  public override void Create(){
-  }
-
   public override void WhileLiving(float v){
 
     force = Vector3.zero;

@@ -199,8 +199,13 @@ public class Data : Cycle
         Shader.SetGlobalVector("_PlayerPosition", playerPosition);
         Shader.SetGlobalVector("_PlayerSoul", playerSoul);
 
-        Shader.SetGlobalTexture("_FullColorMap", fullColorMap);
+        Shader.SetGlobalTexture("_ColorScheme", fullColorMap);
+    }
 
+
+
+    public void SetGlobalColorType(float colorSchemeID){
+        Shader.SetGlobalFloat("_GlobalColorSchemeID", colorSchemeID);
     }
 
 }

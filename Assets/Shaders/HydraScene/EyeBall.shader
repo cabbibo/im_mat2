@@ -14,10 +14,8 @@ Shader "Scenes/Hydra/Eyeball" {
 
 
     
-    _ColorMap ("Color Map", 2D) = "white" {}
     _ColorStart( "_ColorStart", Float ) = 0.16
     _ColorDepth( "_ColorDepth", Float ) = 0.16
-    _WhichColor( "_WhichColor", Float ) = 8
     _BackColor( "_BackColor", Float ) = 0.16
     _OutlineColor( "_OutlineColor", Float ) = 0.16
     _OutlineAmount( "_OutlineAmount", Float ) = 0.16
@@ -54,8 +52,9 @@ ZFail keep
       uniform float3 _EyePos;
       uniform float _ColorStart;
       uniform float _ColorDepth;
-      float _WhichColor;
-      uniform sampler2D _ColorMap;
+
+      
+      #include "../Chunks/ColorScheme.cginc"
 
 
       struct VertexIn{
@@ -158,7 +157,7 @@ ZFail keep
                     // 'only care about this if we hit enough fog'
           if( val > .5 ){
             hit = 1;
-            col = tex2D(_ColorMap, float2( (val +(float(i)/float(_NumberSteps))) *_ColorDepth  + _ColorStart , (_WhichColor+.5)/16)).xyz;//float3( 1 ,1,1 ) * float(i);
+            col = GetGlobalColor(  (val +(float(i)/float(_NumberSteps))) *_ColorDepth  + _ColorStart).xyz;//float3( 1 ,1,1 ) * float(i);
             break;
           }
 
@@ -201,10 +200,10 @@ Pass replace
 
       uniform float _OutlineColor;
       uniform float _OutlineAmount;
-      uniform float _WhichColor;
-      uniform sampler2D _ColorMap;
       #include "UnityCG.cginc"
 
+      
+      #include "../Chunks/ColorScheme.cginc"
       struct VertexIn{
          float4 position  : POSITION; 
          float3 normal    : NORMAL; 
@@ -230,7 +229,7 @@ Pass replace
 
 
             fixed4 color;
-        color =  tex2D(_ColorMap, float2( _OutlineColor ,  (_WhichColor+.5)/16));
+        color =  GetGlobalColor(  _OutlineColor );
         return color;
       }
 

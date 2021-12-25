@@ -2,7 +2,6 @@
   Properties {
 
     _Color ("Color", Color) = (1,1,1,1)
-    _BaseHue ("Base Hue", float ) = 1
     _Thickness ("_Thickness", float ) = .5
     _Falloff ("_Falloff", float ) = 10
     _NoiseSize ("_NoiseSize", float ) = 10
@@ -12,7 +11,6 @@
     _CutoffMap ("CutoffMap", 2D) = "white" {}
 
     
-    _ColorMap ("ColorMap", 2D) = "white" {}
 
     
   }
@@ -57,7 +55,7 @@
 
 
 
-      
+      #include "../Chunks/ColorScheme.cginc"
   
       float getD( float2 uv , float textureVal){
         
@@ -125,8 +123,6 @@
 
 
       float3 _Color;
-      float _BaseHue;
-
       struct varyings {
         float4 pos    : SV_POSITION;
         float3 nor    : TEXCOORD0;
@@ -193,8 +189,10 @@
         if( d < .4 ){ discard; }
 
 
-        float3 c = tex2D(_ColorMap,float2(v.vel * 10.1 + .7  + _BaseHue + v.hueOffset + d * .1,0) ).xyz;
+        float3 c = GetGlobalColor(  saturate(v.vel * 200.1) * .12 + .88  ).xyz * d*d*d;
         
+
+        //c = _GlobalColorSchemeID;
 
         if( v.special > .5 ){
           c=1;

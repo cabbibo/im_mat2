@@ -357,6 +357,10 @@ public class StoryController : Cycle
         setter.audio.Enter();
         data.state.inPages = true;
 
+
+        print("STARTINGSTORY");
+        data.SetGlobalColorType(setter.colorType);
+
         started = true;
 
         oldTransitionPage = null;

@@ -4,6 +4,11 @@
         sampler2D _TerrainInfo4;
     sampler2D _FullColorMap;
 
+
+    
+      
+      #include "../Chunks/ColorScheme.cginc"
+
     float4 GetFullColor( float lookupVal , float2 uvPos  ){
 
 
@@ -57,8 +62,8 @@
 
 
 
-           float4 cMap1 = tex2D( _FullColorMap , float2( lookupVal, 1-(maxID  + .5) / 16));
-            float4 cMap2 = tex2D( _FullColorMap , float2( lookupVal, 1-(secondMaxID  + .5) / 16));
+           float4 cMap1 = GetSchemeColor(lookupVal, maxID);
+            float4 cMap2 = GetSchemeColor(lookupVal,  secondMaxID );
 
            return  cMap1  * maxIDWeight + cMap2 * secondMaxIDWeight;//(v.nor * .5 + .5) * v.color.w * _Color;//1;///_Color;//saturate(sin(length(dif) * .1 - _Time.y * 3));// / 1000;//lerp( 0 , c2 , l * .1);//_Color * (v.nor * .5 + .5)  - l;// hsv(v.normal.y * .5,1,1);
 

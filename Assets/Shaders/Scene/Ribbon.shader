@@ -64,6 +64,9 @@
       float _ColorBase;
       float _WhichColor;
 
+      
+      #include "../Chunks/ColorScheme.cginc"
+
 
             struct varyings {
                 float4 pos      : SV_POSITION;
@@ -125,14 +128,14 @@
         color.xyz *=  v.uv.y * 1.1;
 
 
-         color.xyz  = tex2D(_ColorMap , float2( v.uv.y * _ColorSize  + _ColorBase , (_WhichColor+.5)/16)  ).xyz;
+         color.xyz  = GetGlobalColor(  v.uv.y * _ColorSize  + _ColorBase );// , (_WhichColor+.5)/16)  ).xyz;
         
 
                 
             color *= (tcol+1);
             if( tcol.a < .8 ){ discard; }
             color *= dif;
-            if( v.debug.y < .3 ){ discard; }
+            //if( v.debug.y < .3 ){ discard; }
             return float4( color.xyz , 1.);
          }
 

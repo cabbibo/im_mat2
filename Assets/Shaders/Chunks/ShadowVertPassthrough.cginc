@@ -32,7 +32,6 @@ StructuredBuffer<int> _TriBuffer;
 
 sampler2D _ColorMap;
 sampler2D _TextureMap;
-sampler2D _AudioMap;
 sampler2D _NormalMap;
 
 sampler2D _PainterlyLightMap;

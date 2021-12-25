@@ -120,7 +120,7 @@ varyings vert (uint id : SV_VertexID){
             o.worldPos = (v.pos) + extra * _Size * v.info4.w;
         }
 
-        o.worldPos += float3( 0 , float(which) * _Size , 0);
+        o.worldPos += float3( 0 , float(which) * _Size * .01f , 0);
 
         o.which =float(which);
       //o.worldPos = extra * _Size;

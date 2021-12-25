@@ -2,8 +2,6 @@
 {
     Properties
     {
-      _ColorMap ("Color", 2D) = "white" {}
-      _WhichColor("_WhichColor", float ) = 8
       _HueStart("_HueStart", float ) = 8
        _CubeMap( "Cube Map" , Cube )  = "defaulttexture" {}
     }
@@ -32,6 +30,8 @@ ZFail keep
 
 samplerCUBE _CubeMap;
             #include "../Chunks/Reflection.cginc"
+      
+      #include "../Chunks/ColorScheme.cginc"
             struct appdata
             {
                 float4 vertex : POSITION;
@@ -81,7 +81,7 @@ samplerCUBE _CubeMap;
                 float rM = saturate(dot(refl,_WorldSpaceLightPos0.xyz));
                 
                 // sample the texture
-                fixed4 col = tex2D(_ColorMap , float2( _HueStart +pow(rM,10)*2, (_WhichColor+.5)/16)  );;
+                fixed4 col = GetGlobalColor(  _HueStart +pow(rM,10)*10  );
 
                 col.xyz *= tCol;
 

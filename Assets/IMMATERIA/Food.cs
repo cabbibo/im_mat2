@@ -72,14 +72,12 @@ public class Food : Cycle
     }
 
     public void OnTap(){
-      DebugThis("tapped");
 
       Vector3  fPos = data.land.Trace( data.inputEvents.ray.origin , data.inputEvents.ray.direction );//* rayDistance;
       Spawn(fPos);
     }
 
     public override void Destroy(){
-      DebugThis("ss");
       data.inputEvents.OnTap.RemoveListener(OnTap);
     }
 

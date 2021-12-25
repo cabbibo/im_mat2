@@ -35,8 +35,9 @@ CGPROGRAM
     sampler2D _SampleTexture;
     float _SampleSize;
 
-    sampler2D _AudioMap;
 
+            #include "../Chunks/SampleAudio.cginc"
+            #include "../Chunks/ColorScheme.cginc"
 
 
       //A simple input struct for our pixel shader step containing a position.
@@ -54,6 +55,7 @@ CGPROGRAM
           
           
       };
+
 
 
             sampler2D _BackgroundTexture;
@@ -118,7 +120,7 @@ float4 frag (varyings v) : COLOR {
     float2 ty = v.rd.zx * _MapScale;
     float2 tz = v.rd.xy * _MapScale;
 
-    float n = noise( v.rd * .0002 ) +  .4 * noise (v.rd * .0006) + .1 * noise(v.rd * .001)  ;//* .3 + noise(v.rd * .0001) * .6 + noise(v.rd * .0003);
+    float n = noise( v.rd * .0002 + _Time.y * .03 ) +  .4 * noise (v.rd * .0006+ _Time.y * .1) + .1 * noise(v.rd * .001+ _Time.y * .3)  ;//* .3 + noise(v.rd * .0001) * .6 + noise(v.rd * .0003);
 
 
     float4 cx = tex2D(_MainTex, tx )* bf.x* bf.x;
@@ -128,9 +130,9 @@ float4 frag (varyings v) : COLOR {
     col = (cx + cy + cz).xyz;
     col *= 10;
 
-    col = hsv(col.x * .1 + n, 1, col.x);
+    col = GetGlobalColor( col.x * .1 ) * col.x;
 
-    col *= tex2D(_AudioMap,n * .1);
+    col *= SampleAudio(n*.1);//(_AudioMap,n * .1);
 
 
     return fixed4( saturate(col.xyz) * _Lightness , 1);//saturate(float4(col,3*length(col) ));

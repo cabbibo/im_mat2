@@ -8,8 +8,6 @@
        _NormalMap ("Normal", 2D) = "white" {}
        _CubeMap( "Cube Map" , Cube )  = "defaulttexture" {}
 
-       _ColorMap ("Color", 2D) = "white" {}
-      _WhichColor("_WhichColor", float ) = 8
       _ColorSize("_ColorSize", float ) = 0.5
       _ColorBase("_ColorBase", float ) = 0
       _OutlineColor("_OutlineColor", float ) = 0
@@ -62,7 +60,11 @@
             #include "../Chunks/TriplanarTexture.cginc"
             #include "../Chunks/MapNormal.cginc"
             #include "../Chunks/Reflection.cginc"
+
+
             #include "../Chunks/SampleAudio.cginc"
+      
+            #include "../Chunks/ColorScheme.cginc"
 
 
             float _WhichColor;
@@ -73,7 +75,7 @@
                 fixed shadow = UNITY_SHADOW_ATTENUATION(v,v.world) * .5 + .5;
 
                 float3 n = MapNormal( v , v.uv * _NormalSize , _NormalDepth );
-                float3 r = Reflection( v.pos , n );
+                float3 reflectionColor = Reflection( v.pos , n );
 
                 float m = dot( n, _WorldSpaceLightPos0.xyz);
                 float baseM = m;
@@ -81,9 +83,15 @@
 
                 m *= shadow;
 
+                m = saturate(m);
+
+                m = 1-m;
+
+              
 
 
-                float3 col  = tex2D(_ColorMap , float2( m * _ColorSize  + _ColorBase , (_WhichColor+.5)/16)  ).xyz;
+
+                float3 col  = GetGlobalColor( m * _ColorSize  + _ColorBase );
                 float3 p = Painterly( m, v.uv.xy * _PaintSize );
 
 
@@ -107,11 +115,18 @@
                 
                 float3 refl = normalize(reflect( v.eye,n ));
                 float rM = saturate(dot(refl,_WorldSpaceLightPos0.xyz));
-                col += col *pow(rM,5)*20;
+              //  col += col *pow(rM,5)*20;
                 
-                float3 audio = SampleAudio(v.uv.x * .1 + p.x * .03 );
-                col.xyz *= (audio *audio*10 + 1);
-                col.xyz *= r * 4;
+               // float3 audio = SampleAudio(v.uv.x * .1 + p.x * .03 );
+
+            
+
+               // col.xyz *= (audio *audio*10 + 1);
+                col.xyz *= reflectionColor * 4;
+
+                    float4 audio = SampleAudio(length(reflectionColor.xyz) * .05 + v.uv.x * .2) * 2;
+                col  +=  (1-saturate(length(col.xyz)*10))* audio.xyz;
+
                 //col.xyz = p * p * col;//m;//normalize(_WorldSpaceLightPos0.xyz) * .5+ .5 ;//m;//p;
                 //col = shadow;
 
@@ -222,10 +237,12 @@ Pass replace
                 return o;
             }
 
+      
+      #include "../Chunks/ColorScheme.cginc"
             fixed4 frag (v2f v) : SV_Target
             {
               
-                fixed4 col = tex2D(_ColorMap , float2( _OutlineColor, (_WhichColor+.5)/16)  );;
+                fixed4 col =GetGlobalColor( _OutlineColor );
                 col *= 1;
                 return col;
             }

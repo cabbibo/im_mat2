@@ -34,6 +34,7 @@ Blend One One
 
 
             #include "../Chunks/Struct16.cginc"
+            #include "../Chunks/ColorScheme.cginc"
 
             float _Cutoff;
 
@@ -92,7 +93,8 @@ Blend One One
                 }
 
               // Getting distance from original position ( further away is brighter)
-                col *= (.3 + 3*length( v.dif ));    
+                col *= (.5 + 3*length( v.dif ));  
+                col = saturate(col);  
     
                  if( _CanEdgeSwipe > 0 ){
                    // making it all brighter;
@@ -117,9 +119,9 @@ Blend One One
 
               
                // col = v.uv.x;
+                col *= GetGlobalColor(  1 - saturate(length(v.dif)) * .2 ).xyz; 
 
-
-                return float4(saturate(col  * v.debug.x), saturate(length(col) * v.debug.x));
+                return saturate(float4(col,length(col) * v.debug.x));
                 //return float( v.side )/4;//float4(col  * v.debug.x, length(col) * v.debug.x);
             }
 
