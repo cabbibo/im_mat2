@@ -3,7 +3,6 @@
   Properties {
     _Color ("Color", Color) = (1,1,1,1)
     _MainTex ("Texture", 2D) = "white" {}
-    _ColorMap ("Texture", 2D) = "white" {}
     _CubeMap( "Cube Map" , Cube )  = "defaulttexture" {}
   }
 
@@ -22,6 +21,8 @@
             
             #include "UnityCG.cginc"
             #include "AutoLight.cginc"    
+            #include "../Chunks/ColorScheme.cginc"
+            #include "../Chunks/Reflection.cginc"
 
             struct Vert{
           float3 pos;
@@ -37,8 +38,6 @@
         StructuredBuffer<int> _TriBuffer;
 
         uniform sampler2D _MainTex;
-        uniform sampler2D _ColorMap;
-        uniform samplerCUBE _CubeMap;
     
         float3 _Color;
     
@@ -113,9 +112,9 @@
         float3 eyeRefl = reflect( normalize(v.eye),v.nor);
         //float3 eyeRefl = refract( normalize(v.eye), fNor , .8 );
 
-        float3 tCol = texCUBE( _CubeMap , eyeRefl );
+        float3 tCol = Reflection( v.eye, v.nor);//texCUBE( _CubeMap , eyeRefl );
 
-        col = 2*tCol* tex2D(_ColorMap, float2(v.debug.y * .2 + .6 ,0));//-rM;//v.nor * .5 + .5;// tCol;//*tCol * tex2D(_ColorMap,float2(rM*.1+.7 - v.debug.y * .1 ,.5 )).rgb;// *(1-rM);//hsv(rM*rM*rM * 2.1,.5,rM);// + normalize(refl) * .5+.5;
+        col = 2*tCol* GetGlobalColor( v.debug.y * .2 + .8 );//-rM;//v.nor * .5 + .5;// tCol;//*tCol * tex2D(_ColorMap,float2(rM*.1+.7 - v.debug.y * .1 ,.5 )).rgb;// *(1-rM);//hsv(rM*rM*rM * 2.1,.5,rM);// + normalize(refl) * .5+.5;
         //col = v.tan * .5 + .5;
 
         //col += hsv(dot(v.eye,v.nor) * -.1,.6,1) * (1-length(col));

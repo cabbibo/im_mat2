@@ -213,4 +213,11 @@ public class Data : Cycle
         Shader.SetGlobalFloat("_FogCutoff", fogCutoff);
     }
 
+
+
+    public void SetSkyboxBrightness(float brightness){
+
+         RenderSettings.skybox.SetFloat("_Lightness", brightness);
+    }
+
 }

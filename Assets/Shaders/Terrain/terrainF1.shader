@@ -4,8 +4,6 @@
     _Color ("Color", Color) = (1,1,1,1)
 
     _MainTex ("Texture", 2D) = "white" {}
-
-    _ColorMap ("ColorMap", 2D) = "white" {}
     _NormalMap ("NormalMap", 2D) = "white" {}
     _CubeMap( "Cube Map" , Cube )  = "defaulttexture" {}
     _Debug("DEBUG",float) = 0
@@ -107,7 +105,6 @@
 
         UNITY_INITIALIZE_OUTPUT(varyings, o);
 
-        //fPos -= float3(0,1,0) * .3  * (1-saturate(.3*length( fPos - _PlayerPosition)));
         fPos += float3(0,.1,0) * noise(fPos + float3(0,_Time.y,0));
         o.worldPos = fPos;
 
@@ -127,7 +124,7 @@
 
 
 
-   float2 rotateUV(float2 uv, float rotation)
+float2 rotateUV(float2 uv, float rotation)
 {
     float mid = 0.5;
     return float2(
@@ -140,89 +137,32 @@
 
         float4 color= 0;
         
-        //= tex2D(_MainTex,v.worldPos.xz * .1 );
-
-       // float4 baseTextureColor = color;
-       // float4 hCol = sampleColor(v.worldPos );
-
-     
-       /* float3 glint = tex2D(_NormalMap , v.worldPos.xz * .04 ) + tex2D(_NormalMap , v.worldPos.xz * .14 );
-
-        glint = normalize((glint)-1);
-
-        float eyeM = abs(dot(fNor, normalize(v.eye)));
-        
-        fixed shadow = UNITY_SHADOW_ATTENUATION(v,v.worldPos)  ;
-        float dif = length( v.worldPos - _PlayerPosition );
-
-        float playerFalloffAmount = saturate( (_PlayerFalloff-dif)/_PlayerFalloff);
-        color.xyz = .4*pow(length(color.xyz),4);
-
-        float match = dot( fNor, _WorldSpaceLightPos0 );
-
-        float3 refl = reflect( normalize(v.eye) , fNor );
-        float reflM = dot( refl , _WorldSpaceLightPos0 );
-
-
-
-        float grassHeight = (hCol.w * 5 + noise( v.worldPos * .2+ float3(0,_Time.y * .2,0) + fNor * _Time.y * .01 ) * .4) / 5;
-       
-        float3 tCol = texCUBE(_CubeMap,refl);
-     
-
-        float holeVal = length( v.worldPos - _TerrainHole)  + noise( v.worldPos * 4.2 + float3(0,_Time.y * .2,0) )  * .2;
-        if( holeVal < 2 ){
-          discard;
-        }
-        if( holeVal < 2.3){ color = saturate((holeVal - 2) * 4) * color;}
-*/
-
-
         fixed shadow = UNITY_SHADOW_ATTENUATION(v,v.worldPos)  ;
 
-float3 fNor = tex2D(_NormalMap ,  v.worldPos.xz * _PaintSize );
-       fNor = normalize(v.nor * fNor.z *2 + float3(1,0,0) * (fNor.x)  + float3(0,0,1) * (fNor.y-.5));//normalize( fNor );
+        float3 fNor = tex2D(_NormalMap ,  v.worldPos.xz * _PaintSize );
+              fNor = normalize(v.nor * fNor.z *2 + float3(1,0,0) * (fNor.x)  + float3(0,0,1) * (fNor.y-.5));//normalize( fNor );
 
-float m = dot(v.nor, _WorldSpaceLightPos0 );
-float v2 = -m * shadow;
+        float m = dot(v.nor, _WorldSpaceLightPos0 );
+        float v2 = -m * shadow;
 
+        float4 terrainCol =  GetFullColor(.5 -v2 * .5 , v.worldPos.xz * _MapSize);
+        float4 painterly = Painterly( v2, v.worldPos.xz * _PaintSize );
+        float3 tCol = Reflection(normalize(v.eye),fNor);//texCUBE(_CubeMap,refl);
 
-float3 refl = reflect( normalize(v.eye) , fNor );
+        tCol = length(tCol)*length(tCol)/3;
 
+        float4 audio = SampleAudio(length(tCol.xyz) * .2 ) * 2;
 
-
-
-
-
-
-float4 terrainCol =  GetFullColor(.5 -v2 * .5 , v.worldPos.xz * _MapSize);
-float4 p1 = Painterly( v2, v.worldPos.xz * _PaintSize );
-float3 tCol = Reflection(normalize(v.eye),fNor);//texCUBE(_CubeMap,refl);
-
-tCol = length(tCol)*length(tCol)/3;
+        color = GetFullColor( v2 * .13 + .5, v.worldPos.xz * _MapSize);
+        color *=  painterly * .7 + .5;
+        color.xyz *= tCol;
+        color *= FogMultiplier( v.worldPos ) ;
 
 
-    color = GetFullColor( v2 * .13 + .5, v.worldPos.xz * _MapSize);
-    //color = terrainCol;
-    color *=  p1 * .7 + .5;
-    color.xyz *= tCol;
-    color *= FogMultiplier( v.worldPos ) ;
-
-   //float4 audio = SampleAudio(abs(refl.y)*.3) * 2;
-   //color += (1-saturate(length(color.xyz)*10))* audio;
-
-                float4 audio = SampleAudio(length(tCol.xyz) * .2 ) * 2;
-              //  color.xyz  +=  (1-saturate(length(color.xyz)*))* audio.xyz;
-
-
-
-
-        //tCol = dif;
-
-        //tCol = grassHeight;
         if( _Debug != 0 ){ color.xyz = v.nor * .5 + .5; }
-        //return float4( 0,0,0,1 );
+
         return float4( color.xyz  , 1.);
+
       }
 
       ENDCG

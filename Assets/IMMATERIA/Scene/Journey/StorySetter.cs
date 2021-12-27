@@ -22,6 +22,8 @@ public class StorySetter : Cycle
     
     public float colorType;
     public float fogCutoff = 200;
+    public float skyboxBrightness;
+
     public Vector3 lightDirection;
 
 

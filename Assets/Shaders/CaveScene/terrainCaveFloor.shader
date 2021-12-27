@@ -1,19 +1,18 @@
-﻿Shader "Final/Cave/Floor" {
+﻿Shader "Scenes/Crystal/CaveFloor" {
   Properties {
 
     _Color ("Color", Color) = (1,1,1,1)
 
     _MainTex ("Texture", 2D) = "white" {}
-
-    _ColorMap ("ColorMap", 2D) = "white" {}
-    _ColorMap2 ("ColorMap2", 2D) = "white" {}
     _NormalMap ("NormalMap", 2D) = "white" {}
     _CubeMap( "Cube Map" , Cube )  = "defaulttexture" {}
     _Debug("DEBUG",float) = 0
     _HueStart("_HueStart",float) = 0
-    _PlayerFalloff("_PlayerFalloff",float) = 0
+    _GrassHueSize("_GrassHueSize",float) = 0
+    _TextureHueSize("_TextureHueSize",float) = 0
+    _PainterlyLightMap ("Painterly", 2D) = "white" {}
+    _PaintSize("_PaintSize", Vector ) = (1,1,1,1)
     
-    [Toggle(Enable12Struct)] _Struct12("12 Struct", Float) = 0
   }
 
   SubShader {
@@ -25,10 +24,10 @@
 
 
       Stencil {
-            Ref 1
-            Comp Always 
-            Pass Replace
-        }
+        Ref 1
+        Comp Always 
+        Pass Replace
+      }
 
       CGPROGRAM
       #pragma target 4.5
@@ -38,15 +37,15 @@
 
       #include "UnityCG.cginc"
       #include "AutoLight.cginc"
-    
-    struct Vert{
-      float3 pos;
-      float3 vel;
-      float3 nor;
-      float3 tan;
-      float2 uv;
-      float2 debug;
-    };
+      
+      struct Vert{
+        float3 pos;
+        float3 vel;
+        float3 nor;
+        float3 tan;
+        float2 uv;
+        float2 debug;
+      };
 
       #include "../Chunks/hsv.cginc"
       #include "../Chunks/noise.cginc"
@@ -57,23 +56,30 @@
 
       bool _Debug;
       float _HueStart;
-      float _PlayerFalloff;
+      float _GrassHueSize;
+      float _TextureHueSize;
       sampler2D _MainTex;
       sampler2D _ColorMap;
-      sampler2D _ColorMap2;
       sampler2D _NormalMap;
-      samplerCUBE _CubeMap;
+
+      float2 _PaintSize;
 
 
-  StructuredBuffer<Vert> _VertBuffer;
-  StructuredBuffer<int> _TriBuffer;
-
-
-
-#include "../Chunks/ComputeTerrainInfo.cginc"
+      StructuredBuffer<Vert> _VertBuffer;
+      StructuredBuffer<int> _TriBuffer;
 
 
 
+      #include "../Chunks/ComputeTerrainInfo.cginc"
+      #include "../Chunks/Noise.cginc"
+
+
+      #include "../Chunks/SampleAudio.cginc"
+      #include "../Chunks/Reflection.cginc"
+      #include "../Chunks/Fog.cginc"
+
+      #include "../Chunks/PainterlyLight.cginc"
+      #include "../Chunks/GetFullColor.cginc"
 
       struct varyings {
         float4 pos    : SV_POSITION;
@@ -99,8 +105,7 @@
 
         UNITY_INITIALIZE_OUTPUT(varyings, o);
 
-        //fPos -= float3(0,1,0) * .3  * (1-saturate(.3*length( fPos - _PlayerPosition)));
-
+        fPos += float3(0,.1,0) * noise(fPos + float3(0,_Time.y,0));
         o.worldPos = fPos;
 
 
@@ -108,7 +113,7 @@
         o.pos = mul(UNITY_MATRIX_VP, float4(fPos,1));
         o.eye = _WorldSpaceCameraPos - fPos;
         o.nor = fNor;
-        o.uv =  fUV;
+        o.uv =  float2(.9,1)-fUV;
         o.debug = float3(debug.x,debug.y,0);
 
         UNITY_TRANSFER_SHADOW(o,o.worldPos);
@@ -116,105 +121,65 @@
         return o;
       }
 
+
+
+
+float2 rotateUV(float2 uv, float rotation)
+{
+    float mid = 0.5;
+    return float2(
+        cos(rotation) * (uv.x - mid) + sin(rotation) * (uv.y - mid) + mid,
+        cos(rotation) * (uv.y - mid) - sin(rotation) * (uv.x - mid) + mid
+    );
+}
+   
       float4 frag(varyings v) : COLOR {
 
-       float4 color = tex2D(_MainTex,v.worldPos.xz * .1 );
-        float4 hCol = sampleColor(v.worldPos );
-
-        float3 fNor = normalize(float3(
-            2*noise(v.worldPos* 2 )-1,
-            2*noise(v.worldPos* 2 +50)-1,
-            2*noise(v.worldPos* 2 +20 )-1
-        ));
-
-        fNor += 2*normalize(float3(
-            2*noise(v.worldPos* .4 )-1,
-            2*noise(v.worldPos* .4 +50)-1,
-            2*noise(v.worldPos* .4 +20 )-1
-        ));
-
-        fNor += .4 * normalize(float3(
-            2*noise(v.worldPos* 10 )-1,
-            2*noise(v.worldPos* 10 +50)-1,
-            2*noise(v.worldPos* 10 +20 )-1
-        ));
-
-        fNor = tex2D(_NormalMap , v.worldPos.xz * .04 );
-       // fNor += 2*v.nor;
+        float4 color= 0;
         
-
-        fNor = normalize(v.nor * fNor.z + float3(1,0,0) * (fNor.x)  + float3(0,0,1) * (fNor.y-.5));//normalize( fNor );
-
-        float3 glint = tex2D(_NormalMap , v.worldPos.xz * .04 ) + tex2D(_NormalMap , v.worldPos.xz * .14 );
-
-        glint = normalize((glint)-1);
-
-        float eyeM = abs(dot(fNor, normalize(v.eye)));
-    
         fixed shadow = UNITY_SHADOW_ATTENUATION(v,v.worldPos)  ;
-float dif = length( v.worldPos - _PlayerPosition );
 
-float l = saturate( (_PlayerFalloff-dif)/_PlayerFalloff);
-        color.xyz = .4*pow(length(color.xyz),4);
+        float3 fNor = tex2D(_NormalMap ,  v.worldPos.xz * _PaintSize );
+              fNor = normalize(v.nor * fNor.z *2 + float3(1,0,0) * (fNor.x)  + float3(0,0,1) * (fNor.y-.5));//normalize( fNor );
 
-        float match = dot( fNor, _WorldSpaceLightPos0 );
+        float m = dot(v.nor, _WorldSpaceLightPos0 );
+        float v2 = -m * shadow;
 
-        float3 refl = reflect( normalize(v.eye) , fNor );
-        float reflM = dot( refl , _WorldSpaceLightPos0 );
+        float4 terrainCol =  GetFullColor(.5 -v2 * .5 , v.worldPos.xz * _MapSize);
+        float4 painterly = Painterly( v2, v.worldPos.xz * _PaintSize );
+        float3 tCol = Reflection(normalize(v.eye),fNor);//texCUBE(_CubeMap,refl);
 
+        tCol = length(tCol)*length(tCol)/3;
 
-
-        float grassHeight = (hCol.w * 5 + noise( v.worldPos * .2+ float3(0,_Time.y * .2,0) + fNor * _Time.y * .01 ) * .4) / 5;
-        color.xyz = tex2D(_ColorMap, float2( reflM * reflM  * .2 + .6 + dif * .03, 0)) * l ;
-
-
+        float4 audio = SampleAudio(length(tCol.xyz) * .2 ) * 2;
 
 
-        color = tex2D(_MainTex,v.worldPos.xz * .1);
-        color = tex2D(_ColorMap, float2(color.x * .2 - dif * .01+.6 + grassHeight * .7 + _HueStart, 0)) * l ;
+        float colorLookup =  v2 * .13 + .5;
+        float lerpVal = saturate( 2*(.5-1.1*length(v.uv-.5)));
 
+        colorLookup = lerp( colorLookup , v2 * .3 + .7 , lerpVal );
 
-
-      float3 cubeCol = texCUBE(_CubeMap,refl).xyz;
-
-        float3 tCol = cubeCol * color;
-        color *= ( grassHeight + .5);
-
-        color.xyz *= cubeCol * 2;
-
-
-        float holeVal = length( v.worldPos - _TerrainHole)  + noise( v.worldPos * 4.2 + float3(0,_Time.y * .2,0) )  * .2;
-        if( holeVal < 2 ){
-          discard;
-        }
-        if( holeVal < 2.3){ color = saturate((holeVal - 2) * 4) * color;}
-
-        //tCol *=color;// pow(eyeM,100)  * 20;
-        //tCol = 1;
-
-        tCol *= shadow;
+        float4 colorMapColor= GetFullColor( colorLookup, v.worldPos.xz * _MapSize);
         
+        color = colorMapColor;
+        color *=  painterly * .7 + .5;
+        color.xyz *= tCol;
+        color *= FogMultiplier( v.worldPos ) ;
 
-        int power = 8;
+        color.xyz = lerp( color , colorMapColor * tCol * 5,lerpVal );
 
-        float lerpVal =  saturate(max( pow(abs(v.uv.y-.5) * 2.2 , power) , pow(abs(v.uv.x-.5) * 2.2 , power)));
-        
 
-        float3 col = cubeCol * tex2D(_ColorMap2,reflM);
-        color.xyz = lerp( col , color.xyz , lerpVal );
-        //tCol = dif;
-
-        //tCol = grassHeight;
         if( _Debug != 0 ){ color.xyz = v.nor * .5 + .5; }
-        //return float4( 0,0,0,1 );
+
         return float4( color.xyz  , 1.);
+
       }
 
       ENDCG
     }
 
 
-   // SHADOW PASS
+    // SHADOW PASS
 
     Pass
     {
@@ -240,7 +205,9 @@ float l = saturate( (_PlayerFalloff-dif)/_PlayerFalloff);
       #include "../Chunks/Struct16.cginc"
       #include "../Chunks/ShadowCasterPos.cginc"
       #include "../Chunks/noise.cginc"
-   
+
+      
+      
 
       StructuredBuffer<Vert> _VertBuffer;
       StructuredBuffer<int> _TriBuffer;
@@ -277,7 +244,7 @@ float l = saturate( (_PlayerFalloff-dif)/_PlayerFalloff);
 
       ENDCG
     }
-  
+    
 
 
   }

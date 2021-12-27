@@ -360,8 +360,8 @@ public class StoryController : Cycle
         data.state.inPages = true;
 
 
-        print("STARTINGSTORY");
         data.SetGlobalColorType(setter.colorType);
+//        print("STARTINGSTORY");
 
         started = true;
 
@@ -466,6 +466,8 @@ public class StoryController : Cycle
         currentPageID = story.currentPage;
         pages = story.pages;
         currentPage = story.pages[currentPageID];
+        
+        data.SetGlobalColorType(setter.colorType);
         data.sceneCircle.Set(setter.perimeter);
         setter.perimeter.OnDoFade.AddListener(DoFade);
 

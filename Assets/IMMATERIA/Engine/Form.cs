@@ -140,6 +140,7 @@ public class Form : Cycle {
   }
 
   public override void WhileDebug(){
+
     mpb.SetBuffer("_VertBuffer", _buffer);
     mpb.SetInt("_Count",count);
     

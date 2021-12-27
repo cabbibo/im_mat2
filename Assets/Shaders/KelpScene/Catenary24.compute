@@ -165,13 +165,15 @@ void Set (uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID, uint3 id 
 
 
     float3 baseDelta = base1.pos - base2.pos;
-    vert.pos = base1.pos  - baseDelta * l * _HairLength;
-    vert.oPos = vert.pos;
+    //vert.pos = base1.pos  - baseDelta * l * _HairLength;
+    //vert.oPos = vert.pos;
 
+    vert.pos = lerp( base1.pos , base2.pos , vert.uv.x );//base1.pos  - baseDelta * l * _HairLength;
+    vert.oPos = vert.pos;
 
     //float4 vals = _HeightMap.SampleLevel(sampler_HeightMap, (base.pos.xz-.5) * _MapSize  , 0);//tex2Dlod(_HeightMap , float4(pos.xz * _MapSize,0,0) );
         
-    vert.length = length(baseDelta) * _HairLength;// * base.debug.y;//base.uv.y),2);//((sin(float(bID)*10000)+ _HairVariance) / _HairVariance ) * _HairLength;
+    vert.length = _HairLength;// * base.debug.y;//base.uv.y),2);//((sin(float(bID)*10000)+ _HairVariance) / _HairVariance ) * _HairLength;
 
     _VertBuffer[pID] = vert;
 
@@ -197,12 +199,12 @@ void Collision (uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID, uin
 
     pID = safeID( pID , _VertBuffer_COUNT );
     bID = safeID( bID , _BaseBuffer_COUNT );
-    Vert vert = _VertBuffer[pID];
-   /* Vert vert = _VertBuffer[pID];
+   
     Base base1 = _BaseBuffer[bID * 2 + 0];
     Base base2 = _BaseBuffer[bID * 2 + 1];
 
-   // if( base.used == 1 ){
+    Vert vert = _VertBuffer[pID];
+
 
     float3 bP1 = base1.pos;//mul( transform,  float4(base.pos,1)).xyz;
     float3 bN1 = base1.nor;//normalize(mul( transform,  float4(base.nor,0))).xyz;
@@ -212,7 +214,9 @@ void Collision (uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID, uin
     
     float3 s = float3(1,1,1);//mul( transform , float4(1,1,1,0)).xyz;
 
-    float3 force = float3(0,-4,0);//float3( 0 , base.nor , 0.0 );
+    float3 force = 0;
+    
+    force += float3(0,-4,0);//float3( 0 , base.nor , 0.0 );
 
 
     float2 xz = 1*normalize( vert.pos.xz - _PlayerPosition.xz ) / (.1 + pow(length(vert.pos.xz - _PlayerPosition.xz), 10));
@@ -222,8 +226,8 @@ void Collision (uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID, uin
     // Inertia: objects in motion stay in motion.
     float3 vel = getVel( vert.pos , vert.oPos);
 
-    if( length( force ) > 10 ){
-      force = normalize(force) * 10;
+    if( length( force ) > 40 ){
+      force = normalize(force) *40;
     }
  
 
@@ -232,7 +236,7 @@ void Collision (uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID, uin
     bool tb = false;
 
 
-  float3 baseDelta = bP1 - bP2;
+    float3 baseDelta = bP1 - bP2;
     float3 oP = bP1  + baseDelta * vert.uv.x * vert.length;
     if( length(vert.pos) == 0 ){
       vert.pos  = oP;
@@ -285,9 +289,9 @@ void Collision (uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID, uin
 */
     //vert.nor = normalize(vert.pos - vert.oPos);
 
-    /*if( _Delta  < .1 && tb == false ){
+    if( _Delta  < .1 && tb == false ){
 
-      float dampening =.97;//_Dampening;//.99999;// - vert.life * .01;
+      float dampening =.99;//_Dampening;//.99999;// - vert.life * .01;
       float3 next = vert.pos + vel  * dampening + force * .001;
 
       vert.oPos = vert.pos;
@@ -303,20 +307,19 @@ void Collision (uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID, uin
     //vert.oPos = vert.pos;//base.pos + base.nor * l + _HairLength;
 
 
-    baseDelta = base1.pos - base2.pos;*/
-    vert.pos = float3(0,0,0);//base1.pos  - baseDelta * l ;
-    vert.oPos = float3(0,0,0);//vert.pos;
+    baseDelta = base1.pos - base2.pos;
+    //vert.pos = float3(0,0,0);//base1.pos  - baseDelta * l ;
+    //vert.oPos = float3(0,0,0);//vert.pos;
 
+
+    //vert.pos = lerp( base1.pos , base2.pos , vert.uv.x );//base1.pos  - baseDelta * l * _HairLength;
+    //vert.oPos = vert.pos;
     //vert.pos = base.pos +float3(0,1,0) * vert.uv.x;
     //vert.debug = vert.length;
     _VertBuffer[pID] = vert;
 
 
-  /*}else{
-    vert.pos = float3(1000,0,0);
-    vert.oPos = float3(1000,0,0);
-    _VertBuffer[pID] = vert;
-  }*/
+
 
   }
   
@@ -363,7 +366,7 @@ void Constraint(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID, uin
       // We want to make sure that l isn't zero, 
       // or we will get some NaNs
       if( l > 0.001 ){
-        difference = (((v1.debug.x)/float(_NumVertsPerHair))-l)/l;//((s*v1.debug.x/float(_NumVertsPerHair)) - l ) / l;
+        difference = ((_HairLength/float(_NumVertsPerHair))-l)/l;//((s*v1.debug.x/float(_NumVertsPerHair)) - l ) / l;
       }
 
       // Here is where the actual verlet goes down!
@@ -393,8 +396,8 @@ void Constraint(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID, uin
         
 
               // Set both the values in the proper buffer location!
-    // _VertBuffer[ pID ] = v1;
-    // _VertBuffer[ pUp ] = v2;
+     _VertBuffer[ pID ] = v1;
+     _VertBuffer[ pUp ] = v2;
 
 
 
@@ -407,3 +410,6 @@ void Constraint(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID, uin
 
 
 }
+
+
+

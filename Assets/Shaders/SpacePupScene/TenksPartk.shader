@@ -60,6 +60,7 @@
 
         #include "../Chunks/hsv.cginc"
         #include "../Chunks/hash.cginc"
+        #include "../Chunks/ColorScheme.cginc"
 
             varyings vert(uint id : SV_VertexID) {
 
@@ -119,6 +120,13 @@
         //col = v.tan * .5 + .5;
         //col *= (d.xyz);
 
+
+       
+                col = GetGlobalColor( .8   );//tex2D(_ColorMap , float2(tCol.x * .3 + .2 + v.whereInTip.z  * .3,0)) * shadow;
+
+         
+
+              col *= shadow * shadow;
         //col += hsv(dot(v.eye,v.nor) * -.1,.6,1) * (1-length(col));
         return float4( col , 1.);
             }

@@ -52,6 +52,7 @@ varyings vert (uint id : SV_VertexID){
 
       Vert v = _VertBuffer[base % _Count];
       o.worldPos = (v.pos) + extra * _Size;
+      //o.worldPos = extra * _Size;
       o.eye = _WorldSpaceCameraPos - o.worldPos;
       o.nor =v.nor;
       o.uv = v.uv;

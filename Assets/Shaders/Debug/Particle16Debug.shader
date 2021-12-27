@@ -28,7 +28,7 @@ Shader "Debug/Particles16" {
       //Pixel function returns a solid color for each point.
       float4 frag (varyings v) : COLOR {
 
-          if( length( v.uv2 -.5) > .5 ){ discard;}
+          //if( length( v.uv2 -.5) > .5 ){ discard;}
 
           float3 col = _Color.xyz;//hsv(v.debug.y * .1 , 1,1);// float3(v.debug.xy ,1);
           return float4(col,1 );

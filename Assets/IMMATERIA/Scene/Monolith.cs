@@ -48,8 +48,6 @@ public class Monolith : Cycle
 
     public override void Create(){
 
-      print("recreating");
-
       if( cameraLerp == null ){ 
         GameObject go = new GameObject();
         cameraLerp = go.transform;
@@ -86,10 +84,10 @@ public class Monolith : Cycle
       DestroyMe();
       storyMarkers = new GameObject[data.journey.monoSetters.Length];
 
-      print( data.journey.monoSetters.Length );
+//      print( data.journey.monoSetters.Length );
       for( int i = 0; i < data.journey.monoSetters.Length; i++ ){
 
-        print("DOING IT");
+        //print("DOING IT");
           storyMarkers[i] = Instantiate( storyMarkerPrefab);
           
           storyMarkers[i].transform.parent = transform;
