@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEditor;
 
 [ExecuteAlways]
 public class CrystalCluster : MonoBehaviour
@@ -42,6 +43,7 @@ public class CrystalCluster : MonoBehaviour
 
 
     public CrystalCutter crystal;
+    public string saveName;
 
 
 
@@ -55,6 +57,9 @@ public class CrystalCluster : MonoBehaviour
     {
         
         CombineInstance[] combine = new CombineInstance[numberCrystals];
+
+        saveName = "crystal" + Random.Range(0,1000000);
+
 
         // For each crystal, place, rotate, etc. the transform
         // and assign values that will effect the 'cut' of the crystal
@@ -108,6 +113,13 @@ public class CrystalCluster : MonoBehaviour
         transform.GetComponent<MeshFilter>().sharedMesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
         transform.GetComponent<MeshFilter>().sharedMesh.CombineMeshes(combine);
     }
+    
 
+    public void SaveAsAsset(){
+
+        Mesh mesh = transform.GetComponent<MeshFilter>().sharedMesh;
+        AssetDatabase.CreateAsset(mesh, "Assets/Plugins/FantasyCrystal/SavedCrystals/" + saveName );
+		AssetDatabase.SaveAssets();
+    }
 
 }

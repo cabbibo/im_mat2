@@ -9,12 +9,15 @@ public class HairFCR : LifeForm {
   public Life set;
   public Life force;
   public Life constraint;
+  public Life pass;
   public Life resolve;
 
   public Form Base;
   public Hair Hair;
 
   public float[] transformArray;
+
+  public int numIterations = 1;
 
   public override void Create(){
 
@@ -28,6 +31,7 @@ public class HairFCR : LifeForm {
     SafePrepend( set );
     SafePrepend( force );
     SafePrepend( constraint );
+    SafePrepend( pass );
     SafePrepend( resolve );
     SafePrepend( Hair );
 
@@ -53,6 +57,10 @@ public class HairFCR : LifeForm {
     resolve.BindPrimaryForm("_VertBuffer", Hair);
     resolve.BindInt( "_NumVertsPerHair" ,  () => Hair.numVertsPerHair );
 
+    
+    pass.BindPrimaryForm("_VertBuffer", Hair);
+    pass.BindInt( "_NumVertsPerHair" ,  () => Hair.numVertsPerHair );
+
     set.BindFloat( "_HairLength"  , () => Hair.length);
     set.BindFloat( "_HairVariance"  , () => Hair.variance);
     set.BindInt( "_NumVertsPerHair" , () => Hair.numVertsPerHair );
@@ -70,17 +78,56 @@ public class HairFCR : LifeForm {
 
   public override void OnBirth(){
     set.active = true;
+    force.active = false;
+    constraint.active = false;
+    resolve.active = false;
+    pass.active = false;
   }
 
   public override void Activate(){
     set.active = true;
+    force.active = false;
+    constraint.active = false;
+    resolve.active = false;
+    pass.active = false;
   }
 
   public override void WhileLiving(float v){
     
+
+    
+    //set.active = false;
+    force.active = false;
+    constraint.active = false;
+    resolve.active = false;
+
     //set.active = false;
     transformArray = HELP.GetMatrixFloats( transform.localToWorldMatrix );
+  
+
+
+
+
+   resolve._SetUpDispatch();
+   resolve._DispatchShader();
+    for( int i = 0; i < numIterations; i++ ){
+
+    force._SetUpDispatch();
+    force._DispatchShader();
+    
+      constraint._SetUpDispatch();
+      constraint._DispatchShader();
+      
+      pass._SetUpDispatch();
+      pass._DispatchShader();
+
+
+    }
+  
   }
+
+
+
 
   public void Set(){
     set.YOLO();

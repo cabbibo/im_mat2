@@ -361,7 +361,7 @@ void StraightTransfer2 (uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_Grou
     int row = idInTube / (_TubeWidth+1);
     int col = pID % (_TubeWidth+1);
 
-    float rowVal =  (float(row) / float(_TubeLength)) * .95;
+    float rowVal =  (float(row) / float(_TubeLength)) * 1;
     float colVal =  (float(col%_TubeWidth)/float(_TubeWidth)) ;
 
     float3 upPos; float3 doPos;

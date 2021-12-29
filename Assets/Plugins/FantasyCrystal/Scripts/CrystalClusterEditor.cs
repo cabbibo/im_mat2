@@ -15,6 +15,11 @@ public class CrystalClusterEditor : Editor
         {
             myTarget.RegenerateCluster();
         }
+
+        if(GUILayout.Button("Save As Asset"))
+        {
+            myTarget.SaveAsAsset();
+        }
       
     }
 }

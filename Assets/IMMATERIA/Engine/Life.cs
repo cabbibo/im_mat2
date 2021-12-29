@@ -203,7 +203,14 @@ public class Life : Cycle {
 
   public void Live(){
 
-//    DebugThis("LIVING");
+    _SetUpDispatch();
+    _DispatchShader();
+
+    AfterDispatch();
+
+  }
+
+  public void _SetUpDispatch(){
 
     if( OnSetValues != null ){ OnSetValues(shader,kernel); }
     
@@ -235,15 +242,14 @@ public class Life : Cycle {
       shader.SetInt(form.Key , form.Value);
     }
 
+  }
 
+  public void _DispatchShader(){
     // if its still true than we can dispatch
     if ( allBuffersSet ){
       if( debug ) print( "name : " + kernelName + " Num groups : " + numGroups );
       shader.Dispatch( kernel,numGroups ,1,1);
     }
-
-    AfterDispatch();
-
   }
 
   public virtual void _SetInternal(){    
