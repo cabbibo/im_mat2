@@ -159,6 +159,13 @@ float2 rotateUV(float2 uv, float rotation)
         color *= FogMultiplier( v.worldPos ) ;
 
 
+        float holeVal = length( v.worldPos - _TerrainHole)  + noise( v.worldPos * 4.2 + float3(0,_Time.y * .2,0) )  * .2;
+        if( holeVal < 2 ){
+          discard;
+        }
+        if( holeVal < 2.3){ color = saturate((holeVal - 2) * 4) * color;}
+
+        
         if( _Debug != 0 ){ color.xyz = v.nor * .5 + .5; }
 
         return float4( color.xyz  , 1.);

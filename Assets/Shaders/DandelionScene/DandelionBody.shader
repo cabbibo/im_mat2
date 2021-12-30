@@ -14,6 +14,7 @@
       _PaintSize("_PaintSize", Vector ) = (1,1,1,1)
       _NormalSize("_NormalSize", Vector ) = (1,1,1,1)
       _NormalDepth("_NormalDepth", float ) = .4
+      _OverallMultiplier("_OverallMultiplier", float ) = 1
 
   }
     SubShader
@@ -59,6 +60,7 @@
 
 
             float _WhichColor;
+            float _OverallMultiplier;
 
             fixed4 frag (v2f v) : SV_Target
             {
@@ -87,6 +89,8 @@
                 col = mapColor*p;     
                 col.xyz *= reflectionColor * 4;
                 col  +=  (1-saturate(length(col.xyz)*10))* audio.xyz;
+                col *= _OverallMultiplier;
+                
 
 
                 return float4(col,1);

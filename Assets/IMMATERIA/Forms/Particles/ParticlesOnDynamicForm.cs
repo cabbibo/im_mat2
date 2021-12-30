@@ -105,6 +105,7 @@ public class ParticlesOnDynamicForm: Particles {
 
       baseTri = 3 * HELP.getTri (Random.value, triangleAreas);
 
+
       tri0 = baseTri + 0;
       tri1 = baseTri + 1;
       tri2 = baseTri + 2;
@@ -128,16 +129,16 @@ public class ParticlesOnDynamicForm: Particles {
   // if our triangle is infinitely small ( aka hasn't been calculated yet )
   // then we place all of our points in random locations!
       if( aTotal == 0 ){
-        aTotal = 1;
-        Vector3 t = Random.onUnitSphere;
-        
-        a0 = Mathf.Abs(t.x);
-        a1 = Mathf.Abs(t.y);
-        a2 = Mathf.Abs(t.z);
+
+        a0 =Random.Range(0.0001f , .999f );
+        a1 = Random.Range(0.0001f , .999f );
+        a2 = Random.Range(0.0001f , .999f );
+
+        aTotal = a0 + a1 + a2;
+
  
       }
-
-
+      
       float p0 = a0 / aTotal;
       float p1 = a1 / aTotal;
       float p2 = a2 / aTotal;
@@ -177,8 +178,6 @@ public class ParticlesOnDynamicForm: Particles {
       values[ index ++ ] = 0;
       values[ index ++ ] = 0;
 
-
-      print(p0);
     }
 
 

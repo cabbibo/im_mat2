@@ -186,10 +186,10 @@
 
         d = clamp( (d - _Thickness) * _Falloff , -1, 1) + 1;
         d /= 2;
-        if( d < .4 ){ discard; }
+        if( d < .1){ discard; }
 
 
-        float3 c = GetGlobalColor(  saturate(v.vel * 200.1) * .12 + .88  ).xyz * d*d*d;
+        float3 c = GetGlobalColor(  saturate(v.vel * 200.1) * .12 + .88  ).xyz * d*d*  d * d * d * d * d;
         
 
         //c = _GlobalColorSchemeID;
@@ -198,7 +198,7 @@
           c=1;
         }
 
-        return float4(  c * 1.4 , saturate(2*d));
+        return float4(  c * 1.4 , saturate(2*d*d*d));
 
         float3 col = c;//float3(1,0,0);
         return float4( col , 1);

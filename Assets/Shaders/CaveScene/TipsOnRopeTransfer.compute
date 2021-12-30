@@ -1,0 +1,115 @@
+﻿#pragma kernel Transfer
+
+struct Vert{
+    float3 pos;
+    float3 vel;
+    float3 nor;
+    float3 tangent;
+    float2 uv;
+    float2 debug;
+};
+
+RWStructuredBuffer<Vert> _VertBuffer;
+RWStructuredBuffer<Vert> _SkeletonBuffer;
+
+int _VertBuffer_COUNT;
+int _SkeletonBuffer_COUNT;
+#include "../Chunks/safeID.cginc"
+#include "../Chunks/snoise.cginc"
+
+
+float3 _CameraUp;
+float3 _CameraRight;
+float3 _CameraForward;
+float _Radius;
+float _Time;
+
+#define NR_THREADS 64
+[numthreads(NR_THREADS,1,1)]
+void Transfer (uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID) {
+
+    int pID = threadID + u3GroupID.x * NR_THREADS;
+
+    int transferID = pID / 7;
+    int which = pID % 7;
+
+    int hairID = transferID;
+
+    int sID = hairID * 2;
+    
+    Vert s1 = _SkeletonBuffer[safeID(sID,_SkeletonBuffer_COUNT)];
+    Vert s2 = _SkeletonBuffer[safeID(sID+1,_SkeletonBuffer_COUNT)];
+
+
+    float3 fPos; float2 fUV; float3 fNor; float2 fDebug;
+
+    fNor = normalize(s2.pos - s1.pos);///cross( _CameraRight, _CameraUp );//normalize( cross( 100*(p1.pos - s1.pos), 100*(p1.pos - s2.pos)));
+
+
+    float3 x = normalize(cross(fNor, float3(0,1,0)));//_CameraRight;
+    float3 y = normalize(cross(x,fNor));//_CameraUp;
+
+
+    x = _CameraRight;
+    y = _CameraUp;
+    float r = _Radius;
+
+
+   
+    fDebug = float2(1,1);
+    fUV = float2(0,0);
+
+
+    float3 dir = s2.pos - s1.pos;
+
+
+    float noiseVal = .8*snoise( s1.pos * .1 + float3(_Time * .1,0,0));
+     noiseVal += 1*snoise( s1.pos * 1 + float3(_Time * .03,0,0));
+
+    if( which == 0 ){
+      fPos = s2.pos - x * r - y * r;
+      fNor = -normalize( s2.pos - fPos );
+      fUV = float2( 0, 0); 
+      fDebug = float2( float(transferID) , noiseVal );
+    }else if( which  == 1 ){
+      fPos = s2.pos + x * r - y * r;
+      fNor = -normalize( s2.pos - fPos );
+      fDebug = float2( float(transferID) , noiseVal  );
+      fUV = float2( 1 , 0 );
+    }else if( which == 2 ){
+      fPos = s2.pos - x * r + y * r;
+      fNor = -normalize( s2.pos - fPos );
+      fDebug = float2( float(transferID) , noiseVal  );
+      fUV = float2( 0 , 1 );
+    }else if( which == 3 ){
+      fPos = s2.pos + x * r + y * r;
+      fNor = -normalize( s2.pos - fPos );
+      fDebug = float2( float(transferID), noiseVal  );
+      fUV = float2( 1 , 1 );
+    }else if( which == 4 ){
+      fPos = dir * -.1 + s2.pos - x * r * .3 - y * r * .1;    
+      fNor = -normalize( (s2.pos+s1.pos)/2 - fPos );
+      fDebug = float2( s1.uv.x , noiseVal  );
+      fUV = float2( 0 , 1 );
+    }else if( which == 5 ){
+      fPos = dir * -.1 + s2.pos + x * r * .3 - y * r * .1;
+      fNor = -normalize( (s2.pos+s1.pos)/2 - fPos );
+      fDebug = float2( s1.uv.x , noiseVal  );
+      fUV = float2( 1 , 1 );
+    }else{
+      fPos = s1.pos;
+      fNor = -normalize( (s2.pos+s1.pos)/2 - fPos );
+      fDebug = float2( s1.uv.x, noiseVal  );
+      fUV = float2( .5, 0 );
+    }
+
+    pID = safeID(pID,_VertBuffer_COUNT);
+
+    _VertBuffer[pID].pos = fPos;
+    _VertBuffer[pID].uv = fUV;
+    _VertBuffer[pID].nor = fNor;
+    _VertBuffer[pID].debug = fDebug;
+
+}
+
+

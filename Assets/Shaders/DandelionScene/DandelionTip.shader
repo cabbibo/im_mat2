@@ -9,6 +9,7 @@
       _ColorBase("_ColorBase", float ) = 0
       _OutlineColor("_OutlineColor", float ) = 0
       _OutlineAmount("_OutlineAmount", float ) = .16
+      _OverallMultiplier("_OverallMultiplier", float ) = 1
 
   }
     SubShader
@@ -52,7 +53,7 @@ Tags { "RenderType"="Opaque" }
 
 
             sampler2D _MainTex;
-            sampler2D _ColorMap;
+            float _OverallMultiplier;
 
             struct v2f { 
               float4 pos : SV_POSITION; 
@@ -125,6 +126,7 @@ Tags { "RenderType"="Opaque" }
               }
 
               col *= shadow * shadow;
+              col  *= _OverallMultiplier;
               
                  // if( v.debug.x > .5 ){ col =float4(1,0,0,1);}
                 return col;
