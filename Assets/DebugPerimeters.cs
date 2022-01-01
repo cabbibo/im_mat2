@@ -9,11 +9,13 @@ public class DebugPerimeters : MonoBehaviour
 
     public Journey journey;
 
-
+    public bool debug;
     // Update is called once per frame
     void OnDrawGizmos()
     {
 
+
+if( debug ){
         for( int i = 0; i < journey.monoSetters.Length; i++ ){
             StorySetter s = journey.monoSetters[i];
             float inside = s.perimeter.innerRadius;
@@ -58,6 +60,6 @@ public class DebugPerimeters : MonoBehaviour
             }
 
         }
-        
+}
     }
 }
