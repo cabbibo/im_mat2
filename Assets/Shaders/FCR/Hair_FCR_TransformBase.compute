@@ -1,4 +1,4 @@
-﻿#pragma kernel Set
+#pragma kernel Set
 #pragma kernel Force
 #pragma kernel Constraint
 #pragma kernel Resolve
@@ -91,7 +91,7 @@ void Set (uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID, uint3 id 
     float l = float(pID % _NumVertsPerHair ) / float(_NumVertsPerHair);
     vert.uv = float2( l , float(bID)/float(_BaseBuffer_COUNT));
 
-    vert.pos = origin(base1) + normal(base1)* vert.uv.x * _HairLength;
+    vert.pos = origin(base1) + normal(base1) * vert.uv.x * _HairLength;
     vert.oPos = vert.pos;
     vert.tan = vert.pos;
         
@@ -119,9 +119,8 @@ void Force(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID, uint3 id
   uint pID = threadID + u3GroupID.x * NR_THREADS;
   uint bID = pID / _NumVertsPerHair;
 
-  bool isTip = ((pID % _NumVertsPerHair) == _NumVertsPerHair-1);
 
-  if( pID < _VertBuffer_COUNT && bID < _BaseBuffer_COUNT ){
+ // if( pID < _VertBuffer_COUNT && bID < _BaseBuffer_COUNT ){
 
     pID = safeID( pID , _VertBuffer_COUNT );
     bID = safeID( bID , _BaseBuffer_COUNT );
@@ -134,11 +133,14 @@ void Force(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID, uint3 id
     
     Vert vert = _VertBuffer[pID];
 
+    vert.length = _HairLength;
+    
+    float l = float(pID % _NumVertsPerHair ) / float(_NumVertsPerHair);
+    vert.uv = float2( l , float(bID)/float(_BaseBuffer_COUNT));
 
     float3 force = 0;
     
-    force += float3(0,-.06,0);//float3( 0 , base.nor , 0.0 );
-
+   // force += float3(0,-1,0);//float3( 0 , base.nor , 0.0 );
 
     if( length( force ) > 40 ){
       force = normalize(force) *40;
@@ -156,21 +158,28 @@ void Force(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID, uint3 id
     }*/
 
     // If we are at the bottom, 
-    if( vert.uv.x == 0 ){ 
-      vert.pos = bP1; 
+    if( vert.uv.x == 0){ 
+      vert.pos = bP1 + bN1 * vert.uv.x * _HairLength;; 
       tb = true;
       vert.nor = bN1;
+      vert.oPos = vert.pos;
 
     }else{
-       Vert vDown = _VertBuffer[ safeID( pID - 1 , _VertBuffer_COUNT )];
-       vert.nor = normalize(vert.pos - vDown.pos);
+      Vert vDown = _VertBuffer[ safeID( pID - 1 , _VertBuffer_COUNT )];
+      vert.nor = normalize(vert.pos - vDown.pos);
+       
+      //vert.pos = bP1 + bN1 * vert.uv.x * 10;
+      //vert.nor = bN1;
+      //vert.oPos = vert.pos;
     }
 
+
+  //force -= bN1 * .1 * vert.uv.x * vert.uv.x;
 
 
     //force += curlNoise( vert.pos * .4 + float3(0,-_Time,0));
 
-   force += GetRayForce( vert.pos , 2) * .8 * _DOWN;
+    force += GetRayForce( vert.pos , 2) * .8 * _DOWN;
 
 
     if( _Delta  < .1 && tb == false ){
@@ -184,20 +193,22 @@ void Force(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID, uint3 id
 
    // vert.tan = vert.pos;
       
-      vert.pos += force * .01;
      
+    //  vert.pos += force * .01;
     }
 
+
+    vert.pos += force * .01;
     
 
-      vert.tan = vert.pos;
+    vert.tan = vert.pos;
 
-   _VertBuffer[pID] = vert;
-
-
+    _VertBuffer[pID] = vert;
 
 
-  }
+
+
+ // }
   
 }
 
@@ -230,19 +241,19 @@ float3 getDelta( int id , Vert v1 ){
 
     float difference = 0;
 
-
-    float hairL =  v1.length/float(_NumVertsPerHair);
+    float hairL = v1.length/float(_NumVertsPerHair);
         
-      float f = (l - hairL) / l;
+    float f = (l - hairL) / l;
 
-      if (isnan(f) || isinf(f))
-      {
-        return (0).xxx;
-      }
+   /* if (isnan(f) || isinf(f))
+    {
+      return (0).xxx;
+    }*/
 
     return -f * dif * 0.5;
 
 }
+
 
 [numthreads(NR_THREADS,1,1)]
 void Constraint(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID, uint3 id : SV_DispatchThreadID) {
@@ -272,6 +283,9 @@ void Constraint(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID, uin
         v.pos = v.oPos;
     }
 
+    if( v.uv.x > 1-(1/ float(_NumVertsPerHair)) ){
+      //  v.pos = v.oPos;
+    }
 
     _VertBuffer[ pID ] = v;
 
@@ -282,30 +296,8 @@ void Constraint(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID, uin
 
 
 
-float3 getVel( float3 p1 , float3 p2 ){
-  float3 v = p1 - p2;
-  //if( length(v) > .5 ){ v = normalize(v) * .5;}
-  if( length(v) > .5 ){ v = 0;}
-  return v;
-}
-
-[numthreads(NR_THREADS,1,1)]
-void Resolve(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID, uint3 id : SV_DispatchThreadID) {
-  
-  // Get the id using thread / group indices
-  uint pID = threadID + u3GroupID.x * NR_THREADS ;
-  Vert v = _VertBuffer[pID];
-  
-  float3 vel = v.pos - v.oPos;
-  float3 next = v.oPos + vel *2 * .98;
-  
-  v.oPos = v.pos ;
-  v.pos = next;
-
-  _VertBuffer[pID] = v;
 
 
-}
 
 
 
@@ -320,5 +312,26 @@ void PassSafe(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID, uint3
   v.tan = v.pos;
 
   _VertBuffer[pID] = v;
+
+}
+
+
+
+
+[numthreads(NR_THREADS,1,1)]
+void Resolve(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID, uint3 id : SV_DispatchThreadID) {
+  
+  // Get the id using thread / group indices
+  uint pID = threadID + u3GroupID.x * NR_THREADS ;
+  Vert v = _VertBuffer[pID];
+  
+  float3 vel = v.pos - v.oPos;
+  float3 next = v.pos + vel  * .95;
+  
+  v.oPos = v.pos;
+  v.pos = next;
+
+  _VertBuffer[pID] = v;
+
 
 }

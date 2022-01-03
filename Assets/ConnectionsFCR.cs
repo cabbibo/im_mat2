@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
 
-public class HairFCR : LifeForm {
+public class ConnectionsFCR : LifeForm {
 
   public Life set;
   public Life force;
@@ -12,8 +12,10 @@ public class HairFCR : LifeForm {
   public Life pass;
   public Life resolve;
 
-  public Form Base;
-  public Hair Hair;
+
+    
+  public Form Points;
+  public Form Connections;
 
   public float[] transformArray;
 
@@ -33,7 +35,8 @@ public class HairFCR : LifeForm {
     SafePrepend( constraint );
     SafePrepend( pass );
     SafePrepend( resolve );
-    SafePrepend( Hair );
+    SafePrepend( Connections );
+    SafePrepend( Points );
 
     //Cycles.Insert( 4 , Base );
 
@@ -44,31 +47,27 @@ public class HairFCR : LifeForm {
   public override void Bind(){
 
 
-    set.BindPrimaryForm("_VertBuffer", Hair);
-    set.BindForm("_BaseBuffer", Base );
-
-    force.BindPrimaryForm("_VertBuffer", Hair);
-    force.BindForm("_BaseBuffer", Base ); 
-    force.BindInt( "_NumVertsPerHair" , () => Hair.numVertsPerHair );
-
-    constraint.BindPrimaryForm("_VertBuffer", Hair);
-    constraint.BindInt( "_NumVertsPerHair" , () => Hair.numVertsPerHair );
-
-    resolve.BindPrimaryForm("_VertBuffer", Hair);
-    resolve.BindInt( "_NumVertsPerHair" ,  () => Hair.numVertsPerHair );
-
+    set.BindPrimaryForm("_VertBuffer", Points);
+    set.BindForm("_ConnectionBuffer", Connections );
     
-    pass.BindPrimaryForm("_VertBuffer", Hair);
-    pass.BindInt( "_NumVertsPerHair" ,  () => Hair.numVertsPerHair );
+    
+    force.BindPrimaryForm("_VertBuffer", Points);
+    force.BindForm("_ConnectionBuffer", Connections );
+    
+    
+constraint.BindPrimaryForm("_VertBuffer", Points);
+constraint.BindForm("_ConnectionBuffer", Connections );
 
-    set.BindFloat( "_HairLength"  , () => Hair.length);
-    set.BindFloat( "_HairVariance"  , () => Hair.variance);
-    set.BindInt( "_NumVertsPerHair" , () => Hair.numVertsPerHair );
 
-    // Don't need to bind for all of them ( constraints ) because same shader
-    force.BindFloat( "_HairLength"  , () => Hair.length );
-    force.BindFloat( "_HairVariance"  , () => Hair.variance );
-    force.BindInt( "_NumVertsPerHair" , () => Hair.numVertsPerHair );
+resolve.BindPrimaryForm("_VertBuffer", Points);
+resolve.BindForm("_ConnectionBuffer", Connections );
+
+
+pass.BindPrimaryForm("_VertBuffer", Points);
+pass.BindForm("_ConnectionBuffer", Connections );
+
+
+
     force.BindFloats( "_Transform" , () => this.transformArray );
 
     data.BindCameraData(force);

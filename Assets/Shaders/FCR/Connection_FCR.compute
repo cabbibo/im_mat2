@@ -1,0 +1,265 @@
+﻿#pragma kernel Set
+#pragma kernel Force
+#pragma kernel Constraint
+#pragma kernel Resolve
+#pragma kernel PassSafe
+
+#include "../Chunks/noise.cginc"
+#include "../Chunks/snoise.cginc"
+#include "../Chunks/curlNoise.cginc"
+
+
+float4x4 transform; 
+
+float _Delta;
+float _Time;
+
+float3 _HandL;
+float3 _HandR;
+
+struct Vert{
+  float3 pos;
+  float3 oPos;
+  float3 nor;
+  float3 tan;
+  float2 uv;
+  float2 connectionInfo;
+};
+
+
+struct Connection{
+    float id1;
+    float id2;
+    float length;
+};
+
+
+float4x4 _Transform;
+
+RWStructuredBuffer<Vert> _VertBuffer;
+RWStructuredBuffer<Connection> _ConnectionBuffer;
+
+uint _VertBuffer_COUNT;
+uint _ConnectionBuffer_COUNT;
+
+
+#include "../Chunks/terrainCompute.cginc"
+#include "../Chunks/safeID.cginc"
+#include "../Chunks/springForce.cginc"
+
+
+#define NR_THREADS 128
+
+
+
+[numthreads(NR_THREADS,1,1)]
+void Set (uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID, uint3 id : SV_DispatchThreadID) {
+
+
+  uint pID = threadID + u3GroupID.x * NR_THREADS;
+  if( pID < _VertBuffer_COUNT){
+
+
+    pID = safeID( pID , _VertBuffer_COUNT );
+    Vert v = _VertBuffer[pID];
+
+    float3 sPos = float3( sin( v.uv.x  * 6.28 ) * v.uv.y , .2 ,-cos( v.uv.x  * 6.28 ) * v.uv.y  );
+
+    v.pos =  mul(_Transform, float4(sPos,1) );;
+    v.oPos = v.pos;
+    v.tan = v.pos;
+    _VertBuffer[pID] = v;
+
+  }
+  
+}
+
+
+
+
+#include "../Chunks/GetRayForce.cginc"
+
+float3 _PlayerPosition;
+
+
+[numthreads(NR_THREADS,1,1)]
+void Force(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID, uint3 id : SV_DispatchThreadID) {
+
+  //int pID = id.x + id.y * gridX + id.z * gridX * gridY;
+
+  uint pID = threadID + u3GroupID.x * NR_THREADS;
+
+ // if( pID < _VertBuffer_COUNT && bID < _BaseBuffer_COUNT ){
+
+    pID = safeID( pID , _VertBuffer_COUNT );
+
+    Vert v = _VertBuffer[pID];
+
+//    v.length = _HairLength;
+
+    float3 force = 0;
+    
+   // force += float3(0,-1,0);//float3( 0 , base.nor , 0.0 );
+
+    if( length( force ) > 40 ){
+      force = normalize(force) *40;
+    }
+ 
+    bool tb = false;
+
+
+    
+    // if its screwed up set it proper!
+  /*  if( length(v.pos) == 0 || length(v.pos.x) == 1000 ){
+      v.pos  = oP;
+      v.oPos = v.pos;
+      tb = true;
+    }*/
+
+    // If we are at the bottom, 
+    if( v.uv.y <.01){ 
+
+
+        float3 sPos = float3( sin( v.uv.x  * 6.28 ) * v.uv.y , .2 * sin(_Time * 2),-cos( v.uv.x  * 6.28 ) * v.uv.y  );
+    
+        v.pos = mul(_Transform, float4(sPos,1) );
+      //v.pos = float3(0,sin(_Time)* 10 , 0);//bP1 + bN1 * v.uv.x * _HairLength;; 
+      tb = true;
+     // v.nor = bN1;
+      v.oPos = v.pos;
+
+
+
+    }
+
+   // force += GetRayForce( v.pos , 2) * .8 * _DOWN;
+
+    v.pos += force * .01;
+
+    v.tan = v.pos;
+
+
+ 
+
+    _VertBuffer[pID] = v;
+
+
+
+
+ // }
+  
+}
+
+
+
+
+
+
+float3 getDelta( float3 p , int id , float connectionLength  ){
+
+
+    Vert v2 = _VertBuffer[id];
+
+    float3 dif = p - v2.tan;
+
+    float l = length( dif );
+
+    float difference = 0;
+
+    float hairL = 1;
+        
+    float f = (l - connectionLength) / l;
+
+    if (isnan(f) || isinf(f))
+    {
+      return (0).xxx;
+    }
+
+    return -f * dif * 0.5;
+
+}
+
+
+[numthreads(NR_THREADS,1,1)]
+void Constraint(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID, uint3 id : SV_DispatchThreadID) {
+  
+  // Get the id using thread / group indices
+  uint pID = threadID + u3GroupID.x * NR_THREADS ;
+
+    Vert v = _VertBuffer[pID];
+
+    float2 connectionInfo = v.connectionInfo;
+
+    int startID = int( connectionInfo.x );
+
+    for( int i = 0; i < int(connectionInfo.y); i++ ){
+
+        Connection c = _ConnectionBuffer[startID + i ];
+
+        int id1 = int(c.id1);
+        int id2 = int(c.id2);
+        float l = c.length;
+
+        float3 delta = getDelta(v.tan,id2,l);
+
+        v.pos += delta * .2;
+
+    }
+
+
+    float3 totalDelta = 0;//float3(0,.0001,0);
+
+
+ 
+    _VertBuffer[ pID ] = v;
+
+
+
+}
+
+
+
+
+
+
+
+
+
+[numthreads(NR_THREADS,1,1)]
+void PassSafe(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID, uint3 id : SV_DispatchThreadID) {
+  
+  // Get the id using thread / group indices
+  uint pID = threadID + u3GroupID.x * NR_THREADS ;
+
+  Vert v = _VertBuffer[pID];
+  
+  v.tan = v.pos;
+
+
+
+  _VertBuffer[pID] = v;
+
+}
+
+
+
+
+[numthreads(NR_THREADS,1,1)]
+void Resolve(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID, uint3 id : SV_DispatchThreadID) {
+  
+  // Get the id using thread / group indices
+  uint pID = threadID + u3GroupID.x * NR_THREADS ;
+  Vert v = _VertBuffer[pID];
+  
+  float3 vel = v.pos - v.oPos;
+  float3 next = v.pos + vel  * .2;
+  
+  v.oPos = v.pos;
+  v.pos = next;
+
+
+
+  _VertBuffer[pID] = v;
+
+
+}

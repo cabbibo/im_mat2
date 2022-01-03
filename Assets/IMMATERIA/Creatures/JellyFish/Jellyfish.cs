@@ -15,8 +15,10 @@ public class Jellyfish : Cycle
     
 
     public float maxVelocity;
+    public float targetForceMultiplier;
     public float dampening;
     public float targetHitDistance;
+
 
     public Vector3 velocity;
 
@@ -31,6 +33,8 @@ public class Jellyfish : Cycle
         SafePrepend(SpineHair);
         SafePrepend(SelfTransforms );
     }
+
+
     public override void WhileLiving(float v)
     {
 
@@ -46,7 +50,7 @@ public class Jellyfish : Cycle
         targetDirection = p1.normalized;
         distToTarget = p1.magnitude;
 
-        force += p1;
+        force += targetDirection * .01f * targetForceMultiplier;
 
         velocity += force;
         velocity *= dampening;
@@ -55,6 +59,8 @@ public class Jellyfish : Cycle
         }
 
         transform.position += velocity;
+
+        transform.LookAt( transform.position + velocity );
 
 
 

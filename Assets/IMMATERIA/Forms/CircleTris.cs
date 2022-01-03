@@ -2,13 +2,14 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SceneCircleTris : CircleTris
+public class CircleTris: IndexForm
 {
 
+  protected CircleVerts cv;
 
   public override void SetCount(){
     cv = (CircleVerts)toIndex;
-    count = (cv.rows-1) * (cv.cols-1) * 3 * 2;
+    count = (cv.rows-1) * (cv.cols) * 3 * 2;
   }
 
   public override void Embody(){
@@ -16,13 +17,13 @@ public class SceneCircleTris : CircleTris
     int[] values = new int[count];
     int index = 0;
 
-    for( int i = 0; i < (cv.cols-1); i++ ){
+    for( int i = 0; i < (cv.cols); i++ ){
       for( int j = 0; j < (cv.rows-1); j++ ){
 
-        int id1 = i * cv.rows + j;
-        int id2 = ((i+1) ) * cv.rows + j;
-        int id3 = i * cv.rows + j+1;
-        int id4 = ((i+1)) * cv.rows + j+1;
+        int id1 = (i%cv.cols) * cv.rows + j;
+        int id2 = ((i+1)%cv.cols ) * cv.rows + j;
+        int id3 = (i%cv.cols) * cv.rows + j+1;
+        int id4 = ((i+1)%cv.cols) * cv.rows + j+1;
 
         values[index++] = id1;
         values[index++] = id2;

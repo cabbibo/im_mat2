@@ -302,31 +302,6 @@ void Constraint(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID, uin
 
 
 
-float3 getVel( float3 p1 , float3 p2 ){
-  float3 v = p1 - p2;
-  //if( length(v) > .5 ){ v = normalize(v) * .5;}
-  if( length(v) > .5 ){ v = 0;}
-  return v;
-}
-
-[numthreads(NR_THREADS,1,1)]
-void Resolve(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID, uint3 id : SV_DispatchThreadID) {
-  
-  // Get the id using thread / group indices
-  uint pID = threadID + u3GroupID.x * NR_THREADS ;
-  Vert v = _VertBuffer[pID];
-  
-  float3 vel = v.pos - v.oPos;
-  float3 next = v.oPos + vel *2 * .98;
-  
-  v.oPos = v.pos ;
-  v.pos = next;
-
-  _VertBuffer[pID] = v;
-
-
-}
-
 
 
 [numthreads(NR_THREADS,1,1)]
@@ -340,5 +315,27 @@ void PassSafe(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID, uint3
   v.tan = v.pos;
 
   _VertBuffer[pID] = v;
+
+}
+
+
+
+
+
+[numthreads(NR_THREADS,1,1)]
+void Resolve(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID, uint3 id : SV_DispatchThreadID) {
+  
+  // Get the id using thread / group indices
+  uint pID = threadID + u3GroupID.x * NR_THREADS ;
+  Vert v = _VertBuffer[pID];
+  
+  float3 vel = v.pos - v.oPos;
+  float3 next = v.pos + vel  * .98;
+  
+  v.oPos = v.pos ;
+  v.pos = next;
+
+  _VertBuffer[pID] = v;
+
 
 }

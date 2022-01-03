@@ -1,10 +1,19 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Rendering;
 
-public class SceneCircleVerts : CircleVerts
+public class CircleVerts : Particles
 {
-public override void Embody(){
+  public int rows;
+  public int cols;
+
+
+  public override void SetCount(){
+    count = rows * cols;
+  }
+
+  public override void Embody(){
 
 
     float[] values = new float[count * structSize];
@@ -12,7 +21,9 @@ public override void Embody(){
     Vector3 p;
     for(int i = 0; i < cols; i++ ){
 
-      float colNor = (float)i / ((float)cols-1);
+      float colNor = (float)i / ((float)cols);
+
+     // print(colNor);
 
       for( int j = 0; j < rows; j++){
         
