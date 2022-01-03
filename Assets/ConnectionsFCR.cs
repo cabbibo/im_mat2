@@ -69,8 +69,14 @@ pass.BindForm("_ConnectionBuffer", Connections );
 
 
     force.BindFloats( "_Transform" , () => this.transformArray );
+    constraint.BindFloats( "_Transform" , () => this.transformArray );
+    resolve.BindFloats( "_Transform" , () => this.transformArray );
+    set.BindFloats( "_Transform" , () => this.transformArray );
+    pass.BindFloats( "_Transform" , () => this.transformArray );
 
     data.BindCameraData(force);
+    data.BindRayData(force);
+    data.BindPlayerData(force);
 
   }
 
@@ -108,8 +114,9 @@ pass.BindForm("_ConnectionBuffer", Connections );
 
 
 
-  resolve._SetUpDispatch();
-  resolve._DispatchShader();
+    resolve._SetUpDispatch();
+    resolve._DispatchShader();
+
     for( int i = 0; i < numIterations; i++ ){
 
       force._SetUpDispatch();

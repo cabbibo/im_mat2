@@ -32,6 +32,7 @@ public class Jellyfish : Cycle
     public override void Create(){
         SafePrepend(SpineHair);
         SafePrepend(SelfTransforms );
+        transform.position = startPosition.position;
     }
 
 
@@ -46,17 +47,22 @@ public class Jellyfish : Cycle
 
 
         p1 = transform.position - currentTarget.position;
-            p1 = -p1;
+        p1 = -p1;
         targetDirection = p1.normalized;
         distToTarget = p1.magnitude;
 
-        force += targetDirection * .01f * targetForceMultiplier;
+
+        force += targetDirection *  targetForceMultiplier;
 
         velocity += force;
         velocity *= dampening;
-        if( velocity.magnitude > maxVelocity){
+
+        velocity = velocity.normalized * maxVelocity * (1+ 1f*Mathf.Sin(Time.time *2f));
+        /*if( velocity.magnitude > maxVelocity){
             velocity = velocity.normalized * maxVelocity;
-        }
+        }*/
+
+
 
         transform.position += velocity;
 

@@ -44,8 +44,11 @@ float3 GetRayForce( float3 pos , float radius ){
 
   float3 inLine = pos - pOnLine;
 
-  return normalize(inLine) *  (1 - clamp( length(inLine) / radius , 0 , 1));
-
+  if( length(inLine) == 0 ){
+    return 0;
+  }else{
+    return normalize(inLine) *  (1 - clamp( length(inLine) / radius , 0 , 1));
+  }
 
 }
 

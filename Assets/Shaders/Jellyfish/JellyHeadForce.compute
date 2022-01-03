@@ -1,0 +1,192 @@
+﻿#pragma kernel Force
+
+#include "../Chunks/noise.cginc"
+#include "../Chunks/snoise.cginc"
+#include "../Chunks/curlNoise.cginc"
+
+
+float4x4 transform; 
+
+float _Delta;
+float _Time;
+
+float3 _HandL;
+float3 _HandR;
+
+struct Vert{
+  float3 pos;
+  float3 oPos;
+  float3 nor;
+  float3 tan;
+  float2 uv;
+  float2 connectionInfo;
+};
+
+
+struct Connection{
+    float id1;
+    float id2;
+    float length;
+};
+
+
+float4x4 _Transform;
+
+RWStructuredBuffer<Vert> _VertBuffer;
+RWStructuredBuffer<Connection> _ConnectionBuffer;
+RWStructuredBuffer<Vert> _SkeletonBuffer;
+
+uint _VertBuffer_COUNT;
+uint _ConnectionBuffer_COUNT;
+uint _SkeletonBuffer_COUNT;
+
+
+#include "../Chunks/terrainCompute.cginc"
+#include "../Chunks/safeID.cginc"
+#include "../Chunks/springForce.cginc"
+
+
+#define NR_THREADS 128
+
+
+#include "../Chunks/GetRayForce.cginc"
+
+#include "../Chunks/cubicCurve.cginc"
+
+float3 _PlayerPosition;
+int _Rows;
+int _Cols;
+
+float3 cubicFromValue( in float val , out float3 upPos , out float3 doPos){
+
+  float3 p0 = float3( 0. , 0. , 0. );
+  float3 v0 = float3( 0. , 0. , 0. );
+  float3 p1 = float3( 0. , 0. , 0. );
+  float3 v1 = float3( 0. , 0. , 0. );
+
+  float3 p2 = float3( 0. , 0. , 0. );
+
+  float vPP = 30;//float(_Rows);
+
+  float base = val * (vPP-1);
+
+  int baseUp   = floor( base );
+  int baseDown = ceil( base );
+  float amount = base - float(baseUp);
+
+
+
+  if( baseUp == 0 ){
+
+    p0 = _SkeletonBuffer[ safeID( baseUp       , _SkeletonBuffer_COUNT) ].pos;
+    p1 = _SkeletonBuffer[ safeID( baseDown     , _SkeletonBuffer_COUNT) ].pos;
+    p2 = _SkeletonBuffer[ safeID( baseDown + 1 , _SkeletonBuffer_COUNT) ].pos;
+
+    v1 = .5 * ( p2 - p0 );
+
+  }else if( baseDown == vPP-1 ){
+
+    p0 = _SkeletonBuffer[ safeID( baseUp     , _SkeletonBuffer_COUNT) ].pos;
+    p1 = _SkeletonBuffer[ safeID( baseDown   , _SkeletonBuffer_COUNT) ].pos;
+    p2 = _SkeletonBuffer[ safeID( baseUp - 1 , _SkeletonBuffer_COUNT) ].pos;
+
+    v0 = .5 * ( p1 - p2 );
+
+  }else{
+
+    p0 = _SkeletonBuffer[ safeID( baseUp   , _SkeletonBuffer_COUNT) ].pos;
+    p1 = _SkeletonBuffer[ safeID( baseDown , _SkeletonBuffer_COUNT) ].pos;
+
+
+    float3 pMinus = float3(0,0,0);
+
+    pMinus = _SkeletonBuffer[ safeID( baseUp   - 1, _SkeletonBuffer_COUNT) ].pos;
+    p2 =     _SkeletonBuffer[ safeID( baseDown + 1, _SkeletonBuffer_COUNT) ].pos;
+
+    v1 = .5 * ( p2 - p0 );
+    v0 = .5 * ( p1 - pMinus );
+
+  }
+
+  float3 c0 = p0;
+  float3 c1 = p0 + v0/3.;
+  float3 c2 = p1 - v1/3.;
+  float3 c3 = p1;
+
+  float3 pos = cubicCurve( amount , c0 , c1 , c2 , c3 );
+
+  upPos = cubicCurve( amount  + .001 , c0 , c1 , c2 , c3 );
+  doPos = cubicCurve( amount  - .001 , c0 , c1 , c2 , c3 );
+
+  return pos;
+
+}
+
+
+
+[numthreads(NR_THREADS,1,1)]
+void Force(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID, uint3 id : SV_DispatchThreadID) {
+
+  //int pID = id.x + id.y * gridX + id.z * gridX * gridY;
+
+  uint pID = threadID + u3GroupID.x * NR_THREADS;
+
+ // if( pID < _VertBuffer_COUNT && bID < _BaseBuffer_COUNT ){
+
+    pID = safeID( pID , _VertBuffer_COUNT );
+
+    Vert v = _VertBuffer[pID];
+
+    float3 force = 0;
+
+
+    // If we are at the bottom, 
+    if( v.uv.y <.01){ 
+        v.pos = mul(_Transform, float4(0,0,0,1) );
+        v.oPos = v.pos;
+    }
+
+    force += GetRayForce( v.pos , 2) * .8 * _DOWN;
+
+    v.pos += force * .01;
+
+    
+    if( length( force ) > 40 ){
+      force = normalize(force) *40;
+    }
+
+
+    float3 upPos;
+    float3 doPos;
+    float3 targetPos = cubicFromValue( v.uv.y * .3+ .01 , upPos , doPos);
+
+    float3 nor = normalize(upPos - doPos);
+    float3 x = cross(nor , float3(0,1,0));
+    float3 y = normalize(cross(nor,x));
+
+
+    float angle = v.uv.x * 6.28;
+
+    float3 outVec = x * sin(angle) - y * cos(angle);
+
+
+float val = v.uv.y;
+float radius = lerp( pow(val,.5) , (val*val)*2 , val);
+ targetPos += outVec * 3 * radius;
+ 
+
+    v.pos -= (v.pos - targetPos) * .8;
+
+
+//v.pos = targetPos;
+//v.oPos = v.pos;
+    v.tan = v.pos; 
+
+    _VertBuffer[pID] = v;
+
+
+
+}
+
+
+
