@@ -66,7 +66,7 @@ float3 cubicFromValue( in float val , out float3 upPos , out float3 doPos){
 
   float3 p2 = float3( 0. , 0. , 0. );
 
-  float vPP = 30;//float(_Rows);
+  float vPP = 120;//float(_Rows);
 
   float base = val * (vPP-1);
 
@@ -140,28 +140,30 @@ void Force(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID, uint3 id
     float3 force = 0;
 
 
-    // If we are at the bottom, 
-    if( v.uv.y <.01){ 
-        v.pos = mul(_Transform, float4(0,0,0,1) );
-        v.oPos = v.pos;
-    }
-
     force += GetRayForce( v.pos , 2) * .8 * _DOWN;
 
     v.pos += force * .01;
 
-    
-    if( length( force ) > 40 ){
-      force = normalize(force) *40;
-    }
-
+ 
+   
 
     float3 upPos;
     float3 doPos;
-    float3 targetPos = cubicFromValue( v.uv.y * .3+ .01 , upPos , doPos);
+    float3 targetPos = cubicFromValue( v.uv.y * .2+ .01 , upPos , doPos);
 
-    float3 nor = normalize(upPos - doPos);
-    float3 x = cross(nor , float3(0,1,0));
+    float3 nor = upPos - doPos;
+
+    if( length(nor) == 0 ){
+      nor = float3(0,0,1);
+    }else{
+      nor = normalize(nor);
+    }
+
+    float3 c = cross(nor , float3(0,1,0));
+    if( length(c) == 0){
+      c = cross(nor , float3(1,0,0));
+    }
+    float3 x = normalize(c);
     float3 y = normalize(cross(nor,x));
 
 
@@ -171,12 +173,19 @@ void Force(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID, uint3 id
 
 
 float val = v.uv.y;
-float radius = lerp( pow(val,.5) , (val*val)*2 , val);
- targetPos += outVec * 3 * radius;
+float radius = lerp( pow(val,.3) , (val*val)*1.2 , val);
+ targetPos += outVec *4*radius;
+
+    // If we are at the bottom, 
+    if( v.uv.y <.01){ 
+        v.pos = mul(_Transform, float4(0,0,0,1) );
+        v.oPos = v.pos;
+    }
+
  
 
-    v.pos -= (v.pos - targetPos) * .8;
-
+  v.pos -= (v.pos - targetPos) * .001;//* (1-v.uv.y);//*(1-v.uv.y);
+  //v.pos -= outVec * .1;
 
 //v.pos = targetPos;
 //v.oPos = v.pos;

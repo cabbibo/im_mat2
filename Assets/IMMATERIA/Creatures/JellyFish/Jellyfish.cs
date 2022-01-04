@@ -12,12 +12,15 @@ public class Jellyfish : Cycle
 
     public TransformBuffer SelfTransforms;
     public HairFCR SpineHair;
+    public HairFCR SpineSecondaryHairs;
     
 
     public float maxVelocity;
     public float targetForceMultiplier;
     public float dampening;
     public float targetHitDistance;
+    public float flapSize;
+    public float flapSpeed;
 
 
     public Vector3 velocity;
@@ -30,6 +33,7 @@ public class Jellyfish : Cycle
     Vector3 p1;
     
     public override void Create(){
+        SafePrepend(SpineSecondaryHairs);
         SafePrepend(SpineHair);
         SafePrepend(SelfTransforms );
         transform.position = startPosition.position;
@@ -57,7 +61,7 @@ public class Jellyfish : Cycle
         velocity += force;
         velocity *= dampening;
 
-        velocity = velocity.normalized * maxVelocity * (1+ 1f*Mathf.Sin(Time.time *2f));
+        velocity = velocity.normalized * maxVelocity * (1+ flapSize*Mathf.Sin(Time.time *flapSpeed));
         /*if( velocity.magnitude > maxVelocity){
             velocity = velocity.normalized * maxVelocity;
         }*/

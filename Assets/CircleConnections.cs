@@ -61,7 +61,9 @@ public class CircleConnections : Form
                 count += 2;
                 if( j < rows-1 ){ count += 3; }
                 // connection across
-                count += 1;
+               //count += 1;
+               //count += 1;
+               //count += 1;
 
             }
         }
@@ -94,6 +96,13 @@ public class CircleConnections : Form
                 vertPos.y = toIndexData[ id * toIndex.structSize + 1 ];
                 vertPos.z = toIndexData[ id * toIndex.structSize + 2 ];
 
+
+                Vector2 vertUV = new Vector2();
+                vertUV.x = toIndexData[ id * toIndex.structSize + 12 ];
+                vertUV.y = toIndexData[ id * toIndex.structSize + 13 ];
+
+                float radius = Mathf.Lerp( Mathf.Pow(vertUV.y,.3f) , (vertUV.y*vertUV.y)*1.2f , vertUV.y);
+
                 VertConnections vc = new VertConnections();
                 vc.vertID = id;
                 vc.idInConnectionList = fullConnectionLengthList.Count;
@@ -111,14 +120,14 @@ public class CircleConnections : Form
                     
                     nX = i-1;
                     if( nX < 0 ){ nX += cols; }
-                    AddConnectionInfo( vertPos , nX,nY,id,vc,toIndexData);
+                    AddConnectionInfo( vertPos,radius , nX,nY,vc,toIndexData);
 
                     nX = i;
-                    AddConnectionInfo( vertPos , nX,nY,id,vc,toIndexData);
+                    AddConnectionInfo( vertPos,radius , nX,nY,vc,toIndexData);
 
                     nX = i+1;
                     if( nX >= cols ){ nX -= cols; }
-                    AddConnectionInfo( vertPos , nX,nY,id,vc,toIndexData);                 
+                    AddConnectionInfo( vertPos,radius , nX,nY,vc,toIndexData);                 
 
                 }
 
@@ -128,11 +137,11 @@ public class CircleConnections : Form
                 
                 nX = i-1;
                 if( nX < 0 ){ nX += cols; }
-                AddConnectionInfo( vertPos , nX,nY,id,vc,toIndexData);
+                AddConnectionInfo( vertPos,radius , nX,nY,vc,toIndexData);
 
                 nX = i+1;
                 if( nX >= cols ){ nX -= cols; }
-                AddConnectionInfo( vertPos , nX,nY,id,vc,toIndexData);                 
+                AddConnectionInfo( vertPos,radius , nX,nY,vc,toIndexData);                 
 
 
                 // connection to rowAbove
@@ -141,27 +150,33 @@ public class CircleConnections : Form
                     
                     nX = i-1;
                     if( nX < 0 ){ nX += cols; }
-                    AddConnectionInfo( vertPos , nX,nY,id,vc,toIndexData);
+                    AddConnectionInfo( vertPos,radius , nX,nY,vc,toIndexData);
 
                     nX = i;
-                    AddConnectionInfo( vertPos , nX,nY,id,vc,toIndexData);
+                    AddConnectionInfo( vertPos,radius , nX,nY,vc,toIndexData);
 
                     nX = i+1;
                     if( nX >= cols ){ nX -= cols; }
-                    AddConnectionInfo( vertPos , nX,nY,id,vc,toIndexData);                 
+                    AddConnectionInfo( vertPos,radius , nX,nY,vc,toIndexData);                 
 
                 }
 
 
-
                // if( j == 0 ){
-                    nY = j;
-                    nX = (i + (int)((float)cols / 2) );
+                //connecting across
+                nY = j;
+                nX = (i + (int)((float)cols / 2) );
 
-                    if( nX >= cols ){ nX -= cols; }
-                    
-                    print( i + " : " + nX );
-                    AddConnectionInfo( vertPos , nX,nY,id,vc,toIndexData);  
+             // if( nX >= cols ){ nX -= cols; }
+             // AddConnectionInfo( vertPos, radius , nX,nY,vc);  
+
+             // nX = (i+1+ (int)((float)cols / 2) );
+             // if( nX >= cols ){ nX -= cols; }
+             // AddConnectionInfo( vertPos, radius , nX,nY,vc);  
+
+             // nX = (i-1 + (int)((float)cols / 2) );
+             // if( nX >= cols ){ nX -= cols; }
+             // AddConnectionInfo( vertPos, radius , nX,nY,vc);  
 
                 //}
 
@@ -199,7 +214,7 @@ public class CircleConnections : Form
 
     }
 
-    public void AddConnectionInfo( Vector3 vertPos , int nX , int nY , int startID , VertConnections vc , float[] toIndexData ){
+    public void AddConnectionInfo(  Vector3 vertPos , int nX , int nY  , VertConnections vc , float[] toIndexData ){
        int nID = getID(nX,nY);
 
         Vector3 otherVert = new Vector3();
@@ -207,17 +222,52 @@ public class CircleConnections : Form
         otherVert.y = toIndexData[ nID * toIndex.structSize + 1 ];
         otherVert.z = toIndexData[ nID * toIndex.structSize + 2 ];
 
+
         float cLength = (vertPos - otherVert).magnitude;
         cLength *= connectionLengthMultiplier;
         
-        vc.connectionIDs.Add(nID);
-        vc.connectionLengths.Add(cLength);
-
-        fullConnectionID1List.Add(startID);
-        fullConnectionID2List.Add(nID);
-        fullConnectionLengthList.Add(cLength);
+        AddConnectionInfo(vc, nID,cLength);
 
     }
+
+
+    
+    public void AddConnectionInfo(  Vector3 vertPos,float lengthMultiplier , int nX , int nY  , VertConnections vc , float[] toIndexData ){
+       int nID = getID(nX,nY);
+
+        Vector3 otherVert = new Vector3();
+        otherVert.x = toIndexData[ nID * toIndex.structSize + 0 ];
+        otherVert.y = toIndexData[ nID * toIndex.structSize + 1 ];
+        otherVert.z = toIndexData[ nID * toIndex.structSize + 2 ];
+
+
+        float cLength = (vertPos - otherVert).magnitude;
+        cLength *= lengthMultiplier;
+        cLength *= connectionLengthMultiplier;
+        
+        AddConnectionInfo(vc, nID,cLength);
+
+    }
+
+
+    public void AddConnectionInfo(  Vector3 vertPos , float length , int nX , int nY  , VertConnections vc  ){
+       int nID = getID(nX,nY);
+        AddConnectionInfo(vc, nID,length);
+
+    }
+
+
+     public void AddConnectionInfo( VertConnections vc , int connectedID , float length ){
+       
+        vc.connectionIDs.Add(connectedID);
+        vc.connectionLengths.Add(length);
+
+        fullConnectionID1List.Add(vc.vertID);
+        fullConnectionID2List.Add(connectedID);
+        fullConnectionLengthList.Add(length);
+
+    }
+
 
     public void InsertInfo(){
 

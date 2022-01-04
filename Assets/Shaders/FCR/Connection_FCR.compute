@@ -85,68 +85,33 @@ float3 _PlayerPosition;
 [numthreads(NR_THREADS,1,1)]
 void Force(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID, uint3 id : SV_DispatchThreadID) {
 
-  //int pID = id.x + id.y * gridX + id.z * gridX * gridY;
-
   uint pID = threadID + u3GroupID.x * NR_THREADS;
 
- // if( pID < _VertBuffer_COUNT && bID < _BaseBuffer_COUNT ){
+  if( pID < _VertBuffer_COUNT ){
 
     pID = safeID( pID , _VertBuffer_COUNT );
 
     Vert v = _VertBuffer[pID];
 
-//    v.length = _HairLength;
-
     float3 force = 0;
     
-   // force += float3(0,-1,0);//float3( 0 , base.nor , 0.0 );
-
-    if( length( force ) > 40 ){
-      force = normalize(force) *40;
-    }
- 
-    bool tb = false;
-
-
-    
-    // if its screwed up set it proper!
-  /*  if( length(v.pos) == 0 || length(v.pos.x) == 1000 ){
-      v.pos  = oP;
-      v.oPos = v.pos;
-      tb = true;
-    }*/
+   // force += float3(0,-1,0);
 
     // If we are at the bottom, 
     if( v.uv.y <.01){ 
-
-
-        float3 sPos = float3( sin( v.uv.x  * 6.28 ) * v.uv.y , .2 * sin(_Time * 2),-cos( v.uv.x  * 6.28 ) * v.uv.y  );
-    
-        v.pos = mul(_Transform, float4(sPos,1) );
-      //v.pos = float3(0,sin(_Time)* 10 , 0);//bP1 + bN1 * v.uv.x * _HairLength;; 
-      tb = true;
-     // v.nor = bN1;
+      v.pos = mul(_Transform, float4(0,0,0,1) );
       v.oPos = v.pos;
-
-
-
     }
-
-   // force += GetRayForce( v.pos , 2) * .8 * _DOWN;
 
     v.pos += force * .01;
 
     v.tan = v.pos;
 
-
- 
-
     _VertBuffer[pID] = v;
 
+  }
 
 
-
- // }
   
 }
 
@@ -192,6 +157,7 @@ void Constraint(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID, uin
 
     int startID = int( connectionInfo.x );
 
+    v.nor = 0;
     for( int i = 0; i < int(connectionInfo.y); i++ ){
 
         Connection c = _ConnectionBuffer[startID + i ];
@@ -201,11 +167,13 @@ void Constraint(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID, uin
         float l = c.length;
 
         float3 delta = getDelta(v.tan,id2,l);
+    
+        v.pos += delta * .03;
 
-        v.pos += delta * .1;
 
-
-        v.nor += delta;
+        Vert v2 = _VertBuffer[id2];
+        float3 dif = v.tan - v2.tan;
+        v.nor += normalize(dif);
 
     }
 

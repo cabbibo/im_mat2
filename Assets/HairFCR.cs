@@ -46,10 +46,12 @@ public class HairFCR : LifeForm {
 
     set.BindPrimaryForm("_VertBuffer", Hair);
     set.BindForm("_BaseBuffer", Base );
+    force.BindInt( "_HairsPerVert" , () => (int)Hair.countMultiplier );
 
     force.BindPrimaryForm("_VertBuffer", Hair);
     force.BindForm("_BaseBuffer", Base ); 
     force.BindInt( "_NumVertsPerHair" , () => Hair.numVertsPerHair );
+    force.BindInt( "_HairsPerVert" , () => (int)Hair.countMultiplier );
 
     constraint.BindPrimaryForm("_VertBuffer", Hair);
     constraint.BindInt( "_NumVertsPerHair" , () => Hair.numVertsPerHair );
