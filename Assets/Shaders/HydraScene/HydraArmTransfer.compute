@@ -24,10 +24,11 @@ int _TubeWidth;
 int _TubeLength;
 float _Radius;
 
-#include "../Chunks/cubicCurve.cginc"
 #include "../Chunks/safeID.cginc"
 
-float3 cubicFromValue( in float val , in int particleID, out float3 upPos , out float3 doPos ){
+#include "../Chunks/CubicCurveFromSkeletonBuffer.cginc"
+/*
+float3 cubicFromValue( in float val , in int particleID ,, out float3 upPos , out float3 doPos ){
 
   float3 p0 = float3( 0. , 0. , 0. );
   float3 v0 = float3( 0. , 0. , 0. );
@@ -91,7 +92,7 @@ float3 cubicFromValue( in float val , in int particleID, out float3 upPos , out 
 
   return pos;
 
-}
+}*/
 
 
 #define NR_THREADS 128
@@ -111,7 +112,7 @@ void TipTransfer (uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID) {
 
     float3 upPos; float3 doPos;
 
-    float3 pos = cubicFromValue( rowVal , particleID , upPos , doPos );
+    float3 pos = cubicFromValue( rowVal , particleID , _NumVertsPerHair , upPos , doPos );
 
     float3 d = normalize(upPos - pos);
     float3 x = normalize(cross( d , float3(1,0,0)) );
@@ -160,7 +161,7 @@ void StalkTransfer (uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID)
 
     float3 upPos; float3 doPos;
 
-    float3 pos = cubicFromValue( rowVal , particleID , upPos , doPos );
+    float3 pos = cubicFromValue( rowVal , particleID, _NumVertsPerHair  , upPos , doPos );
 
     float3 d = normalize(upPos - pos);
     float3 x = normalize(cross( d , float3(1,0,0)) );

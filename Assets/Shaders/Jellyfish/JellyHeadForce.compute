@@ -51,78 +51,12 @@ uint _SkeletonBuffer_COUNT;
 
 #include "../Chunks/GetRayForce.cginc"
 
-#include "../Chunks/cubicCurve.cginc"
 
 float3 _PlayerPosition;
 int _Rows;
 int _Cols;
 
-float3 cubicFromValue( in float val , out float3 upPos , out float3 doPos){
-
-  float3 p0 = float3( 0. , 0. , 0. );
-  float3 v0 = float3( 0. , 0. , 0. );
-  float3 p1 = float3( 0. , 0. , 0. );
-  float3 v1 = float3( 0. , 0. , 0. );
-
-  float3 p2 = float3( 0. , 0. , 0. );
-
-  float vPP = 120;//float(_Rows);
-
-  float base = val * (vPP-1);
-
-  int baseUp   = floor( base );
-  int baseDown = ceil( base );
-  float amount = base - float(baseUp);
-
-
-
-  if( baseUp == 0 ){
-
-    p0 = _SkeletonBuffer[ safeID( baseUp       , _SkeletonBuffer_COUNT) ].pos;
-    p1 = _SkeletonBuffer[ safeID( baseDown     , _SkeletonBuffer_COUNT) ].pos;
-    p2 = _SkeletonBuffer[ safeID( baseDown + 1 , _SkeletonBuffer_COUNT) ].pos;
-
-    v1 = .5 * ( p2 - p0 );
-
-  }else if( baseDown == vPP-1 ){
-
-    p0 = _SkeletonBuffer[ safeID( baseUp     , _SkeletonBuffer_COUNT) ].pos;
-    p1 = _SkeletonBuffer[ safeID( baseDown   , _SkeletonBuffer_COUNT) ].pos;
-    p2 = _SkeletonBuffer[ safeID( baseUp - 1 , _SkeletonBuffer_COUNT) ].pos;
-
-    v0 = .5 * ( p1 - p2 );
-
-  }else{
-
-    p0 = _SkeletonBuffer[ safeID( baseUp   , _SkeletonBuffer_COUNT) ].pos;
-    p1 = _SkeletonBuffer[ safeID( baseDown , _SkeletonBuffer_COUNT) ].pos;
-
-
-    float3 pMinus = float3(0,0,0);
-
-    pMinus = _SkeletonBuffer[ safeID( baseUp   - 1, _SkeletonBuffer_COUNT) ].pos;
-    p2 =     _SkeletonBuffer[ safeID( baseDown + 1, _SkeletonBuffer_COUNT) ].pos;
-
-    v1 = .5 * ( p2 - p0 );
-    v0 = .5 * ( p1 - pMinus );
-
-  }
-
-  float3 c0 = p0;
-  float3 c1 = p0 + v0/3.;
-  float3 c2 = p1 - v1/3.;
-  float3 c3 = p1;
-
-  float3 pos = cubicCurve( amount , c0 , c1 , c2 , c3 );
-
-  upPos = cubicCurve( amount  + .001 , c0 , c1 , c2 , c3 );
-  doPos = cubicCurve( amount  - .001 , c0 , c1 , c2 , c3 );
-
-  return pos;
-
-}
-
-
+#include "../Chunks/CubicCurveFromSkeletonBuffer.cginc"
 
 [numthreads(NR_THREADS,1,1)]
 void Force(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID, uint3 id : SV_DispatchThreadID) {
@@ -149,7 +83,7 @@ void Force(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID, uint3 id
 
     float3 upPos;
     float3 doPos;
-    float3 targetPos = cubicFromValue( v.uv.y * .2+ .01 , upPos , doPos);
+    float3 targetPos = cubicFromValue( v.uv.y * .1+ .01,120, upPos , doPos);
 
     float3 nor = upPos - doPos;
 
@@ -173,7 +107,7 @@ void Force(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID, uint3 id
 
 
 float val = v.uv.y;
-float radius = lerp( pow(val,.3) , (val*val)*1.2 , val);
+float radius = lerp( pow(val,.1) , (val*val)*1.2 , val);
  targetPos += outVec *4*radius;
 
     // If we are at the bottom, 
@@ -184,7 +118,7 @@ float radius = lerp( pow(val,.3) , (val*val)*1.2 , val);
 
  
 
-  v.pos -= (v.pos - targetPos) * .001;//* (1-v.uv.y);//*(1-v.uv.y);
+  v.pos -= (v.pos - targetPos) * .0003;//* (1-v.uv.y);//*(1-v.uv.y);
   //v.pos -= outVec * .1;
 
 //v.pos = targetPos;

@@ -1,8 +1,10 @@
 #pragma kernel Set
-#pragma kernel SetSecondary
+#pragma kernel SetBunch
 #pragma kernel Force
-#pragma kernel ForceSecondary
+#pragma kernel ForceBunch
+#pragma kernel ForceBunchLoop
 #pragma kernel Constraint
+#pragma kernel ConstraintLoop
 #pragma kernel Resolve
 #pragma kernel PassSafe
 
@@ -60,6 +62,9 @@ RWStructuredBuffer<Base> _BaseBuffer;
 uint _VertBuffer_COUNT;
 uint _BaseBuffer_COUNT;
 
+RWStructuredBuffer<Vert> _SkeletonBuffer;
+uint _SkeletonBuffer_COUNT;
+
 
 
 #include "../Chunks/terrainCompute.cginc"
@@ -73,6 +78,7 @@ uint _BaseBuffer_COUNT;
 
 #include "../Chunks/GetRayForce.cginc"
 
+#include "../Chunks/CubicCurveFromSkeletonBuffer.cginc"
 float3 _PlayerPosition;
 
 float3 getDelta( float3 p1 , float3 p2 , float dL ){
@@ -145,7 +151,7 @@ void Set (uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID, uint3 id 
 
 
 [numthreads(NR_THREADS,1,1)]
-void SetSecondary(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID, uint3 id : SV_DispatchThreadID) {
+void SetBunch(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID, uint3 id : SV_DispatchThreadID) {
 
 
   uint pID = threadID + u3GroupID.x * NR_THREADS;
@@ -237,7 +243,7 @@ void Force(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID, uint3 id
 
 
 [numthreads(NR_THREADS,1,1)]
-void ForceSecondary(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID, uint3 id : SV_DispatchThreadID) {
+void ForceBunch(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID, uint3 id : SV_DispatchThreadID) {
 
   //int pID = id.x + id.y * gridX + id.z * gridX * gridY;
 
@@ -276,8 +282,8 @@ void ForceSecondary(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID,
 
     float3 outVec = x * sin(angle) - y * cos(angle);
 
-    force += outVec * .01*vert.uv.x * vert.uv.x;
-    force += -bN1 * .01*vert.uv.x * vert.uv.x;
+    //force += outVec * .01*vert.uv.x * vert.uv.x;
+    //force += -bN1 * .01*vert.uv.x * vert.uv.x;
 
     int p1= (pID+_NumVertsPerHair )% _VertBuffer_COUNT;
     int p2 =pID-_NumVertsPerHair;
@@ -291,6 +297,43 @@ void ForceSecondary(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID,
     
     force += getDelta(vert.pos , vert1.pos , vert.uv.x * 4 ) * .2;
     force += getDelta(vert.pos , vert2.pos , vert.uv.x * 4 ) * .2;
+
+
+
+
+    float3 upPos;
+    float3 doPos;
+    float3 targetPos = cubicFromValue( vert.uv.x *.7,120, upPos , doPos);
+
+    float3 nor = upPos - doPos;
+
+    if( length(nor) == 0 ){
+      nor = float3(0,0,1);
+    }else{
+      nor = normalize(nor);
+    }
+
+    float3 c = cross(nor , float3(0,1,0));
+    if( length(c) == 0){
+      c = cross(nor , float3(1,0,0));
+    }
+    x = normalize(c);
+    y = normalize(cross(nor,x));
+
+
+    
+
+    outVec = x * sin(angle) - y * cos(angle);
+
+
+float val = vert.uv.x;
+float radius = lerp( pow(val,.3) , (val*val)*1.2 , val);
+ targetPos += outVec *3*radius;
+
+ 
+
+ vert.pos -= (vert.pos - targetPos) * .0003;//* (1-v.uv.y);//*(1-v.uv.y);
+
 
 
 
@@ -316,6 +359,142 @@ void ForceSecondary(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID,
  }
   
 }
+
+
+
+[numthreads(NR_THREADS,1,1)]
+void ForceBunchLoop(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID, uint3 id : SV_DispatchThreadID) {
+
+  //int pID = id.x + id.y * gridX + id.z * gridX * gridY;
+
+  uint pID = threadID + u3GroupID.x * NR_THREADS;
+  uint bID = pID / _NumVertsPerHair;
+
+ uint hairInVert = bID % _HairsPerVert;
+  bID /= _HairsPerVert;
+
+  if( pID < _VertBuffer_COUNT && bID < _BaseBuffer_COUNT ){
+
+    pID = safeID( pID , _VertBuffer_COUNT );
+    bID = safeID( bID , _BaseBuffer_COUNT );
+   
+    Base base1 = _BaseBuffer[bID ];
+
+    float3 bP1 = origin(base1);
+    float3 bN1 = normal(base1);
+
+    
+    Vert vert = _VertBuffer[pID];
+
+    vert.length = _HairLength;
+    
+    float l = float(pID % _NumVertsPerHair ) / float(_NumVertsPerHair);
+    vert.uv = float2( l , float(bID)/float(_BaseBuffer_COUNT));
+
+    float3 force = 0;
+
+    float loopedUVX = (.5-abs(vert.uv.x - .5)) * 2;
+    
+  
+    
+    float3 x = normalize(mul( base1.ltw, float4(1,0,0,0)).xyz);
+    float3 y =normalize(mul( base1.ltw, float4(0,1,0,0)).xyz);
+
+
+    float angle = float(hairInVert)/float(_HairsPerVert) * 6.28;
+
+    float3 outVec = x * sin(angle) - y * cos(angle);
+
+    //force += outVec * .01*vert.uv.x * vert.uv.x;
+    //force += -bN1 * .01*vert.uv.x * vert.uv.x;
+
+    int p1= (pID+_NumVertsPerHair )% _VertBuffer_COUNT;
+    int p2 =pID-_NumVertsPerHair;
+    if( p2 < 0 ){ p2 += _VertBuffer_COUNT; }
+
+    Vert vert1 = _VertBuffer[p1];
+    Vert vert2 = _VertBuffer[p2];
+
+
+
+    // getting the opposite section in our loop, so we can push against it!
+    int p3 = pID - hairInVert * _NumVertsPerHair;
+    p3 += _NumVertsPerHair/2;
+    p3 %= _NumVertsPerHair;
+    p3 += hairInVert * _NumVertsPerHair;
+
+
+    Vert vert3 = _VertBuffer[p3];
+
+    force += getDelta(vert.pos , vert3.pos , loopedUVX * 1) * .2;
+
+    
+    force += getDelta(vert.pos , vert1.pos , loopedUVX * 1) * .2;
+    force += getDelta(vert.pos , vert2.pos , loopedUVX * 1) * .2;
+
+
+
+
+    float3 upPos;
+    float3 doPos;
+    float3 targetPos = cubicFromValue( loopedUVX *.2,120, upPos , doPos);
+
+    float3 nor = upPos - doPos;
+
+    if( length(nor) == 0 ){
+      nor = float3(0,0,1);
+    }else{
+      nor = normalize(nor);
+    }
+
+    float3 c = cross(nor , float3(0,1,0));
+    if( length(c) == 0){
+      c = cross(nor , float3(1,0,0));
+    }
+    x = normalize(c);
+    y = normalize(cross(nor,x));
+
+
+    
+
+    outVec = x * sin(angle) - y * cos(angle);
+
+
+float val = loopedUVX;
+float radius = lerp( pow(val,.3) , (val*val)*1.2 , val);
+ targetPos += outVec *6*radius;
+
+ 
+
+ vert.pos -= (vert.pos - targetPos) * .0001;//* (1-v.uv.y);//*(1-v.uv.y);
+
+
+
+
+    // If we are at the bottom, 
+    if( vert.uv.x == 0){ 
+      vert.pos = bP1 + bN1 * vert.uv.x * _HairLength;
+      vert.nor = bN1;
+      vert.oPos = vert.pos;
+    }else{
+      Vert vDown = _VertBuffer[ safeID( pID - 1 , _VertBuffer_COUNT )];
+      vert.nor = normalize(vert.pos - vDown.pos); 
+    }
+
+    force += GetRayForce( vert.pos , 2) * .8 * _DOWN;
+
+    vert.pos += force * .01;
+    
+
+    vert.tan = vert.pos;
+
+    _VertBuffer[pID] = vert;
+
+ }
+  
+}
+
+
 
 
 
@@ -361,6 +540,44 @@ void Constraint(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID, uin
 }
 
 
+[numthreads(NR_THREADS,1,1)]
+void ConstraintLoop(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID, uint3 id : SV_DispatchThreadID) {
+  
+  // Get the id using thread / group indices
+  uint pID = threadID + u3GroupID.x * NR_THREADS ;
+
+    Vert v = _VertBuffer[pID];
+
+
+    float3 totalDelta = 0;//float3(0,.0001,0);
+    
+    // link above
+    int pID2 = pID-1;
+    if( pID2 < 0 ){ pID2 += _VertBuffer_COUNT; }
+    totalDelta += getDelta(pID2,v);
+    v.pos += getDelta(pID2,v);
+
+    // link below
+    pID2 = pID+1;
+    pID2 %= _VertBuffer_COUNT;
+    totalDelta += getDelta(pID2,v);
+    v.pos += getDelta(pID2,v);
+
+    
+    if( v.uv.x == 0 ){
+        v.pos = v.oPos;
+    }
+
+    _VertBuffer[ pID ] = v;
+
+
+
+}
+
+
+
+
+
 
 
 
@@ -399,6 +616,5 @@ void Resolve(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID, uint3 
   v.pos = next;
 
   _VertBuffer[pID] = v;
-
 
 }
