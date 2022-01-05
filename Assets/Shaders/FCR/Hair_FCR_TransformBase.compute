@@ -215,6 +215,9 @@ void Force(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID, uint3 id
     float3 force = 0;
   
     
+    float3 dif = (vert.pos - bP1);
+    force += 3*(normalize(dif) / pow(length(dif),2)) * vert.uv.x;
+
 
 
     // If we are at the bottom, 
@@ -301,6 +304,7 @@ void ForceBunch(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID, uin
 
 
 
+
     float3 upPos;
     float3 doPos;
     float3 targetPos = cubicFromValue( vert.uv.x *.7,120, upPos , doPos);
@@ -332,7 +336,7 @@ float radius = lerp( pow(val,.3) , (val*val)*1.2 , val);
 
  
 
- vert.pos -= (vert.pos - targetPos) * .0003;//* (1-v.uv.y);//*(1-v.uv.y);
+ vert.pos -= (vert.pos - targetPos) * .001 * (1-vert.uv.x);//* (1-v.uv.y);//*(1-v.uv.y);
 
 
 
@@ -395,6 +399,7 @@ void ForceBunchLoop(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID,
 
     float loopedUVX = (.5-abs(vert.uv.x - .5)) * 2;
     
+    float topOrBottom = floor(vert.uv.x * 2);
   
     
     float3 x = normalize(mul( base1.ltw, float4(1,0,0,0)).xyz);
@@ -426,18 +431,18 @@ void ForceBunchLoop(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID,
 
     Vert vert3 = _VertBuffer[p3];
 
-    force += getDelta(vert.pos , vert3.pos , loopedUVX * 1) * .2;
+ //force += getDelta(vert.pos , vert3.pos , .1) * 10;
 
-    
-    force += getDelta(vert.pos , vert1.pos , loopedUVX * 1) * .2;
-    force += getDelta(vert.pos , vert2.pos , loopedUVX * 1) * .2;
+  // 
+//force += getDelta(vert.pos , vert1.pos , loopedUVX * 1) * .2;
+//force += getDelta(vert.pos , vert2.pos , loopedUVX * 1) * .2;
 
 
 
 
     float3 upPos;
     float3 doPos;
-    float3 targetPos = cubicFromValue( loopedUVX *.2,120, upPos , doPos);
+    float3 targetPos = cubicFromValue( loopedUVX *.2 + .2 * topOrBottom,120, upPos , doPos);
 
     float3 nor = upPos - doPos;
 
@@ -462,11 +467,11 @@ void ForceBunchLoop(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID,
 
 float val = loopedUVX;
 float radius = lerp( pow(val,.3) , (val*val)*1.2 , val);
- targetPos += outVec *6*radius;
+ targetPos += outVec *(10-topOrBottom*5)*radius;
 
  
 
- vert.pos -= (vert.pos - targetPos) * .0001;//* (1-v.uv.y);//*(1-v.uv.y);
+ vert.pos -= (vert.pos - targetPos) * .001;//* (1-v.uv.y);//*(1-v.uv.y);
 
 
 
@@ -614,6 +619,14 @@ void Resolve(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID, uint3 
   
   v.oPos = v.pos;
   v.pos = next;
+
+      // If we are at the bottom, 
+    if( v.uv.x == 0){ 
+     // vert.nor = bN1;
+    }else{
+      Vert vDown = _VertBuffer[ safeID( pID - 1 , _VertBuffer_COUNT )];
+      v.nor = normalize(v.pos - vDown.pos); 
+    }
 
   _VertBuffer[pID] = v;
 

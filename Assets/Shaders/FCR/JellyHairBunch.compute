@@ -54,11 +54,7 @@ uint _VertBuffer_COUNT;
 uint _BaseBuffer_COUNT;
 
 #include "../Chunks/terrainCompute.cginc"
-
-
 #include "../Chunks/safeID.cginc"
-
-
 #include "../Chunks/springForce.cginc"
 
 
@@ -112,6 +108,7 @@ void Force(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID, uint3 id
 
   uint pID = threadID + u3GroupID.x * NR_THREADS;
   uint bID = pID / _NumVertsPerHair;  
+  uint hairID = bID;
   uint hairInVert = bID % _HairsPerVert;
   bID /= _HairsPerVert;
 
@@ -160,11 +157,13 @@ void Force(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID, uint3 id
 
     float3 outVec = x * sin(angle) - y * cos(angle);
 
-    force += outVec * .1*vert.uv.x * vert.uv.x;
+    force += outVec * 1*vert.uv.x * vert.uv.x  * (1.5-vert.uv.y);
+
+    force += curlNoise(vert.pos * .3) * .5;
    // force += bN1 * .03;
 
 
-    vert.length = bUV.x * bUV.x * _HairLength;
+    vert.length = bUV.x * bUV.x * _HairLength * (hash(hairID)+1);
 
 
     // If we are at the bottom, 
@@ -188,7 +187,7 @@ void Force(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID, uint3 id
     
 
 
-    vert.pos += force  * .01;
+    vert.pos += force  * .001;
     
 
     vert.tan = vert.pos;
@@ -291,7 +290,7 @@ void Resolve(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID, uint3 
   Vert v = _VertBuffer[pID];
   
   float3 vel = v.pos - v.oPos;
-  float3 next = v.pos + vel  * .99;
+  float3 next = v.pos + vel  * .9;
   
   v.oPos = v.pos;
   v.pos = next;

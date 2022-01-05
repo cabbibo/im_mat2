@@ -156,8 +156,9 @@ void Constraint(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID, uin
     float2 connectionInfo = v.connectionInfo;
 
     int startID = int( connectionInfo.x );
-
+    
     v.nor = 0;
+
     for( int i = 0; i < int(connectionInfo.y); i++ ){
 
         Connection c = _ConnectionBuffer[startID + i ];
@@ -172,8 +173,8 @@ void Constraint(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID, uin
 
 
         Vert v2 = _VertBuffer[id2];
-        float3 dif = v.tan - v2.tan;
-        v.nor += normalize(dif);
+          float3 dif = v.tan - v2.tan;
+          v.nor += normalize(dif);
 
     }
 
@@ -181,7 +182,7 @@ void Constraint(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID, uin
     float3 totalDelta = 0;//float3(0,.0001,0);
 
 
-    v.nor = normalize(v.nor);
+   
     _VertBuffer[ pID ] = v;
 
 
@@ -206,6 +207,26 @@ void PassSafe(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID, uint3
   
   v.tan = v.pos;
 
+  
+    float2 connectionInfo = v.connectionInfo;
+
+    int startID = int( connectionInfo.x );
+    v.nor = 0;
+    for( int i = 0; i < int(connectionInfo.y); i++ ){
+
+      Connection c = _ConnectionBuffer[startID + i ];
+
+  
+        int id1 = int(c.id1);
+        int id2 = int(c.id2);
+      Vert v2 = _VertBuffer[id2];
+        float3 dif = v.pos - v2.pos;
+        v.nor += normalize(dif * 100);
+
+  }
+
+
+    v.nor = normalize(v.nor );
 
 
   _VertBuffer[pID] = v;
@@ -229,6 +250,7 @@ void Resolve(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID, uint3 
   v.pos = next;
 
 
+    v.nor = 0;
 
   _VertBuffer[pID] = v;
 

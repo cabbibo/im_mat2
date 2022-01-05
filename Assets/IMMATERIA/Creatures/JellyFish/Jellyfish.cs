@@ -13,6 +13,7 @@ public class Jellyfish : Cycle
     public TransformBuffer SelfTransforms;
     public HairFCR SpineHair;
     public HairFCR SpineSecondaryHairs;
+    public HairFCR Head;
     
 
     public float maxVelocity;
@@ -21,6 +22,7 @@ public class Jellyfish : Cycle
     public float targetHitDistance;
     public float flapSize;
     public float flapSpeed;
+    public float turnSpeed;
 
 
     public Vector3 velocity;
@@ -33,6 +35,7 @@ public class Jellyfish : Cycle
     Vector3 p1;
     
     public override void Create(){
+        SafePrepend(Head);
         SafePrepend(SpineSecondaryHairs);
         SafePrepend(SpineHair);
         SafePrepend(SelfTransforms );
@@ -67,10 +70,13 @@ public class Jellyfish : Cycle
         }*/
 
 
+        float speed = maxVelocity * (1+ flapSize*Mathf.Sin(Time.time *flapSpeed));
 
-        transform.position += velocity;
+        transform.position += transform.forward * speed;
 
-        transform.LookAt( transform.position + velocity );
+        Quaternion desiredLook = Quaternion.LookRotation(targetDirection);
+
+        transform.rotation = Quaternion.Slerp( transform.rotation , desiredLook , turnSpeed);
 
 
 
