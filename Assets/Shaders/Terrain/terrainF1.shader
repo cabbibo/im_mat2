@@ -19,7 +19,7 @@
     // COLOR PASS
 
     Pass {
-      Tags{ "LightMode" = "ForwardBase" }
+      Tags{ "LightMode" = "ForwardBase" "Queue" = "Geometry" }
       Cull Off
 
 
