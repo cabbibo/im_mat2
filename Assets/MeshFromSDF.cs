@@ -100,9 +100,9 @@ public class MeshFromSDF : Simulation
 
     frame ++;
     
-    //life.YOLO();
+    life.YOLO();
 
-   /* if( (frame % 1) == 0 && tiling == true){
+    if( (frame % 1) == 0 && tiling == true){
       DoMeshTile( currentTile );
       currentTile ++;
       if(currentTile >= size*size*size){
@@ -110,7 +110,7 @@ public class MeshFromSDF : Simulation
 
         MakeGameObject(positions, normals, indices);
       }
-    }*/
+    }
 
   }
 
@@ -166,10 +166,10 @@ public class MeshFromSDF : Simulation
 
       if( values[ i * 8 + 0 ] != -1 ){
         Vector3 p = new Vector3( values[ i * 8 + 0 ] ,values[ i * 8 + 1 ],values[ i * 8 + 2 ]);
-        Vector3 n = -1 * new Vector3( values[ i * 8 + 3 ] ,values[ i * 8 + 4 ],values[ i * 8 + 5 ]);
+       // Vector3 n = -1 * new Vector3( values[ i * 8 + 3 ] ,values[ i * 8 + 4 ],values[ i * 8 + 5 ]);
 
         positions.Add( p );
-        normals.Add( n );
+       // normals.Add( n );
         indices.Add(baseIndex);
         baseIndex++;
       }
@@ -188,9 +188,14 @@ public class MeshFromSDF : Simulation
     GameObject go = new GameObject("Voxel Mesh");
     Mesh mesh = new Mesh();
     mesh.indexFormat =  IndexFormat.UInt32;
+
+    for( int i = 0; i < positions.Count; i++ ){
+      positions[i] = transform.InverseTransformPoint(positions[i]);
+     // normals[i] = transform.InverseTransformDirection(normals[i]);
+    }
     
     mesh.vertices = positions.ToArray();
-    mesh.normals = normals.ToArray();
+   // mesh.normals = normals.ToArray();
     mesh.bounds = new Bounds(new Vector3(0, 0, 0), new Vector3(100, 100, 100));
     mesh.SetTriangles(indices.ToArray(), 0);
 
@@ -201,6 +206,9 @@ public class MeshFromSDF : Simulation
     go.GetComponent<Renderer>().material = meshMaterial;//new Material(Shader.Find("Custom/CelShadingForward"));
     go.GetComponent<MeshFilter>().mesh = mesh;
     go.transform.parent = transform;
+    go.transform.localPosition = Vector3.zero;
+    go.transform.localRotation = Quaternion.identity;
+    go.transform.localScale = Vector3.one;
 
     completedMesh = go;
 
