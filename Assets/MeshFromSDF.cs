@@ -139,6 +139,7 @@ public class MeshFromSDF : Simulation
     resetLife.YOLO();
     marchingResetLife.YOLO();
     life.YOLO();
+    ((Form3D)form).RemakeTexture();
     marchingLife.YOLO();
     AddVertsMesh();
   }
@@ -161,24 +162,51 @@ public class MeshFromSDF : Simulation
     float[] values = new float[verts.count*verts.structSize];
     verts.GetData(values);
 
+    print( verts.count );    
+
+
+    
+
+    Vector3 t1; bool hasSame; int sameID;
     //Extract the positions, normals and indexes.
     for( int i  = 0; i < verts.count; i++ ){  
 
       if( values[ i * 8 + 0 ] != -1 ){
         Vector3 p = new Vector3( values[ i * 8 + 0 ] ,values[ i * 8 + 1 ],values[ i * 8 + 2 ]);
-       // Vector3 n = -1 * new Vector3( values[ i * 8 + 3 ] ,values[ i * 8 + 4 ],values[ i * 8 + 5 ]);
+        Vector3 n = -1 * new Vector3( values[ i * 8 + 3 ] ,values[ i * 8 + 4 ],values[ i * 8 + 5 ]);
 
-        positions.Add( p );
-       // normals.Add( n );
+        hasSame = false;
+        sameID = 1000;
+        /*for( int j =0; j < positions.Count; j++ ){
+
+            t1 = positions[j] - p;
+            if( t1.magnitude == 0 ){
+              hasSame = true;
+              sameID = j;
+              break;
+            }
+        }
+
+        if( hasSame ){
+              indices.Add(sameID);
+        }else{
+            pFinals.Add( p );
+              indices.Add(baseIndex);
+              baseIndex++;
+        }*/
+
+        positions.Add(p); 
+        normals.Add(n);
         indices.Add(baseIndex);
         baseIndex++;
+       
       }
 
     }
 
-    print( positions.Count );
-    print( normals.Count );
-    print( indices.Count );
+   // print( positions.Count );
+   // print( normals.Count );
+   // print( indices.Count );
 
   }
 
@@ -189,17 +217,47 @@ public class MeshFromSDF : Simulation
     Mesh mesh = new Mesh();
     mesh.indexFormat =  IndexFormat.UInt32;
 
+    //indices.Clear();
+    
+    Vector3 t1; bool hasSame; int sameID;
+    baseIndex = 0;
+    
+   List<Vector3> pFinals = new List<Vector3>();
     for( int i = 0; i < positions.Count; i++ ){
-      positions[i] = transform.InverseTransformPoint(positions[i]);
      // normals[i] = transform.InverseTransformDirection(normals[i]);
+
+       /* hasSame = false;
+        sameID = 0;
+        int count = Mathf.Min( pFinals.Count, 1000);
+        for( int j =0; j < count; j++ ){
+            t1 = pFinals[pFinals.Count - (count-j)] - positions[i];
+            if( t1.magnitude == 0 ){
+              hasSame = true;
+              sameID = j;
+              break;
+            }
+        }
+
+        if( hasSame ){
+            indices.Add(sameID);
+        }else{
+            pFinals.Add(positions[i]);
+            indices.Add(baseIndex);
+            baseIndex++;
+        }   
+       */
+        positions[i] = transform.InverseTransformPoint(positions[i]);
+        normals[i] = transform.InverseTransformDirection(normals[i]);
     }
+
+  
     
     mesh.vertices = positions.ToArray();
-   // mesh.normals = normals.ToArray();
+    mesh.normals = normals.ToArray();
     mesh.bounds = new Bounds(new Vector3(0, 0, 0), new Vector3(100, 100, 100));
     mesh.SetTriangles(indices.ToArray(), 0);
 
-    mesh.RecalculateNormals();
+   // mesh.RecalculateNormals();
     
     go.AddComponent<MeshFilter>();
     go.AddComponent<MeshRenderer>();

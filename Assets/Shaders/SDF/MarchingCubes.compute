@@ -159,7 +159,7 @@ void March (uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID, uint3 i
       float3 position;
       position = edgeVertex[triTable[flagIndex][3* i+0]];//-center;
       _VertBuffer[pID * 15 + (3 * i + 0)].pos = mul( _Transform, float4((position - float3(.5,.5,.5)) * 2 * _Extents + _Center,1));///CreateVertex(position, centre, size);
-      _VertBuffer[pID * 15 + (3 * i + 0)].nor = Texture.SampleLevel(_LinearClamp, position, 0).yzw;//_volumeBuffer[pID].nor;
+      _VertBuffer[pID * 15 + (3 * i + 0)].nor =Texture.SampleLevel(_LinearClamp, position, 0).yzw;
 
       position = edgeVertex[triTable[flagIndex][ 3 * i+2]];//-center;
       _VertBuffer[pID * 15 + (3 * i + 1)].pos = mul( _Transform, float4((position - float3(.5,.5,.5)) * 2 * _Extents + _Center,1));

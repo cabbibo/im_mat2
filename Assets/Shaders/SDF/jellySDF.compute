@@ -329,14 +329,14 @@ float map( float3 pos ){
 
   center = mul( _Transform , float4(0,0,0,1)).xyz;
 
-  float dist = length(pos-center) - 3;
-  dist = min(dist ,length(pos-center +float3(0,2,0)) - 3 );
-  dist = min(dist ,length(pos-center +float3(0,4,0)) - 3 );
-  dist = min(dist ,length(pos-center +float3(0,6,0)) - 3 );
-  dist = min(dist ,length(pos-center -float3(0,2,0)) - 3 );
-  dist = min(dist ,length(pos-center -float3(0,4,0)) - 3 );
-  dist = min(dist ,length(pos-center -float3(0,6,0)) - 3 );
-  dist += noise(pos);
+  float dist = 100;
+  for( int i = 0; i < 24; i ++ ){
+    dist = min( dist ,length(pos-center +float3(0,-12+i,0)) - 3 * float(i+ 8)/24 );
+  }
+  dist += noise(pos * 1) * .4;
+  dist += noise(pos * 2) * .2;
+
+  dist = opSmoothSubtraction(length(pos-center -float3(0,10,0))-2  ,dist , .4 );
   return dist;
 }
 

@@ -306,7 +306,7 @@ float perspectiveDepthToViewZ( const in float invClipZ, const in float near, con
 
                 // sample the texture
                 fixed4 col =0;
-                col.xyz = hsv(v.depth * .03,1,.01);//dust * fCol * fade * v.emission * dust;// tex2D(_DepthTexture, i.uv).a;
+                col.xyz = hsv(v.depth * .03,1,.1);//dust * fCol * fade * v.emission * dust;// tex2D(_DepthTexture, i.uv).a;
        
 
                 //col = 1;

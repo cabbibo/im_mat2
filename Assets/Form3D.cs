@@ -19,7 +19,7 @@ public class Form3D : Form
     }
 
     public override void SetStructSize(){
-      structSize = 8;
+      structSize = 4;
     }
 
     public override void OnBirthed(){
