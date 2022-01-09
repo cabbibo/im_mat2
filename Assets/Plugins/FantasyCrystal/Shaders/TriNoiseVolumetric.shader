@@ -48,7 +48,6 @@ Shader "FantasyCrystals/TriNoiseVolumetric"
             "_BackgroundTexture"
         }
 
-      Cull Off
     Pass{
 CGPROGRAM
       

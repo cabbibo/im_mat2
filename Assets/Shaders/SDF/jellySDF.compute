@@ -333,10 +333,18 @@ float map( float3 pos ){
   for( int i = 0; i < 24; i ++ ){
     dist = min( dist ,length(pos-center +float3(0,-12+i,0)) - 3 * float(i+ 8)/24 );
   }
+  dist += noise(pos * .1) * 2;
+  dist += noise(pos * .3) * 1;
   dist += noise(pos * 1) * .4;
   dist += noise(pos * 2) * .2;
+  dist += noise(pos * 4) * .1;
+  dist -= 1.4;
 
   dist = opSmoothSubtraction(length(pos-center -float3(0,10,0))-2  ,dist , .4 );
+  dist = opSmoothSubtraction(length(pos-center -float3(1,3,0))-1.3  ,dist , .4 );
+  dist = opSmoothSubtraction(length(pos-center -float3(.3,0,.5))-2  ,dist , .4 );
+  dist = opSmoothSubtraction(length(pos-center -float3(-.6,-4,.2))-2.5  ,dist , .4 );
+  dist = opSmoothSubtraction(length(pos-center -float3(.3,-7,-.8))-3  ,dist , .4 );
   return dist;
 }
 

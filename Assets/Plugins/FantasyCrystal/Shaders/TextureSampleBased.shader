@@ -36,7 +36,6 @@ Shader "FantasyCrystals/TextureBased"
             "_BackgroundTexture"
         }
 
-      Cull Off
     Pass{
 CGPROGRAM
       

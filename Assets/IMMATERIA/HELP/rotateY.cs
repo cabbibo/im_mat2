@@ -17,6 +17,6 @@ public class rotateY : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        transform.Rotate( Vector3.up , Mathf.Sin(Time.time*speed) * Time.deltaTime * size);
+        transform.Rotate( Vector3.up , Mathf.Sin(Time.time*speed) * Time.deltaTime * size, Space.World);
     }
 }
