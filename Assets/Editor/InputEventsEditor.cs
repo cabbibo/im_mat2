@@ -73,14 +73,12 @@ cameraSettings.farClip = events.MainCamera.GetComponent<Camera>().farClipPlane;
         if (Physics.Raycast( events.ray , out events.hit, Mathf.Infinity))
         {
 
-          Debug.Log("WHATTT");
           events.hitTag = events.hit.collider.tag;
           events.hitPosition = events.hit.point;
           events.hitNormal = events.hit.normal;
 
         }else{
           
-          Debug.Log("unWhat");
           events.hitTag = "Untagged";
           events.hitPosition = new Vector3(0,0,0);
           events.hitNormal = new Vector3(0,1,0);

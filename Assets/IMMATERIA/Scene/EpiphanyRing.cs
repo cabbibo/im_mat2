@@ -47,13 +47,18 @@ public class EpiphanyRing : Cycle
     public void SetGlowCircle()
     {
 
-        circle.body.mpb.SetFloat("_StartTime", Time.time);
-        circle.body.mpb.SetFloat("_Setting", 1);
+        print(circle );
+        print(circle.body);
+        print(circle.body.mpb);
 
-        circle.body.mpb.SetFloat("_ScanTime", 0);
+        if( circle.body.mpb != null ){
 
+            circle.body.mpb.SetFloat("_StartTime", Time.time);
+            circle.body.mpb.SetFloat("_Setting", 1);
 
-        print(circle.body.mpb.GetFloat("_ScanTime"));
+            circle.body.mpb.SetFloat("_ScanTime", 0);
+
+        }
     }
 
     public void Set()

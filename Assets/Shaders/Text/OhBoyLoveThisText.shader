@@ -189,7 +189,7 @@
         if( d < .1){ discard; }
 
 
-        float3 c = GetGlobalColor(  saturate(v.vel * 200.1) * .12 + .88  ).xyz * d*d*  d * d * d * d * d;
+        float3 c = GetGlobalColor(  saturate(v.vel * 200.1) * .12  -.2*v.hueOffset+ .88  ).xyz * d*d*  d * d * d * d * d;
         
 
         //c = _GlobalColorSchemeID;
