@@ -1,4 +1,4 @@
-﻿ using UnityEngine;
+ using UnityEngine;
  using System.Collections;
  using System.Reflection;
  using UnityEditor;
@@ -79,6 +79,8 @@ cameraSettings.farClip = events.MainCamera.GetComponent<Camera>().farClipPlane;
 
         }else{
           
+
+          // TODO: should this be 'non hit' instead of untagged?
           events.hitTag = "Untagged";
           events.hitPosition = new Vector3(0,0,0);
           events.hitNormal = new Vector3(0,1,0);

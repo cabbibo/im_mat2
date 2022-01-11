@@ -111,8 +111,6 @@ public class Saveable {
     public static void Save( Form form , string name ){
 
     BinaryFormatter bf = new BinaryFormatter();
-    
-//    Debug.Log(name);
     FileStream stream = new FileStream(Application.dataPath + "/"+name+".dna",FileMode.Create);
 
 
@@ -127,53 +125,53 @@ public class Saveable {
     stream.Close();
   }
 
+
+
   public static void Load(Form form , string name){
+
+    
     if( File.Exists(Application.dataPath + "/"+name+".dna")){
       
       BinaryFormatter bf = new BinaryFormatter();
       FileStream stream = new FileStream(Application.dataPath + "/"+name+".dna",FileMode.Open);
+
 
       if( form.intBuffer ){
         int[] data = bf.Deserialize(stream) as int[];
         stream.Close();
 
         if( data == null ){
+        
           form.DebugThis("YOUR  DATA IS NULL");
-          form.saveName = GetSafeName();
-          form.Embody();
-          form.loadedFromFile = false;
-          Saveable.Save(form,name);
+          SaveNewForm(form,name);
+        
         }else{
-          if( data.Length != form.DNACompressionSize() * form.count  ){
-            form.DebugThis("YOUR INPUT DATA IS OFF");
-            form.saveName = GetSafeName();
-            form.Embody();
-            form.loadedFromFile = false;
-            Saveable.Save(form,name);
 
+          if( data.Length != form.DNACompressionSize() * form.count  ){
+      
+            form.DebugThis("YOUR INPUT DATA IS OFF");
+            SaveNewForm(form,name);
+      
           }else{
-            //form.DebugThis("loadedFromFileee");
+      
             form.SetDNA(data);
+      
           }
+
         }
       }else{
           float[] data = bf.Deserialize(stream) as float[];
           stream.Close();
           
           if( data == null ){
-                  form.DebugThis("NULL DATA");
-            form.saveName = GetSafeName();
-            form.Embody();
-            form.loadedFromFile = false;
-            Saveable.Save(form,name);
+             form.DebugThis("NULL DATA");
+             SaveNewForm(form,name);
           }else{
 
           if( data.Length != form.DNACompressionSize() * form.count ){
             form.DebugThis("YOUR INPUT DATA IS OFF");
-            form.saveName = GetSafeName();
-            form.Embody();
-            form.loadedFromFile = false;
-            Saveable.Save(form,name);
+            SaveNewForm(form,name);
+           
 
           }else{
             
@@ -189,6 +187,21 @@ public class Saveable {
       Debug.Log(Application.dataPath + "/"+name+".dna");
       Debug.Log("Why would you load something that doesn't exist?!??!?");
     }
+  }
+
+
+  static void SaveNewForm(Form form,string name){
+    form.saveName = GetSafeName();
+    form.Embody();
+    form.loadedFromFile = false;
+    Saveable.Save(form,name);
+  }
+
+  static void SaveNewForm(Form form){
+    form.saveName = GetSafeName();
+    form.Embody();
+    form.loadedFromFile = false;
+    Saveable.Save(form);
   }
 
 
@@ -209,17 +222,12 @@ public class Saveable {
         if( data == null ){
           form.DebugThis("YOUR  DATA IS NULL");
           form.saveName = GetSafeName();
-          form.Embody();
-          form.loadedFromFile = false;
-          Saveable.Save(form);
+            SaveNewForm(form);
         }else{
 
           if( data.Length != form.DNACompressionSize() * form.count  ){
             form.DebugThis("YOUR INPUT DATA IS OFF");
-            form.saveName = GetSafeName();
-            form.Embody();
-            form.loadedFromFile = false;
-            Saveable.Save(form);
+            SaveNewForm(form);
 
           }else{
             //form.DebugThis("loadedFromFileee");
@@ -230,20 +238,14 @@ public class Saveable {
         float[] data = bf.Deserialize(stream) as float[];
         if( data == null ){
           form.DebugThis("NULL DATA");
-          form.saveName = GetSafeName();
-          form.Embody();
-          form.loadedFromFile = false;
-          Saveable.Save(form);
+         SaveNewForm(form);
         }else{
 
         if( data.Length !=  form.DNACompressionSize() * form.count ){
           form.DebugThis("YOUR INPUT DATA IS OFF");
           form.DebugThis("" + data.Length);
           form.DebugThis("" + form.count * form.structSize);
-          form.saveName = GetSafeName();
-          form.Embody();
-          form.loadedFromFile = false;
-          Saveable.Save(form);
+          SaveNewForm(form);
 
         }else{
           
