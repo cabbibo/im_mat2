@@ -70,6 +70,21 @@ void FillCube(int x, int y, int z, out float cube[8])
 }
 
 
+void FillCube(int x, int y, int z, out float3 cube[8])
+{
+  cube[0] = _VolumeBuffer[x + y * _Dimensions.x + z * _Dimensions.x * _Dimensions.y].nor;
+  cube[1] = _VolumeBuffer[(x + 1) + y * _Dimensions.x + z * _Dimensions.x * _Dimensions.y].nor;
+  cube[2] = _VolumeBuffer[(x + 1) + (y + 1) * _Dimensions.x + z * _Dimensions.x * _Dimensions.y].nor;
+  cube[3] = _VolumeBuffer[x + (y + 1) * _Dimensions.x + z * _Dimensions.x * _Dimensions.y].nor;
+
+  cube[4] = _VolumeBuffer[x + y * _Dimensions.x + (z + 1) * _Dimensions.x * _Dimensions.y].nor;
+  cube[5] = _VolumeBuffer[(x + 1) + y * _Dimensions.x + (z + 1) * _Dimensions.x * _Dimensions.y].nor;
+  cube[6] = _VolumeBuffer[(x + 1) + (y + 1) * _Dimensions.x + (z + 1) * _Dimensions.x * _Dimensions.y].nor;
+  cube[7] = _VolumeBuffer[x + (y + 1) * _Dimensions.x + (z + 1) * _Dimensions.x * _Dimensions.y].nor;
+}
+
+
+
 /*float3 getNor(float3 position){
 
 
@@ -111,14 +126,19 @@ void March (uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID, uint3 i
   if (zID >= uint(_Dimensions.z - 1)) return;
 
   float3 pos =  (float3(float(xID),float(yID),float(zID)) / _Dimensions); //float3(id);
+  
   float3 centre = 0;//float3(_VolDim, 0, 1) / 2.0;
 
   float cube[8];
   FillCube(xID, yID, zID, cube);
 
+  float3 nors[8];
+  FillCube(xID, yID, zID, nors);
+
   int i = 0;
   int flagIndex = 0;
   float3 edgeVertex[12];
+  float3 edgeNormal[12];
 
   //Find which vertices are inside of the surface and which are outside
   for (i = 0; i < 8; i++){
@@ -139,9 +159,13 @@ void March (uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID, uint3 i
     {
       float offset = GetOffset(cube[edgeConnection[i].x], cube[edgeConnection[i].y]);
 
+
+      edgeNormal[i] = lerp( nors[edgeConnection[i].x] , nors[edgeConnection[i].y], offset );
+
       //offset = .1;
 
       edgeVertex[i] = pos + (vertexOffset[edgeConnection[i].x]+ offset * edgeDirection[i])/_Dimensions;
+
     }
   }
 
@@ -156,18 +180,62 @@ void March (uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID, uint3 i
     if(  val >= 0){
 
 
-      float3 position;
-      position = edgeVertex[triTable[flagIndex][3* i+0]];//-center;
-      _VertBuffer[pID * 15 + (3 * i + 0)].pos = mul( _Transform, float4((position - float3(.5,.5,.5)) * 2 * _Extents + _Center,1));///CreateVertex(position, centre, size);
-      _VertBuffer[pID * 15 + (3 * i + 0)].nor =Texture.SampleLevel(_LinearClamp, position, 0).yzw;
+      float3 position1;
+      float3 position2;
+      float3 position3;
 
-      position = edgeVertex[triTable[flagIndex][ 3 * i+2]];//-center;
-      _VertBuffer[pID * 15 + (3 * i + 1)].pos = mul( _Transform, float4((position - float3(.5,.5,.5)) * 2 * _Extents + _Center,1));
-      _VertBuffer[pID * 15 + (3 * i + 1)].nor = Texture.SampleLevel(_LinearClamp, position, 0).yzw;///1getNor(position);//_volumeBuffer[pID].nor;
 
-      position = edgeVertex[triTable[flagIndex][ 3 * i+1]];//-center; 
-      _VertBuffer[pID * 15 + (3 * i + 2)].pos = mul( _Transform, float4((position - float3(.5,.5,.5)) * 2 * _Extents + _Center,1));
-      _VertBuffer[pID * 15 + (3 * i + 2)].nor = Texture.SampleLevel(_LinearClamp, position, 0).yzw;
+      float3 normal1;
+      float3 normal2;
+      float3 normal3;
+
+      position1 = edgeVertex[triTable[flagIndex][3* i+0]];//-center;
+      position1 = mul( _Transform, float4((position1 - float3(.5,.5,.5)) * 2 * _Extents + _Center,1));
+
+      normal1 = edgeNormal[triTable[flagIndex][3* i+0]];//-center;
+      normal1 = normalize(mul( _Transform, float4(normal1,0)));
+
+      position2 = edgeVertex[triTable[flagIndex][ 3 * i+2]];//-center;
+      position2 = mul( _Transform, float4((position2 - float3(.5,.5,.5)) * 2 * _Extents + _Center,1));
+
+      normal2 = edgeNormal[triTable[flagIndex][3* i+2]];//-center;
+      normal2 = normalize(mul( _Transform, float4(normal2,0)));
+
+      position3 = edgeVertex[triTable[flagIndex][ 3 * i+1]];//-center; 
+      position3 = mul( _Transform, float4((position3 - float3(.5,.5,.5)) * 2 * _Extents + _Center,1));
+
+      normal3 = edgeNormal[triTable[flagIndex][3* i+1]];//-center;
+      normal3 = normalize(mul( _Transform, float4(normal3,0)));
+
+
+      float3 nor = normalize(cross( position1 - position3 , position1 - position2 ));
+  
+      _VertBuffer[pID * 15 + (3 * i + 0)].pos = position1;
+      _VertBuffer[pID * 15 + (3 * i + 1)].pos = position2;
+      _VertBuffer[pID * 15 + (3 * i + 2)].pos = position3;
+
+      _VertBuffer[pID * 15 + (3 * i + 0)].nor = normal1;
+      _VertBuffer[pID * 15 + (3 * i + 1)].nor = normal2;
+      _VertBuffer[pID * 15 + (3 * i + 2)].nor = normal3;
+     //_VertBuffer[pID * 15 + (3 * i + 0)].nor = -nor;
+     //_VertBuffer[pID * 15 + (3 * i + 1)].nor = -nor;
+     //_VertBuffer[pID * 15 + (3 * i + 2)].nor = -nor;
+
+      //_VertBuffer[pID * 15 + (3 * i + 0)].nor = Texture.SampleLevel(_LinearClamp, position1, 0).yzw;
+      //_VertBuffer[pID * 15 + (3 * i + 1)].nor = Texture.SampleLevel(_LinearClamp, position2, 0).yzw;
+      //_VertBuffer[pID * 15 + (3 * i + 2)].nor = Texture.SampleLevel(_LinearClamp, position3, 0).yzw;
+
+   }else{
+
+      _VertBuffer[pID * 15 + (3 * i + 0)].pos = 0;
+      _VertBuffer[pID * 15 + (3 * i + 1)].pos = 0;
+      _VertBuffer[pID * 15 + (3 * i + 2)].pos = 0;
+
+      
+      _VertBuffer[pID * 15 + (3 * i + 0)].nor = 0;
+      _VertBuffer[pID * 15 + (3 * i + 1)].nor = 1;
+      _VertBuffer[pID * 15 + (3 * i + 2)].nor = 0;
+
 
    }
   }

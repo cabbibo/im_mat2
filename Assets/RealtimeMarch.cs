@@ -6,7 +6,7 @@ using System.IO;
 using System.Text;
 
 
-public class MeshFromSDF : Simulation
+public class RealtimeMarch : Simulation
 {
  
   public MarchingCubeVerts verts;
@@ -21,8 +21,6 @@ public class MeshFromSDF : Simulation
 
   public bool SaveToOBJ;
   public string objName;
-
-  public bool realtime;
 
   public override void Create(){
 
@@ -87,21 +85,17 @@ public class MeshFromSDF : Simulation
   private int baseIndex;
   public override void OnBirthed(){
 
-    if( !realtime ){
+    if(form.loadedFromFile== false){
+      tiling = true; 
+      currentTile = 0;
+      frame = 0;
+      baseIndex = 0;
+      positions = new List<Vector3>();
+      normals = new List<Vector3>();
+      indices = new List<int>();
 
-      if(form.loadedFromFile== false){
-        tiling = true; 
-        currentTile = 0;
-        frame = 0;
-        baseIndex = 0;
-        positions = new List<Vector3>();
-        normals = new List<Vector3>();
-        indices = new List<int>();
-
-        if( completedMesh != null){
-          DestroyImmediate(completedMesh); 
-        }
-
+      if( completedMesh != null){
+        DestroyImmediate(completedMesh); 
       }
 
     }
@@ -109,22 +103,18 @@ public class MeshFromSDF : Simulation
 
   public override void WhileLiving( float v ){
 
-    if( !realtime ){
-      frame ++;
-      
-      life.YOLO();
+    frame ++;
+    
+    life.YOLO();
 
-      if( (frame % 1) == 0 && tiling == true){
-        DoMeshTile( currentTile );
-        currentTile ++;
-        if(currentTile >= size*size*size){
-          tiling = false;
+    if( (frame % 1) == 0 && tiling == true){
+      DoMeshTile( currentTile );
+      currentTile ++;
+      if(currentTile >= size*size*size){
+        tiling = false;
 
-          MakeGameObject(positions, normals, indices);
-        }
+        MakeGameObject(positions, normals, indices);
       }
-    }else{
-      RealtimeMakeMesh();
     }
 
   }
@@ -162,17 +152,6 @@ public class MeshFromSDF : Simulation
     marchingLife.YOLO();
     AddVertsMesh();
   }
-
-
-  
-  public void RealtimeMakeMesh(){
-
-    resetLife.YOLO();
-    marchingResetLife.YOLO();
-    life.YOLO();
-    marchingLife.YOLO();
-  }
-
 
 
   public void OnDrawGizmos(){

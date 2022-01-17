@@ -17,6 +17,10 @@ public class AudioListenerTexture : Form
     public int lowResSize;// = 256;
 
 
+    public LoopbackAudio loopbackAudio;
+    public float loopbackMultiplier;
+
+
     public Color[] pixels;
 
     public override void SetStructSize(){
@@ -55,15 +59,35 @@ public class AudioListenerTexture : Form
 
     public override void WhileLiving( float v ){
 
-        AudioListener.GetSpectrumData ( samples, 0, FFTWindow.Triangle );
+        bool mainAudioMuted = false;
+        float multiplier = 128;
+
+            #if UNITY_EDITOR
+                mainAudioMuted = UnityEditor.EditorUtility.audioMasterMute;
+                if( mainAudioMuted ){
+                    samples = loopbackAudio.SpectrumData;
+                    for( int i = 0; i < samples.Length; i++ ){
+                        samples[i] = samples[i] * samples[i] * samples[i] * samples[i];
+                    }
+                    multiplier = loopbackMultiplier;
+                }
+
+            #endif
+
+
+        if( !mainAudioMuted ){
+            AudioListener.GetSpectrumData ( samples, 0, FFTWindow.Triangle );
+        }
+
+
         pixels = texture.GetPixels(0,0,width,1 );
         for ( int i = 0; i < size; i++ )
         {
 
-            pixels [ i ].r = pixels [ i ].r * .8f + samples [ ( int ) ( i * 4 ) + 0 ] * 128;
-            pixels [ i ].g = pixels [ i ].g * .8f + samples [ ( int ) ( i * 4 ) + 1 ] * 128;
-            pixels [ i ].b = pixels [ i ].b * .8f + samples [ ( int ) ( i * 4 ) + 2 ] * 128;
-            pixels [ i ].a = pixels [ i ].a * .8f + samples [ ( int ) ( i * 4 ) + 3 ] * 128;
+            pixels [ i ].r = pixels [ i ].r * .8f + samples [ ( int ) ( i * 4 ) + 0 ]*multiplier;
+            pixels [ i ].g = pixels [ i ].g * .8f + samples [ ( int ) ( i * 4 ) + 1 ]*multiplier;
+            pixels [ i ].b = pixels [ i ].b * .8f + samples [ ( int ) ( i * 4 ) + 2 ]*multiplier;
+            pixels [ i ].a = pixels [ i ].a * .8f + samples [ ( int ) ( i * 4 ) + 3 ]*multiplier;
 
         }   
 
@@ -71,7 +95,10 @@ public class AudioListenerTexture : Form
         texture.Apply();
 
         if( samples != null && _buffer != null ){ SetData( samples ); }
+
+        
         Shader.SetGlobalTexture( "_AudioMap" , texture );
     }
 
 }
+

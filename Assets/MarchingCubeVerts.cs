@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 
 public class MarchingCubeVerts : Form
@@ -83,6 +84,17 @@ public class MarchingCubeVerts : Form
     go.GetComponent<Renderer>().material =  baseMeshMaterial;//new Material(Shader.Find("Custom/CelShadingForward"));
     go.GetComponent<MeshFilter>().mesh = mesh;
     go.transform.parent = transform;
+
+  }
+
+
+
+   public override void WhileDebug(){
+
+    mpb.SetBuffer("_VertBuffer", _buffer);
+    mpb.SetInt("_Count",count);
+    
+    Graphics.DrawProcedural(debugMaterial,  new Bounds(transform.position, Vector3.one * 5000), MeshTopology.Triangles, count , 1, null, mpb, ShadowCastingMode.Off, true, LayerMask.NameToLayer("Debug"));
 
   }
 
