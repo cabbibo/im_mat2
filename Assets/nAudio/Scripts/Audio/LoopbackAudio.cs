@@ -6,9 +6,9 @@ using System;
 
 
 
-[ExecuteAlways]
 public class LoopbackAudio : MonoBehaviour
 {
+    
     #region Constants
 
     private const int EnergyAverageCount = 100;

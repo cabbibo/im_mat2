@@ -1,7 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEditor.Animations;
 
 namespace ToonSketchShaderPack{
 public class AnimateOnTwo : MonoBehaviour

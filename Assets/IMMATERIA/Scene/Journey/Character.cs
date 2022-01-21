@@ -76,8 +76,20 @@ public class Character : Cycle
 
     public bool onTerrainObject;
     public GameObject terrainObject;
-    public bool cantGoForward;
 
+
+
+    public float forwardMultiplier;
+    public float turnMultiplier;
+
+    public float steepnessMultiplier;
+
+    public float velocityMultiplier;
+
+
+    public float steepnessCutoff;
+
+    public bool cantMove;
 
 
     public override void Create()
@@ -92,6 +104,8 @@ public class Character : Cycle
 
 
     }
+
+    public bool playAnimation;
 
     public override void WhileLiving(float v)
     {
@@ -110,8 +124,15 @@ public class Character : Cycle
             MyPhysics();
         }
 
+        float animationSpeedMultiplier = 1;
         // once we assign all the values, then we update the animator
-        animator.Update(Time.deltaTime);
+        if( Application.isPlaying){
+            animationSpeedMultiplier = .1f;
+        }
+
+        if( playAnimation ){
+            animator.Update(Time.deltaTime * animationSpeedMultiplier);
+        }
 
 
     }
@@ -205,6 +226,8 @@ public class Character : Cycle
             moveTarget = moveTargetTransform.position;
         }
 
+
+        print("hellas)");
         // This is if we are moving towards a locked position
         if (lerping)
         {
@@ -222,8 +245,8 @@ public class Character : Cycle
 
             // setting the values
             // TODO: WHy not 0?!?
-            animator.SetFloat("Turn", 0, 0.1f, Time.deltaTime);
-            animator.SetFloat("Forward", 0, 0.1f, Time.deltaTime);
+            animator.SetFloat("Turn", 0, 0  , Time.deltaTime);
+            animator.SetFloat("Forward", 0, 0, Time.deltaTime);
 
         }/*else{
 
@@ -438,7 +461,6 @@ public class Character : Cycle
     public void SetMoveTarget(Vector3 p)
     {
 
-
         oMoveTarget = transform.position;
         moveTarget = p;
 
@@ -551,6 +573,7 @@ public class Character : Cycle
         Vector3 f = transform.position + transform.forward * 3 * .8f;
         float h2 = data.land.SampleHeight(f);
         forwardRep.position = new Vector3(f.x, h2, f.z);
+        
 
         f = transform.position - transform.forward * 3 * .8f;
         float h3 = data.land.SampleHeight(f);
@@ -568,6 +591,11 @@ public class Character : Cycle
         float h5 = data.land.SampleHeight(f);
         leftRep.position = new Vector3(f.x, h5, f.z);
 
+
+
+        Vector3 d = forwardRep.position - transform.position;
+
+        float forwardSteepness = Vector3.Dot(d,Vector3.up);
 
 
 
@@ -631,6 +659,7 @@ public class Character : Cycle
                 if (onTerrainObject == false || hit.collider.gameObject.tag != "TerrainObject")
                 {
                     velocity = Vector3.zero;
+                    cantMove = true;
                 }
 
             }
@@ -643,11 +672,17 @@ public class Character : Cycle
         }
 
 
+        if( Mathf.Abs(forwardSteepness)  > steepnessCutoff ){
+            velocity = Vector3.zero;
+            cantMove = true;
+        }
+
+
 
 
         if (velocity.magnitude > myMaxSpeed) { velocity = velocity.normalized * myMaxSpeed; }
         transform.Rotate(0, rotVel * Time.deltaTime, 0);
-        transform.position += velocity;
+        transform.position += velocity * velocityMultiplier * Time.deltaTime;
 
 
             Quaternion q = Quaternion.FromToRotation(transform.up, Vector3.up) * transform.rotation;
@@ -662,10 +697,10 @@ public class Character : Cycle
         rotVel *= .9f;
         velocity *= .9f;
 
-        animator.SetFloat("Forward", velocity.magnitude * 16, 0.1f, Time.deltaTime);
-        animator.SetFloat("Turn", rotVel * .03f, 0.1f, Time.deltaTime);
+        animator.SetFloat("Forward", velocity.magnitude *  forwardMultiplier, 0.1f, Time.deltaTime);
+        animator.SetFloat("Turn", rotVel * turnMultiplier , 0.1f, Time.deltaTime);
         animator.SetBool("Uphill", hDifFront < 0);
-        animator.SetFloat("Steepness", -hDifFront * 1, 0.1f, Time.deltaTime);
+        animator.SetFloat("Steepness", -hDifFront * steepnessMultiplier, 0.1f, Time.deltaTime);
 
 
     }

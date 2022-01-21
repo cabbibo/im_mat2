@@ -30,6 +30,8 @@ public class Bones: Form {
       mesh = gameObject.GetComponent<SkinnedMeshRenderer>();
     }
 
+
+  print( mesh.bones[0]);
     bones = mesh.bones;
     bindPoses = mesh.sharedMesh.bindposes;
 

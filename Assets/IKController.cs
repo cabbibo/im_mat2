@@ -32,13 +32,17 @@ public class IKController : Cycle
 
 
         if(animator) {  //if the IK is active, set the position and rotation directly to the goal. 
+
             if(ikActive) {
 
                 // Set the look target position, if one has been assigned
-                if(Head != null) {
-                    animator.SetLookAtWeight(1);
+                if(Head != null && HeadWeight != 0) {
+                    animator.SetLookAtWeight(HeadWeight);
                     animator.SetLookAtPosition(Head.position);
                 }    
+
+
+
 
                 // Set the right hand target position and rotation, if one has been assigned
                 if(RightHand != null && RightHandWeight != 0 ) {
@@ -49,7 +53,7 @@ public class IKController : Cycle
                 }  
 
 
-                 // Set the right hand target position and rotation, if one has been assigned
+                 // Set the left hand target position and rotation, if one has been assigned
                 if(LeftHand != null && LeftHandWeight != 0 ) {
                     animator.SetIKPositionWeight(AvatarIKGoal.LeftHand,LeftHandWeight);
                     animator.SetIKRotationWeight(AvatarIKGoal.LeftHand,LeftHandWeight);  

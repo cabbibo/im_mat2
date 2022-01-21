@@ -117,9 +117,11 @@ public class CrystalCluster : MonoBehaviour
 
     public void SaveAsAsset(){
 
-        Mesh mesh = transform.GetComponent<MeshFilter>().sharedMesh;
-        AssetDatabase.CreateAsset(mesh, "Assets/Plugins/FantasyCrystal/SavedCrystals/" + saveName );
-		AssetDatabase.SaveAssets();
+        #if UNITY_EDITOR
+            Mesh mesh = transform.GetComponent<MeshFilter>().sharedMesh;
+            AssetDatabase.CreateAsset(mesh, "Assets/Plugins/FantasyCrystal/SavedCrystals/" + saveName );
+		    AssetDatabase.SaveAssets();
+        #endif
     }
 
 }
