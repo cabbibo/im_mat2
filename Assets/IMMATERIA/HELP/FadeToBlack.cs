@@ -39,7 +39,15 @@ public class FadeToBlack : Cycle
 
 
     public void FadeOut( float time ){
+        
+        _material.SetInt("_Texture", 0);
         FadeOut( Color.black , time );
+    }
+
+    public void FadeToTexture(Texture t,float time){
+        _material.SetTexture("_MainTex", t);
+        _material.SetInt("_Texture", 1);
+        FadeOut(Color.black,time);
     }
 
     public void SetBlack(){
@@ -63,7 +71,7 @@ public class FadeToBlack : Cycle
 
     public void FadeIn(float time)
     {
-
+        _material.SetInt("_Texture", 0);
         fading = true;
         fadeStartTime = Time.time;
         fadeSpeed = time;
@@ -72,9 +80,11 @@ public class FadeToBlack : Cycle
 
     }
 
+    public float distFromCamera;
     public override void WhileLiving(float val)
     {
 
+        transform.position = transform.parent.TransformPoint(new Vector3(0,0,distFromCamera));
         if (fading == true)
         {
 
@@ -82,14 +92,25 @@ public class FadeToBlack : Cycle
             if (v >= 1)
             {
                 fading = false;
+                DoFadeEnd();
             }
             else
             {
                 currentOpacity = Mathf.Lerp(fadeOpacity, startOpacity, FadeCurve.Evaluate(v));
+                _material.SetFloat("_FadeValue", currentOpacity );
                 _material.SetColor("_Color", new Color(fadeColor.r, fadeColor.g, fadeColor.b, currentOpacity));
             }
 
         }
 
     }
+
+    public EventTypes.BaseEvent OnFadeEnd;
+
+    public void DoFadeEnd(){
+        print("AND SCENE");
+        OnFadeEnd.Invoke();
+        Application.Quit();
+    }
+
 }

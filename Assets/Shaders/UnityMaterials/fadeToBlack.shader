@@ -6,6 +6,7 @@
 
         _MainTex ("Texture", 2D) = "white" {}
         _Color ("color", Color) = (1,1,1,1)
+
     }
     SubShader
     {
@@ -45,6 +46,8 @@
             sampler2D _MainTex;
             float4 _MainTex_ST;
 
+            int _Texture;
+
             v2f vert (appdata v)
             {
                 v2f o;
@@ -60,7 +63,10 @@
             {
                 // sample the texture
                 fixed4 col = _Color;
-                // col.xyz = _Color;(1-tex2D(_MainTex,i.uv * float2(2,2) - .5).xyz);
+
+                if(_Texture == 1 ){
+                    col.xyz = tex2D(_MainTex,i.uv*2-.5).xyz;
+                }
                 // col.a = _Color.a;
                 return col;
             }

@@ -313,6 +313,8 @@ public class State : Cycle
         if (isMonolithOn != oIsMonolithOn) { }
         if (monolithTarget != oMonolithTarget) { }
 
+
+      
     }
 
 
@@ -480,8 +482,14 @@ public class State : Cycle
     {
         oSetter = setter;
         setter = null;
-        data.state.inStory = false;
-        data.state.lastTimeStoryVisited = Time.time;
+        inStory = false;
+        lastTimeStoryVisited = Time.time;
+
+        if(endAfterSingleStory){
+            DoEndFade();
+        }
+
+    
         
     }
 
@@ -505,4 +513,21 @@ public class State : Cycle
         setter = null;
     }
 
+
+    public bool endAfterSingleStory;
+    public FadeToBlack ftb;
+    public Texture fadeTexture;
+    public void DoEndFade(){
+
+        ftb.OnFadeEnd.AddListener(end);
+
+        ftb.FadeToTexture(fadeTexture,3);
+        
+
+    }
+
+    public void end(){
+
+        ftb.OnFadeEnd.RemoveListener(end);
+    }
 }

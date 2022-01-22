@@ -73,6 +73,8 @@ int _Releasing;
 
 RWStructuredBuffer<Vert> _VertBuffer;
 RWStructuredBuffer<Base> _BaseBuffer;
+RWStructuredBuffer<float> _NumberPlucked;
+
 //RWStructuredBuffer<Trans> _Pullers;
 
 uint _VertBuffer_COUNT;
@@ -175,15 +177,27 @@ bool isTip = ((pID % _NumVertsPerHair) == _NumVertsPerHair-1);
 
 
 
-if( _Releasing == 1 ){
+float oVInfo = vert.info.x;
+if( _Releasing == 1 && bID  != 0){
   vert.info.x -= length( xz) * .001;
   vert.info.x -= length(GetRayForce( vert.pos , 3.1 , .4 )) * .1;
+
+  if( vert.info.x < 0 && oVInfo > 0 ){
+    _NumberPlucked[0] =   _NumberPlucked[0]+1;
+  }
 }
 
-if( _Releasing == 2 ){
+if( _Releasing == 2 && bID  != 0){
   vert.info.x -= (sin(float(bID))+2) * .003;
   vert.info.x = max( -1, vert.info.x);
+  
+  if( vert.info.x < 0 && oVInfo > 0 ){
+    _NumberPlucked[0] =   _NumberPlucked[0]+1;
+  }
+
 }
+
+
 
 if( _Releasing == 3  && bID  != 0  ){
   vert.info.x = -10;
@@ -196,34 +210,34 @@ if( _Releasing == 4   ){
   vert.info.x = -10;
 }
 
-// Force from ursula
-force += float3(xz.x , 0 , xz.y) * .3;
+    // Force from ursula
+    force += float3(xz.x , 0 , xz.y) * .3;
 
 
-  force += curlNoise( vert.pos * .3 + float3(0,_Time * .3,0) ) * .1;
-  force += GetRayForce( vert.pos , 3.1 , .4 );
-  force += float3(0,vert.uv.x,0);
+    force += curlNoise( vert.pos * .3 + float3(0,_Time * .3,0) ) * .1;
+    force += GetRayForce( vert.pos , 3.1 , .4 );
+   // force += float3(0,vert.uv.x,0);
 
 
     vert.length = ((.5-abs(.5 - bUV.y))+.5) * _HairLength * (1 + _HairVariance * sin(10000*float(bID)));
-  if( pID == 0 ){ vert.length = _HairLength * 8; }
+    if( bID == 0 ){ vert.length = _HairLength * 2.3; }
 
-// in the air
-if( vert.info.x < 0 && bID != 0 ){
-   force += curlNoise( vert.pos * .3 + float3(0,_Time * .03,0) ) * 3.1;
-   force += float3(1,0,1) * 3;
-}
+    // in the air
+    if( vert.info.x < 0 && bID != 0 ){
+      force += curlNoise( vert.pos * .3 + float3(0,_Time * .03,0) ) * 3.1;
+      force += float3(1,0,1) * 3;
+    }
 
 
-// Extra up force for placement, but dont need
-// once released
-if( bID == 0 && _Releasing < 4 ){
-  force += float3(0,1,0) * 10;
-}
+    // Extra up force for placement, but dont need
+    // once released
+    if( bID == 0 && _Releasing < 4 ){
+      //force += float3(0,1,0) ;
+    }
 
-if( bID == 0 && _Releasing == 4 ){
-  force += float3(0,1,0) * -1;
-}
+    if( bID == 0 && _Releasing == 4 ){
+      force += float3(0,1,0) * -1;
+    }
 
     //force += .2*normalize((_HandL-vert.pos))/pow(length(_HandL-vert.pos),4);
     //force += .2*normalize((_HandR-vert.pos))/pow(length(_HandR-vert.pos),4);

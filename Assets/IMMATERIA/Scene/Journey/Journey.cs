@@ -91,6 +91,8 @@ public class Journey : Cycle
 
     public void OnStoryExit(Story story)
     {
+
+        print("Leaving story"); 
         data.state.inStory = false;
     }
 

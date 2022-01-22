@@ -10,6 +10,7 @@ public class DandelionBunch : Cycle
   public HairBasic stalk;
   public TubeTransfer  stalkBody;
   public Dandelion tips;
+  public DataForm pluckForm;
 
   public bool constant;
 
@@ -21,6 +22,7 @@ public class DandelionBunch : Cycle
     SafeInsert(stalk);
     SafeInsert(stalkBody);
     SafeInsert(tips);
+    SafeInsert(pluckForm);
   }
 
   public void Set(){

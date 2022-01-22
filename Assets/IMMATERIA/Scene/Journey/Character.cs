@@ -226,8 +226,6 @@ public class Character : Cycle
             moveTarget = moveTargetTransform.position;
         }
 
-
-        print("hellas)");
         // This is if we are moving towards a locked position
         if (lerping)
         {

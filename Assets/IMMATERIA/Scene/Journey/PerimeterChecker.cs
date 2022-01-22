@@ -102,7 +102,6 @@ public class PerimeterChecker : Cycle
     insideOuter=false;
     OnExitOuter.Invoke();
     DoFade(0);
-
     TurnOff();
     
   }

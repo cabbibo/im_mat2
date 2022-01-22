@@ -269,7 +269,7 @@ void BellLessTransfer (uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_Group
     float r = _Radius * _SkeletonBuffer[safeID(particleID *_NumVertsPerHair , _SkeletonBuffer_COUNT)].debug.x;
 
     float3 outVec = (sin(angle) *x - cos(angle) * y);// * r;
-    float3 fPos = pos + outVec * r * (.1 + rowVal* rowVal);
+    float3 fPos = pos + outVec * r * (.1 + rowVal*rowVal);
 
     float2 fUV = float2( rowVal , colVal + col / _TubeWidth );
     float3 fNor = normalize( outVec );
