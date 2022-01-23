@@ -15,6 +15,11 @@ public class DandelionPluckInstrument : Cycle
     public float oNumPlucked;
 
     public float lastPlayTime;
+
+    public override void OnLive()
+    {
+        lastPlayTime = Time.time;
+    }
     public override void WhileLiving(float v ){
         float numPlucked = pluckForm.values[0];
 

@@ -19,11 +19,31 @@ public class gpuNextTouchInstrument : Cycle
   public float volumeMultiplier;
 
   public int[] steps;
+  public Form touchable;
 
 
   public override void OnBirthed(){
+
+    if( touchable.structSize !=  16){
+      DebugThis("YO NOT THE RIGHT STRUCT SIZE DOGGGIE! ");
+    }
+    
+    if( data.gpuCollisions.ToBind != touchable){
+      data.gpuCollisions.BindNewForm( touchable );
+    }
     c = data.gpuCollisions.life;
     lastPlayTime = 0;
+  }
+
+  public override void OnDied(){
+    
+    print("dyin");
+
+    // only turn off if we haven't set it to something else
+    if( data.gpuCollisions.ToBind == touchable){
+      data.gpuCollisions.Unbind();
+    }
+
   }
 
   public override void WhileLiving( float tmp ){

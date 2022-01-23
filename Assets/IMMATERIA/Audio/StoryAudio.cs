@@ -20,8 +20,6 @@ public class StoryAudio : Cycle
    public bool playing;
 
 
-   public Form gpuCollisionSimulation;
-
    public override void Create(){
 
 
@@ -103,8 +101,6 @@ public class StoryAudio : Cycle
     for( int i = 0; i < audioInfo.Length; i++ ){
       data.sound.FadeLoop(i , audioInfo[i] , data.sound.globalLooper.fadeOutSpeed );
     }
-
-    data.gpuCollisions.BindNewForm( gpuCollisionSimulation );
 
   }
 

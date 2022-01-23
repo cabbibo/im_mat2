@@ -5,7 +5,7 @@ using System.Linq;
 using System;
 
 
-
+[ExecuteAlways]
 public class LoopbackAudio : MonoBehaviour
 {
     

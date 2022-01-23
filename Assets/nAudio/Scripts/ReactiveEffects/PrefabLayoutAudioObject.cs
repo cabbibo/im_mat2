@@ -16,6 +16,8 @@ public enum PrefabLayoutType
 
 #endregion
 
+[ExecuteAlways]
+
 public class PrefabLayoutAudioObject : VisualizationEffectBase
 {
     #region Private Member Variables

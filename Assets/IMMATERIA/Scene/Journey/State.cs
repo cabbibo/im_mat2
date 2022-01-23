@@ -520,14 +520,14 @@ public class State : Cycle
     public void DoEndFade(){
 
         ftb.OnFadeEnd.AddListener(end);
-
         ftb.FadeToTexture(fadeTexture,3);
         
 
     }
 
     public void end(){
-
+        print("tru death");
+        Application.Quit();
         ftb.OnFadeEnd.RemoveListener(end);
     }
 }

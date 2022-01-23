@@ -108,9 +108,7 @@ public class FadeToBlack : Cycle
     public EventTypes.BaseEvent OnFadeEnd;
 
     public void DoFadeEnd(){
-        print("AND SCENE");
         OnFadeEnd.Invoke();
-        Application.Quit();
     }
 
 }

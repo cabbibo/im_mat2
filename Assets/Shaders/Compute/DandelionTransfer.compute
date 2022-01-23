@@ -21,6 +21,7 @@ int _DandelionBuffer_COUNT;
 int _SkeletonBuffer_COUNT;
 #include "../Chunks/safeID.cginc"
 #include "../Chunks/snoise.cginc"
+#include "../Chunks/audioCompute.cginc"
 
 int _VertsPerVert;
 int _NumVertsPerHair;
@@ -60,6 +61,11 @@ void Transfer (uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID) {
     x = _CameraRight;
     y = _CameraUp;
     float r = _Radius * p1.debug.x;
+
+
+    float sampleVal = ((sin(float(transferID)) +1)/2)* .1 + (sin(float(hairID)) +1)/4;//  * .2;
+
+    r *= length(sampleAudio( sampleVal));
 
 
     fPos = p1.pos + .001*(float(which) * float3(1,0,0) + float(which%2) * float3(0,1,0)); 
