@@ -526,7 +526,6 @@ public class State : Cycle
     }
 
     public void end(){
-        print("tru death");
         Application.Quit();
         ftb.OnFadeEnd.RemoveListener(end);
     }
