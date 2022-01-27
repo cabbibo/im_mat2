@@ -485,7 +485,7 @@ public class State : Cycle
         inStory = false;
         lastTimeStoryVisited = Time.time;
 
-        if(endAfterSingleStory){
+        if(endAfterSingleStory && Time.time > 10){
             DoEndFade();
         }
 
@@ -520,7 +520,7 @@ public class State : Cycle
     public void DoEndFade(){
 
         ftb.OnFadeEnd.AddListener(end);
-        ftb.FadeToTexture(fadeTexture,3);
+        ftb.FadeToTexture(fadeTexture,8);
         
 
     }

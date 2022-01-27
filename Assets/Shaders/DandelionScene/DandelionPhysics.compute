@@ -180,6 +180,15 @@ bool isTip = ((pID % _NumVertsPerHair) == _NumVertsPerHair-1);
 float oVInfo = vert.info.x;
 if( _Releasing == 1 && bID  != 0){
   vert.info.x -= length( xz) * .001;
+
+  if( vert.info.x < 0 && oVInfo > 0 ){
+    _NumberPlucked[0] =   _NumberPlucked[0]+1;
+  }
+}
+
+
+if( _Releasing == 2 && bID  != 0){
+  vert.info.x -= length( xz) * .001;
   vert.info.x -= length(GetRayForce( vert.pos , 3.1 , .4 )) * .1;
 
   if( vert.info.x < 0 && oVInfo > 0 ){
@@ -187,7 +196,7 @@ if( _Releasing == 1 && bID  != 0){
   }
 }
 
-if( _Releasing == 2 && bID  != 0){
+if( _Releasing == 3 && bID  != 0){
   vert.info.x -= (sin(float(bID))+2) * .003;
   vert.info.x = max( -1, vert.info.x);
   
@@ -199,14 +208,14 @@ if( _Releasing == 2 && bID  != 0){
 
 
 
-if( _Releasing == 3  && bID  != 0  ){
+if( _Releasing == 4  && bID  != 0  ){
   vert.info.x = -10;
   vert.pos = 100000;
 }
 
 
 
-if( _Releasing == 4   ){
+if( _Releasing == 5   ){
   vert.info.x = -10;
 }
 

@@ -65,8 +65,13 @@ void Transfer (uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID) {
 
     float sampleVal = ((sin(float(transferID)) +1)/2)* .1 + (sin(float(hairID)) +1)/4;//  * .2;
 
-    r *= length(sampleAudio( sampleVal));
 
+  float audioVal = length(sampleAudio( sampleVal));
+    r *= audioVal + .5;
+
+    float3 dir = p1.pos - s1.pos;
+
+    float3 pushOut = p1.pos + dir * audioVal * .1;
 
     fPos = p1.pos + .001*(float(which) * float3(1,0,0) + float(which%2) * float3(0,1,0)); 
    
@@ -74,47 +79,46 @@ void Transfer (uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID) {
     fUV = float2(0,0);
 
     fPos = p1.pos - x * r - y * r;
-
-    float3 dir = p1.pos - s1.pos;
+ dir = pushOut - s1.pos;
 
 
     float noiseVal = .8*snoise( s1.pos * .1 + float3(_Time * .1,0,0));
      noiseVal += 1*snoise( s1.pos * 1 + float3(_Time * .03,0,0));
 
     if( which == 0 ){
-      fPos = p1.pos - x * r - y * r;
-      fNor = -normalize( p1.pos - fPos );
+      fPos = pushOut - x * r - y * r;
+      fNor = -normalize( pushOut - fPos );
       fUV = float2( 0, 0); 
       fDebug = float2( float(transferID) , noiseVal );
     }else if( which  == 1 ){
-      fPos = p1.pos + x * r - y * r;
-      fNor = -normalize( p1.pos - fPos );
+      fPos = pushOut + x * r - y * r;
+      fNor = -normalize( pushOut - fPos );
       fDebug = float2( float(transferID) , noiseVal  );
       fUV = float2( 1 , 0 );
     }else if( which == 2 ){
-      fPos = p1.pos - x * r + y * r;
-      fNor = -normalize( p1.pos - fPos );
+      fPos = pushOut - x * r + y * r;
+      fNor = -normalize( pushOut - fPos );
       fDebug = float2( float(transferID) , noiseVal  );
       fUV = float2( 0 , 1 );
     }else if( which == 3 ){
-      fPos = p1.pos + x * r + y * r;
-      fNor = -normalize( p1.pos - fPos );
+      fPos = pushOut + x * r + y * r;
+      fNor = -normalize( pushOut - fPos );
       fDebug = float2( float(transferID), noiseVal  );
       fUV = float2( 1 , 1 );
     }else if( which == 4 ){
-      fPos = dir * -.1 + p1.pos - x * r * .3 - y * r * .1;
+      fPos = dir * -.1 + pushOut - x * r * .3 - y * r * .1;
       
-      fNor = -normalize( (p1.pos+s1.pos)/2 - fPos );
+      fNor = -normalize( (pushOut+s1.pos)/2 - fPos );
       fDebug = float2( s1.uv.x , noiseVal  );
       fUV = float2( 0 , 1 );
     }else if( which == 5 ){
-      fPos = dir * -.1 + p1.pos + x * r * .3 - y * r * .1;
-      fNor = -normalize( (p1.pos+s1.pos)/2 - fPos );
+      fPos = dir * -.1 + pushOut + x * r * .3 - y * r * .1;
+      fNor = -normalize( (pushOut+s1.pos)/2 - fPos );
       fDebug = float2( s1.uv.x , noiseVal  );
       fUV = float2( 1 , 1 );
     }else{
       fPos = s1.pos;
-      fNor = -normalize( (p1.pos+s1.pos)/2 - fPos );
+      fNor = -normalize( (pushOut+s1.pos)/2 - fPos );
       fDebug = float2( s1.uv.x, noiseVal  );
       fUV = float2( .5, 0 );
     }

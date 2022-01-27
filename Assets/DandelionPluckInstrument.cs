@@ -15,6 +15,7 @@ public class DandelionPluckInstrument : Cycle
     public float oNumPlucked;
 
     public float lastPlayTime;
+    public string mixerName;
 
     public override void OnLive()
     {
@@ -33,7 +34,7 @@ public class DandelionPluckInstrument : Cycle
         
             AudioClip clip = clips[Random.Range(0,clips.Length)];
             int step = steps[Random.Range(0,steps.Length)];
-            data.sound.Play( clip , step  , 1 , 0  , data.sound.master , "TouchSounds" );
+            data.sound.Play( clip , step  , 1 , 0  , data.sound.master , mixerName );
 
             lastPlayTime = Time.time;
 

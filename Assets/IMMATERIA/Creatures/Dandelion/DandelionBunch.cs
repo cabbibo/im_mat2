@@ -53,19 +53,27 @@ public class DandelionBunch : Cycle
   }
 
 
+// Release States
+// 0 nothing
+// 1 just ursula
+// 2 ursula and touch
+// 3 full release
+// 4 set disappeared
+// 5 let go final
+
   public void SetRelease( int i ){
     releasing = i;
   }
 
+  
+
 
   public void SetDisappeared(){
-    print("disappera");
-    releasing = 3;
+    releasing = 4;
   }
 
   public void ReleaseFinalDandelion(){
-    print("disappera");
-    releasing = 4;
+    releasing = 5;
   }
 
 
