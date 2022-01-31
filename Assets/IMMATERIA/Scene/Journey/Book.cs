@@ -46,6 +46,12 @@ public class Book : Cycle
     public float transitionOutOfStoryRate;
 
 
+  public GameObject[] localMeshes;
+  public Cycle[] localCycles;
+
+  public MiniMap minimap;
+
+
     public override void Destroy(){
       for( int i = 0; i < startNodes.Length; i++ ){
         DestroyImmediate(startNodes[i]);
@@ -89,7 +95,10 @@ public class Book : Cycle
       started = true;
       active = true;
 
+      print("hellloo");
+
       data.playerControls.animator.SetTrigger("LiftPhone");
+      data.playerControls.locked = true;
 
 
 
@@ -119,7 +128,13 @@ public class Book : Cycle
       //started = true;
         //  OpenBook();
     
-
+    if( localMeshes.Length > 0 ){
+      for(int i = 0; i < localMeshes.Length; i++ ){
+        localMeshes[i].SetActive(true);
+      }
+    }
+  
+    JumpStart(localCycles);
     }
 
 
@@ -128,8 +143,9 @@ public class Book : Cycle
       print("Book oPRNS");
 
       data.inputEvents.OnTap.AddListener( TapInBook );
-      data.inputEvents.OnSwipeLeft.AddListener( LeftSwipe);
-      data.inputEvents.OnSwipeRight.AddListener( RightSwipe);
+      data.inputEvents.OnEdgeSwipeLeft.AddListener( LeftSwipe);
+      data.inputEvents.WhileDownDelta.AddListener( DownDelta );
+      data.inputEvents.OnEdgeSwipeRight.AddListener( RightSwipe);
 
       data.journey.active = false;
 
@@ -145,14 +161,17 @@ public class Book : Cycle
 
     public void OnPageOpened(){
 
+      print("Page Opened");
 
+      /*
       data.inputEvents.OnTap.AddListener( TapInBook );
-      data.inputEvents.OnSwipeLeft.AddListener( LeftSwipe);
-      data.inputEvents.OnSwipeRight.AddListener( RightSwipe);
+      data.inputEvents.OnEdgeSwipeLeft.AddListener( LeftSwipe);
+      data.inputEvents.OnEdgeSwipeRight.AddListener( RightSwipe);
 
       data.journey.active = false;
 
       opened = true;
+      */
 
     }
 
@@ -181,6 +200,11 @@ public class Book : Cycle
     }
 
 
+    public void DownDelta( Vector2 dir ){
+      minimap.DownDelta( dir );
+    }
+
+
 
     public void CloseBook(){
       
@@ -190,13 +214,27 @@ public class Book : Cycle
       data.cameraControls.SetFollowTarget();
 
       data.playerControls.animator.SetTrigger("LowerPhone");
+      data.playerControls.locked = false;
 
       data.inputEvents.OnTap.RemoveListener( TapInBook );
-      data.inputEvents.OnSwipeLeft.RemoveListener( LeftSwipe );
-      data.inputEvents.OnSwipeRight.RemoveListener( RightSwipe );
+      data.inputEvents.WhileDownDelta.RemoveListener( DownDelta );
+      data.inputEvents.OnEdgeSwipeLeft.RemoveListener( LeftSwipe );
+      data.inputEvents.OnEdgeSwipeRight.RemoveListener( RightSwipe );
 
       data.journey.active = true;
       active = false;
+
+
+
+// TODO only do this once the book is closed!
+
+          if( localMeshes.Length > 0 ){
+      for(int i = 0; i < localMeshes.Length; i++ ){
+        localMeshes[i].SetActive(false);
+      }
+    }
+
+    JumpDeath(localCycles);
 
     }
 
@@ -292,6 +330,7 @@ public class Book : Cycle
 
     public void CheckForStart(){
 
+      print("hellol");
       if( !started ){
 //        RaycastHit hit;
         if( data.inputEvents.hitTag == "Player" && data.state.inPages == false ){
@@ -301,6 +340,12 @@ public class Book : Cycle
       }
 
 
+    }
+
+    public void CellPhoneLifted(){
+
+      print("HOW IS THIS WORKIGN");
+      
     }
 
 

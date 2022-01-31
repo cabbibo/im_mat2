@@ -525,8 +525,14 @@ public class Character : Cycle
     public float myMaxSpeed;
     public float myMaxRotSpeed;
 
+    public bool locked;
+
     public void MyPhysics()
     {
+
+
+if( !locked ){
+
 
 
         // Getting the height where we are
@@ -701,6 +707,18 @@ public class Character : Cycle
         animator.SetFloat("Steepness", -hDifFront * steepnessMultiplier, 0.1f, Time.deltaTime);
 
 
+
+}else{
+
+    rotVel = 0;
+    velocity = Vector3.zero;
+    force =  Vector3.zero;
+        animator.SetFloat("Forward", 0, 0.1f, Time.deltaTime);
+        animator.SetFloat("Turn",0 , 0.1f, Time.deltaTime);
+        animator.SetBool("Uphill",true);
+        animator.SetFloat("Steepness", 0, 0.1f, Time.deltaTime);
+
+}
     }
 
 

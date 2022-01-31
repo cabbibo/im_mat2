@@ -24,6 +24,9 @@ public class gpuNextTouchInstrument : Cycle
 
   public override void OnBirthed(){
 
+
+print( touchable );
+print(this.gameObject.name);
     if( touchable.structSize !=  16){
       DebugThis("YO NOT THE RIGHT STRUCT SIZE DOGGGIE! ");
     }

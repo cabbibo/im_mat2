@@ -118,6 +118,15 @@ public class Land : Cycle
     }
 
 
+    public Vector2 getUVPosition(Vector3 worldPos){
+
+    float posX = worldPos.x / size;
+    float posY = worldPos.y / size;
+
+    return new Vector2(posX,posY);
+        
+    }
+
     public float SampleHeight(Vector3 v)
     {
         float posX = (v.x - .5f) * size - (.5f / (float)heightMap.width);
