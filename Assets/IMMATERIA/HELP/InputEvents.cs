@@ -85,6 +85,9 @@ public class InputEvents : Cycle
     void Start() { }
 
 
+    public List<Cycle> TapWatchers;
+
+
 
     public void DoRaycast()
     {
@@ -233,6 +236,46 @@ public class InputEvents : Cycle
         downTween = Mathf.Lerp(downTween, Down, .3f);
         downTween2 = Mathf.Lerp(downTween, Down, .1f);
 
+
+
+    }
+
+
+    public void AddTapWatcher(Cycle item){
+        TapWatchers.Add(item);
+    }
+
+    public void RemoveTapWatcher(Cycle item){
+        TapWatchers.Remove(item);
+    }
+    void CheckTaps(){
+
+
+        if (TapWatchers == null){
+            TapWatchers = new List<Cycle>();
+        }
+
+
+        if (hit.transform != null){
+
+            Cycle hitCycle = hit.transform.GetComponent<Cycle>();
+
+            if (hitCycle != null){
+
+
+                for (int i = 0; i < TapWatchers.Count; i++){
+                    if (TapWatchers[i] != null){
+                        if (TapWatchers[i] == hitCycle){
+                            TapWatchers[i].OnTap();
+                        }
+                    }else {
+                        print("THERES A TAP WATCHER THATS NULL!");
+                    }
+                }
+            }
+        }
+
+
     }
 
     void MouseInput()
@@ -369,6 +412,11 @@ public class InputEvents : Cycle
 
         swipable = true;
 
+
+
+
+
+        CheckTaps();
         //print( difT );
         //print( difP );
         //print( ratio );

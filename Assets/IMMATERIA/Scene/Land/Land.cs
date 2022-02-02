@@ -25,6 +25,8 @@ public class Land : Cycle
 
     public Texture2D[] infoTextures;
 
+    public TerrainData terrainData;
+
     public override void Create()
     {
 
@@ -53,6 +55,8 @@ public class Land : Cycle
         // heightMap.Apply();
 
         LoadFromFile();
+
+        GenerateTerrainData();
 
 
         Shader.SetGlobalTexture("_HeightMap", heightMap);
@@ -331,5 +335,39 @@ public class Land : Cycle
 
     }
 
+
+
+   void GenerateTerrainData()
+    {
+        /*terrainData.heightmapResolution = (int)(1/size);
+        terrainData.baseMapResolution = (int)(1/size);
+ 
+        terrainData.size = new Vector3(1/size, height, 1/size);*/
+
+
+        string name = "Terrain/safe";
+
+        BinaryFormatter bf = new BinaryFormatter();
+
+
+        FileStream stream = File.OpenRead(Application.streamingAssetsPath + "/" + name + ".dna");
+        float[] data = bf.Deserialize(stream) as float[];
+        stream.Close();
+
+        float[,] heights = new float[1024, 1024];
+        Color[] colors = new Color[data.Length / 4];
+        for (int i = 0; i < data.Length / 4; i++)
+        {
+
+            int x = i % 1024;
+            int y = i / 1024;
+            heights[y,x] = data[i * 4 + 0] / height;
+
+        }
+
+
+
+        terrainData.SetHeights(0, 0, heights);
+    }
 
 }

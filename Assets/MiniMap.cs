@@ -49,7 +49,11 @@ public class MiniMap : TransferLifeForm
             
             storyMarkers[i].transform.parent = transform;
             storyMarkers[i].setter = data.journey.monoSetters[i];
+            storyMarkers[i].id = i;
+            storyMarkers[i].miniMap = this;
             SafeInsert(storyMarkers[i]);
+
+            data.inputEvents.AddTapWatcher( storyMarkers[i]);
         }
     }
 
@@ -60,13 +64,12 @@ public class MiniMap : TransferLifeForm
             if( storyMarkers[i] != null ){
                 JumpDeath(storyMarkers[i]);
                 Cycles.Remove(storyMarkers[i]);
+                data.inputEvents.RemoveTapWatcher( storyMarkers[i]);
                 DestroyImmediate(storyMarkers[i].gameObject);  
             }
         }
 
         storyMarkers = null;
-
-    
 
     }
 
@@ -77,6 +80,7 @@ public class MiniMap : TransferLifeForm
         centerVel -= dir * moveMultiplier;
 
     }
+
 
     public override void WhileLiving(float v)
     {

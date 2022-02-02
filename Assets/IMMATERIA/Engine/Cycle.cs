@@ -729,4 +729,16 @@ void SetStates(){
 
   }
 
+
+
+  
+  public virtual void OnTap(){
+
+  }
+
+  public virtual void WhileTouchDown(){
+
+  }
+
+
 }

@@ -5,15 +5,19 @@ using UnityEngine;
 public class StoryNode : Cycle
 {
    
+   public MiniMap miniMap;
    int colorScheme;
    Vector3 worldLocation;
 
    public StorySetter setter;
 
+   public int id;
+
 
    public Renderer notVisitedRenderer;
    public Renderer visitedRenderer;
    public Renderer completedRenderer;
+   public Renderer selectedRenderer;
 
 
     public override void Create(){
@@ -27,6 +31,7 @@ public class StoryNode : Cycle
         notVisitedRenderer.enabled = false;
         visitedRenderer.enabled = false;
         completedRenderer.enabled = false;
+        selectedRenderer.enabled = false;
 
 
 
@@ -50,7 +55,27 @@ public class StoryNode : Cycle
 
 
    public override void WhileLiving(float v){
-       print("hey");
+       
+   }
+
+    public void Deselect(){
+
+        selectedRenderer.enabled = false;
+
+    }
+
+   public override void OnTap(){
+
+           for( int i = 0; i < miniMap.storyMarkers.Length; i++ ){
+            miniMap.storyMarkers[i].Deselect();
+        }
+
+        data.state.PlaySelection();
+        data.state.ConnectMonolith( id );
+        selectedRenderer.enabled = true;
+
+    
+        print("this object got clicked");
    }
 
 
