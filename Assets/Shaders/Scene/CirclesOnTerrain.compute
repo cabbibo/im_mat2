@@ -2,6 +2,9 @@
 #pragma kernel CircleOnTerrain
 #pragma kernel CircleOnTerrainOscillate
 
+
+#pragma kernel CenterPulse
+
 struct Vert{
   float3 pos;
   float3 vel;
@@ -104,5 +107,40 @@ void CircleOnTerrainOscillate (uint threadID : SV_GroupIndex, uint3 u3GroupID : 
 
 
 }
+
+
+
+#define NR_THREADS 128
+[numthreads(NR_THREADS,1,1)]
+void CenterPulse (uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID) {
+
+  int pID = safeID( threadID + u3GroupID.x * NR_THREADS , _VertBuffer_COUNT );
+
+    
+    Vert v = _VertBuffer[pID];
+
+    v.pos = _SetLocation + v.og * _Radius;
+    v.pos.y = 0;
+
+    v.nor = getNormal( v.pos );
+    v.pos = worldPos(v.pos) ;
+
+    float upVal = length(v.og.xz);//(1-length(v.og.xz));
+    upVal *= 10;//= 3.14 * 2;
+    float yVal = 1*sin(upVal)/upVal + (1-length(v.og.xz)) +  .2 * sin( _Time * 4+length(v.og.xz)*10 + upVal ) * (1-length(v.og.xz));
+
+    if( length(v.og.xz)>.97){ yVal = 0;}
+    v.pos =v.pos -v.nor * _Height * yVal * .3;
+
+
+
+
+    _VertBuffer[pID] = v;
+
+
+
+}
+
+
 
 

@@ -10,6 +10,17 @@ public class MiniMap : TransferLifeForm
     public float dampening;
     public Vector2 mapCenter;
     public Vector3 mapSize;
+
+    public GameObject storyMarkerPrefab;
+    public StoryNode[] storyMarkers;
+
+
+    public GameObject playerMarkerPrefab;
+    public PlayerNode[] playerMarker;
+
+    public Transform playerMarkerTransform;
+
+
     
 
     public override void Bind()
@@ -33,8 +44,6 @@ public class MiniMap : TransferLifeForm
     }
 
 
-    public GameObject storyMarkerPrefab;
-    public StoryNode[] storyMarkers;
     public override void Create(){
         DestroyNodes();
         CreateNodes();
@@ -94,6 +103,8 @@ public class MiniMap : TransferLifeForm
             storyMarkers[i].transform.position = GetMiniMapPosition( data.journey.monoSetters[i].transform.position );
 
         }
+        
+        playerMarkerTransform.position = GetMiniMapPosition( data.player.position );
 
     }
 
