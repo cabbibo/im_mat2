@@ -228,7 +228,7 @@ public class Book : Cycle
 
 // TODO only do this once the book is closed!
 
-          if( localMeshes.Length > 0 ){
+    if( localMeshes.Length > 0 ){
       for(int i = 0; i < localMeshes.Length; i++ ){
         localMeshes[i].SetActive(false);
       }
@@ -330,7 +330,6 @@ public class Book : Cycle
 
     public void CheckForStart(){
 
-      print("hellol");
       if( !started ){
 //        RaycastHit hit;
         if( data.inputEvents.hitTag == "Player" && data.state.inPages == false ){

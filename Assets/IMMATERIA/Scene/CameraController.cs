@@ -38,6 +38,9 @@ public class CameraController : Cycle
     public float heightAbove;
     public float radius;
 
+    public Transform lookTarget;
+
+
     public override void Create(){
       //lerping = false;
       startFollowTime = Time.time;
@@ -85,7 +88,28 @@ public class CameraController : Cycle
       float h = data.land.SampleHeight( targetPosition );
 
       if( targetPosition.y < h + 2 ){ targetPosition = new Vector3( targetPosition.x , h + 2 , targetPosition.z);}
+
+
       Quaternion targetRotation = Quaternion.LookRotation( (followTarget.position - CameraHolder.position + Vector3.up) );
+
+      // Make it so we can set look positions inside areas!
+      if( lookTarget != null ){
+        targetRotation = Quaternion.LookRotation( (lookTarget.position - CameraHolder.position + Vector3.up) );
+      }
+
+      // 
+
+      if( lookTarget != null ){
+         Vector3 center = Vector3.Lerp( lookTarget.position , followTarget.position , .5f);
+
+
+         Vector3 d = lookTarget.position - followTarget.position;
+         
+        targetRotation = Quaternion.LookRotation( (center - CameraHolder.position) );
+
+        // push out by the distance between so we make sure both are in frame
+        targetPosition = center + Vector3.Cross( d, Vector3.up ).normalized * Mathf.Max(radius/2,d.magnitude);//center + (center - CameraHolder.position).normalized * d.magnitude;
+      }
 
       float steal = Mathf.Clamp( (Time.time - startFollowTime) / startFollowSpeed , 0 , 1);
 

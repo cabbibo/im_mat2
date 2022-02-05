@@ -31,7 +31,6 @@ public class Bones: Form {
     }
 
 
-  print( mesh.bones[0]);
     bones = mesh.bones;
     bindPoses = mesh.sharedMesh.bindposes;
 

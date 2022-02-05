@@ -37,6 +37,8 @@ public class AudioPlayer : Cycle{
 
     public GameObject sourcePrefab;
 
+
+    public AudioListenerTexture audioTexture;
     public override void Create(){
 
         if( objects == null || objects.Length != numSources  || 
@@ -117,6 +119,9 @@ public class AudioPlayer : Cycle{
 
         SafeInsert(globalLooper);
 
+
+
+        SafeInsert(audioTexture);
     }
 
 

@@ -23,6 +23,8 @@ public class PerimeterChecker : Cycle
   public GameObject[] localMeshes;
   public Cycle[] localCycles;
 
+  public Transform lookTarget;
+
 
 
 
@@ -95,6 +97,8 @@ public class PerimeterChecker : Cycle
     
     DoFade(1);
 
+    data.cameraControls.lookTarget = lookTarget;
+
 
   }
 
@@ -111,6 +115,8 @@ public class PerimeterChecker : Cycle
     insideInner=false;
     OnExitInner.Invoke();
     DoFade(1);
+    
+    data.cameraControls.lookTarget = null;
   }
 
   public void DoFade( float v ){

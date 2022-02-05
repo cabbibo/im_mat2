@@ -277,6 +277,8 @@ public class StoryController : Cycle
 
         if (setter.audio.startClips.Length == 0)
         {
+
+            print( this.gameObject.name );
             DebugThis("This story doesn't have audio yet");
         }
         else

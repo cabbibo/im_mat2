@@ -7,6 +7,7 @@
 #include "../Chunks/noise.cginc"
 #include "../Chunks/snoise.cginc"
 #include "../Chunks/curlNoise.cginc"
+#include "../Chunks/ComputeTerrainInfo.cginc"
 
 
 float4x4 transform; 
@@ -38,6 +39,21 @@ struct Vert{
 
 
 
+struct Base{
+    float3 pos;
+    float3 vel;
+    float3 nor;
+    float3 tan;
+    float2 uv;
+    float used;
+    float3 triIDs;
+    float3 triWeights;
+    float3 debug;
+};
+
+
+
+
 int _HairsPerVert;
 
 
@@ -48,12 +64,11 @@ float _NoiseSize;
 float _Dampening;
 
 RWStructuredBuffer<Vert> _VertBuffer;
-RWStructuredBuffer<Vert> _BaseBuffer;
+RWStructuredBuffer<Base> _BaseBuffer;
 
 uint _VertBuffer_COUNT;
 uint _BaseBuffer_COUNT;
 
-#include "../Chunks/terrainCompute.cginc"
 #include "../Chunks/safeID.cginc"
 #include "../Chunks/springForce.cginc"
 
@@ -76,7 +91,7 @@ void Set (uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID, uint3 id 
 
     pID = safeID( pID , _VertBuffer_COUNT );
     Vert vert = _VertBuffer[pID];
-    Vert base = _BaseBuffer[safeID( bID  , _BaseBuffer_COUNT )];
+    Base base = _BaseBuffer[safeID( bID  , _BaseBuffer_COUNT )];
 
     float l = float(pID % _NumVertsPerHair ) / float(_NumVertsPerHair);
     vert.uv = float2( l , float(bID)/float(_BaseBuffer_COUNT));
@@ -118,7 +133,7 @@ void Force(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID, uint3 id
     pID = safeID( pID , _VertBuffer_COUNT );
     bID = safeID( bID , _BaseBuffer_COUNT );
    
-    Vert base = _BaseBuffer[bID ];
+    Base base = _BaseBuffer[bID ];
 
     float3 bP1 = base.pos;
     float3 bN1 = base.nor;
@@ -152,18 +167,26 @@ void Force(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID, uint3 id
     float3 x = normalize(c);
     float3 y = normalize(cross(nor,x));
 
+    float3 terrainPos = worldPos( vert.pos  );
+
+    if( vert.pos.y < terrainPos.y + .1){
+      force += float3(0,30,0);
+    }
 
     float angle = float(hairInVert)/float(_HairsPerVert) * 6.28;
 
     float3 outVec = x * sin(angle) - y * cos(angle);
 
-    force += outVec * 1*vert.uv.x * vert.uv.x  * (1.5-vert.uv.y);
+    //force += outVec * 1*vert.uv.x * vert.uv.x  * (1.5-vert.uv.y);
 
-    force += curlNoise(vert.pos * .3) * .5;
-   // force += bN1 * .03;
+    force += curlNoise(vert.pos * .3 + float3(0,_Time,0)) * .1;
+    force -= bN1 * .03;
 
 
-    vert.length = bUV.x * bUV.x * _HairLength * (hash(hairID)+1);
+    float2 xz = .1*normalize( vert.pos.xz - _PlayerPosition.xz ) / (.1 + pow(length(vert.pos.xz - _PlayerPosition.xz), 10));
+    force += float3(xz.x,0,xz.y);
+
+    vert.length =  _HairLength * (hash(hairID)+1);
 
 
     // If we are at the bottom, 
@@ -183,7 +206,7 @@ void Force(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID, uint3 id
      //vert.oPos = vert.pos;
 
 
-    force += GetRayForce( vert.pos , 2) * .8 * _DOWN;
+    force += GetRayForce( vert.pos , 2) * 11.8 * _DOWN;
     
 
 

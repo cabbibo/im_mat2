@@ -6,8 +6,10 @@ public class BindAudio : Binder
 {
    public AudioListenerTexture audioInfo;
    public override void Bind(){ 
-
-       toBind.BindTexture("_AudioMap", ()=>audioInfo.texture);
+       if( audioInfo == null ){
+           audioInfo = data.sound.audioTexture;
+       }
+       toBind.BindTexture("_AudioMap", ()=> this.audioInfo.texture);
        
    }
 }

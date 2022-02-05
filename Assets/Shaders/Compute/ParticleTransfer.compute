@@ -1,6 +1,7 @@
 ﻿
 #pragma kernel Transfer
 #pragma kernel Forward
+#pragma kernel ForwardOffset
 #pragma kernel ForwardDebugXSize
 #pragma kernel LifeSize
 #pragma kernel LifeSizeEmitted
@@ -278,5 +279,50 @@ void LifeSizeEmitted(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID
     _VertBuffer[safeID(pID,_VertBuffer_COUNT)].uv = fUV;
     _VertBuffer[safeID(pID,_VertBuffer_COUNT)].nor = p.nor;
     _VertBuffer[safeID(pID,_VertBuffer_COUNT)].debug = float2( particleID , p.debug.y );
+
+}
+
+
+
+float _CountMultiplier;
+int _CountOffset;
+
+
+#include "../Chunks/audioCompute.cginc"
+
+[numthreads(NR_THREADS,1,1)]
+void ForwardOffset(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID) {
+
+    int pID = threadID + u3GroupID.x * NR_THREADS;
+
+    int particleID = pID / 4;
+    particleID *= 1;
+
+
+    Vert p = _SkeletonBuffer[safeID(particleID,_SkeletonBuffer_COUNT)];
+
+    int idInParticle = pID % 4;
+    int row = idInParticle / 2;
+    int col = pID % 2;
+
+    //float3 l = _CameraRight;//normalize(cross(p.nor,float3(0,1,0)));
+    //float3 u = _CameraUp;//normalize(cross(p.nor,l));
+    float3 l = normalize(cross(p.nor,float3(0,1,0)));
+    float3 u = normalize(cross(p.nor,l));
+    l *= (float(col)-.5);
+    u *= (float(row)-.5);
+
+    float4 audio =  sampleAudio( .0 + (1-p.uv.x) * .1);
+
+    float3 fPos = p.pos + (l + u)  * length(audio) * .5 * _Radius +   _Radius;
+
+    float2 fUV = float2( float(row) , float(col) );
+
+    _VertBuffer[safeID(pID,_VertBuffer_COUNT)].pos = fPos;
+    _VertBuffer[safeID(pID,_VertBuffer_COUNT)].vel = p.vel;
+    _VertBuffer[safeID(pID,_VertBuffer_COUNT)].uv = fUV;
+    _VertBuffer[safeID(pID,_VertBuffer_COUNT)].nor = p.nor;
+    _VertBuffer[safeID(pID,_VertBuffer_COUNT)].debug = float2( particleID , p.debug.y );
+
 
 }

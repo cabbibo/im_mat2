@@ -52,8 +52,6 @@ public class GpuNextTouchGranularInstrument : Cycle
 
   public override void OnDied(){
     
-    print("dyin");
-
     // only turn off if we haven't set it to something else
     if( data.gpuCollisions.ToBind == touchable){
       data.gpuCollisions.Unbind();

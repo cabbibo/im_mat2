@@ -110,6 +110,10 @@ void CircleOnTerrainOscillate (uint threadID : SV_GroupIndex, uint3 u3GroupID : 
 
 
 
+#include "../Chunks/GetRayForce.cginc"
+
+float3 _PlayerPosition;
+
 #define NR_THREADS 128
 [numthreads(NR_THREADS,1,1)]
 void CenterPulse (uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID) {
@@ -119,18 +123,44 @@ void CenterPulse (uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID) {
     
     Vert v = _VertBuffer[pID];
 
-    v.pos = _SetLocation + v.og * _Radius;
-    v.pos.y = 0;
 
-    v.nor = getNormal( v.pos );
-    v.pos = worldPos(v.pos) ;
+
+    float3 target = _SetLocation + v.og * _Radius;
+    target.y = 0;
+
+    v.nor = getNormal( target );
+    target = worldPos(target) ;
 
     float upVal = length(v.og.xz);//(1-length(v.og.xz));
     upVal *= 10;//= 3.14 * 2;
     float yVal = 1*sin(upVal)/upVal + (1-length(v.og.xz)) +  .2 * sin( _Time * 4+length(v.og.xz)*10 + upVal ) * (1-length(v.og.xz));
 
     if( length(v.og.xz)>.97){ yVal = 0;}
-    v.pos =v.pos -v.nor * _Height * yVal * .3;
+
+    float3 fHeight=  _Height * yVal * .3;
+
+   float playerD = length(v.pos.xz - _PlayerPosition.xz); 
+    fHeight = lerp( fHeight, 0, saturate(1/(1*playerD)) );
+
+
+    target = target -v.nor * fHeight;
+    float3 d = target - v.pos;
+
+    if( length(d) > _Radius ){
+      v.pos = target;
+      v.vel = 0;
+    }
+    float3 force = float3(0,0,0);
+    force += (target - v.pos) * .02;
+
+
+    force += GetRayForce( v.pos , 1) * 1 * _DOWN * .005;
+    v.vel += force;
+    v.pos  += v.vel;
+
+    //v.pos = lerp(v.pos,target,1);
+
+    v.vel *= .97;
 
 
 
