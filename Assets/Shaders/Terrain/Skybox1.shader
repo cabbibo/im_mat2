@@ -1,5 +1,4 @@
 ﻿
-
 Shader "Terrain/Skybox1"
 {
 
@@ -120,7 +119,7 @@ float4 frag (varyings v) : COLOR {
     float2 ty = v.rd.zx * _MapScale;
     float2 tz = v.rd.xy * _MapScale;
 
-    float n = noise( v.rd * .0002 + _Time.y * .03 ) +  .4 * noise (v.rd * .0006+ _Time.y * .1) + .1 * noise(v.rd * .001+ _Time.y * .3)  ;//* .3 + noise(v.rd * .0001) * .6 + noise(v.rd * .0003);
+    float n = noise( v.rd * .0002 + float3( 0, _Time.y * .4,0) ) +  .4 * noise (v.rd * .0006+ float3( 0, _Time.y * .2,0)) + .1 * noise(v.rd * .001+ float3( 0, _Time.y * .3,0))  ;//* .3 + noise(v.rd * .0001) * .6 + noise(v.rd * .0003);
 
 
     float4 cx = tex2D(_MainTex, tx )* bf.x* bf.x;
@@ -133,6 +132,8 @@ float4 frag (varyings v) : COLOR {
     col = GetGlobalColor( col.x * .1 ) * col.x;
 
     col *= SampleAudio(n*.1);//(_AudioMap,n * .1);
+
+    col *= saturate(normalize(v.rd).y * .3);
 
 
     return fixed4( saturate(col.xyz) * _Lightness , 1);//saturate(float4(col,3*length(col) ));

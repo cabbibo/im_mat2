@@ -4,12 +4,14 @@
  using UnityEditor;
  
  [CustomEditor(typeof(Painter))]
- public class myEditor : Editor {
+ public class PainterEditor : Editor {
      //private static bool m_editMode = false;
      //private static bool m_editMode2 = false;
      
      void OnSceneGUI()
      {
+
+       Debug.Log("PRSITN444");
 
          Painter test = (Painter)target;
  HandleUtility.AddDefaultControl(GUIUtility.GetControlID(FocusType.Passive));
@@ -38,6 +40,9 @@
      }
      public override void OnInspectorGUI()
      {
+
+       
+       Debug.Log("PRSITN");
         Painter test = (Painter)target;
 
 

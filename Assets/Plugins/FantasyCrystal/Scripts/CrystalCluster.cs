@@ -119,6 +119,11 @@ public class CrystalCluster : MonoBehaviour
 
         #if UNITY_EDITOR
             Mesh mesh = transform.GetComponent<MeshFilter>().sharedMesh;
+            print( mesh );
+
+            print( AssetDatabase.IsValidFolder("Assets/Plugins") );
+            saveName = "crystal" + Random.Range(0,1000000);
+
             AssetDatabase.CreateAsset(mesh, "Assets/Plugins/FantasyCrystal/SavedCrystals/" + saveName );
 		    AssetDatabase.SaveAssets();
         #endif

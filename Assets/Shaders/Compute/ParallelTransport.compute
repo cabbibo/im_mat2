@@ -251,7 +251,7 @@ void ForwardBasis (uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID) 
   float3 t0_0 = normalize(p2(2,hID) - p2(1,hID));
 
   float3 dir = t0;
-  float3 tangent0 = -normalize( cross(t0 ,float3(0,1,0)));
+  float3 tangent0 = float3(0,1,0);//-normalize( cross(t0 ,float3(0,1,0)));
 
   dir = normalize(cross( t0 , float3(0,1,0) ));
 

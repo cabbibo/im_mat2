@@ -138,7 +138,7 @@ void Force(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID, uint3 id
 
     float3 force = 0;
     
-    force += float3(0,-.06,0);//float3( 0 , base.nor , 0.0 );
+    force += float3(0,-.001,0);//float3( 0 , base.nor , 0.0 );
 
     float3 worldP = worldPos(vert.pos);
 
