@@ -82,6 +82,9 @@ public class StoryController : Cycle
     public void NextPage()
     {
 
+
+        print("Trying to trigger page turn");
+
         // Only Turn page IF:
         // the story is started
         // we are not currently transitioning
@@ -177,6 +180,7 @@ public class StoryController : Cycle
     public void PageTurn()
     {
 
+        print("turning the page!");
         data.framer.frames[data.framer.currentFrame].closeButton.gameObject.GetComponent<FadeMaterial>().FadeOut();
 
         if (setter.audio.startClips.Length == 0)
@@ -477,6 +481,8 @@ public class StoryController : Cycle
 
         story.OnEnterOuter.Invoke();
 
+
+        print("we are entering and adding here");
 
         data.inputEvents.OnTap.AddListener(CheckForStart);
         data.inputEvents.OnEdgeSwipeLeft.AddListener(NextPage);

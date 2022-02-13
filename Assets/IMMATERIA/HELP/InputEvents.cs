@@ -453,6 +453,8 @@ public class InputEvents : Cycle
 
                     if (Screen.width - startPos.x < (float)Screen.width * swipeInCutoff)
                     {
+
+                        print("helllooo");
                         OnEdgeSwipeLeft.Invoke();
                     }
                 }

@@ -127,7 +127,7 @@ public class Character : Cycle
         float animationSpeedMultiplier = 1;
         // once we assign all the values, then we update the animator
         if( Application.isPlaying){
-            animationSpeedMultiplier = .1f;
+            //animationSpeedMultiplier = .1f;
         }
 
         if( playAnimation ){

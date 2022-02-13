@@ -12,6 +12,9 @@ public class MeshTrailLifeform : TransferLifeForm
 
     public int direction;
 
+    
+
+
     public override void Bind(){
 
 
@@ -23,6 +26,7 @@ public class MeshTrailLifeform : TransferLifeForm
     transfer.BindInt( "_Direction" , () => direction);
 
     transfer.BindForm( "_BaseBuffer" , baseVerts );
+    transfer.BindFloat("_CountMultiplier", ()=>((InstancedMeshVerts)body.verts).countMultiplier );
 
 
     }

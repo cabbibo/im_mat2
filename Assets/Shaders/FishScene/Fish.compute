@@ -1,5 +1,6 @@
 ﻿#pragma kernel Flow
 #pragma kernel BigFish
+#pragma kernel UrsulaBigFish
 
 
 struct Vert{
@@ -116,7 +117,8 @@ void Flow(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID) {
 
 
 
-
+float _Time;
+#include "../Chunks/terrainCompute.cginc"
 
 #define NR_THREADS 128
 [numthreads(NR_THREADS,1,1)]
@@ -159,17 +161,130 @@ void BigFish(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID) {
     float3 force = 0;
 
     //force += normalize(mul( _Transform , float4(0,1,0,0)).xyz) * .0003;
-    force += curlNoise( vert.pos * 3.1 ) * .001;
+    force += curlNoise( vert.pos * .1 + float3(0,_Time * .1,0) ) * .0001;
     float dist = map( vert.pos );
     float3 nor = getNor( vert.pos ); 
     if( dist < 4 ){ force += nor  * .0001; }
     if( dist < 10 ){ force -= cross( nor ,float3(0,1,0)) * .0001 / (1 + 1 * dist); }
-    force -=  dist * cross( nor ,float3(0,1,0)) * .0001 + dist * nor * .0001;
-    
+    force -=  dist * cross( nor ,float3(0,1,0)) * .00003 + dist * nor * .00003;
 
-    force *= 10;
+
+    for( int i = 0; i < _VertBuffer_COUNT; i++ ){
+      if( i != pID ){
+        Vert v2 = _VertBuffer[i];
+        float3 delta = vert.pos - v2.pos;
+
+        force += .0001 * normalize(delta) / length(delta);
+
+      }
+    }
+
+      float3 worldP = worldPos( vert.pos );
+      force += float3(0,1,0) * .0001;
+
+      force -= float3(0,vert.pos.y - (worldP.y+2),0) * .00001;
+
+      if( vert.pos.y < worldP.y +2 ){
+        force += float3(0,1,0) * .001;
+      }
+    force *= 40;
     vert.vel += force;
+
+    vert.vel = lerp( vert.vel , normalize(vert.vel) * .03 , .8);
     vert.pos += vert.vel;
+
+    //vert.tan = normalize(cross( vert.vel , float3(0,1,0)));
+    if( vert.life == 1 ){
+      vert.life -= .01;
+    }
+
+
+    vert.vel *= .9;//* minDist;
+    vert.life -= .0000;
+  }
+  
+ // vert.nor = mul(rotation(vert.axis,vert.life*20*(hash(float(pID*123)))+hash(float(pID * 23))),float4(0,0,1,0)).xyz;
+  
+  _VertBuffer[pID] = vert;
+
+}
+
+
+
+#define NR_THREADS 128
+[numthreads(NR_THREADS,1,1)]
+void UrsulaBigFish(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID) {
+
+  int pID = threadID + u3GroupID.x * NR_THREADS;
+
+  pID = safeID(pID,_VertBuffer_COUNT);
+  Vert vert = _VertBuffer[pID];
+
+  //if( vert.life == 0 ){ vert.life = hash(float(pID)); }
+
+  if( vert.life <= 0 ){
+
+
+    int which = int((sin(pID * 1021213) * .5 + .5 ) * float( _TransformBuffer_COUNT));
+
+
+    vert.pos = mul( _TransformBuffer[which].localToWorld , float4( 0,0,0,1)).xyz;
+
+
+
+    float3 up = mul( _TransformBuffer[which].localToWorld ,float4(0,1,0,0)).xyz;
+    float3 right = mul( _TransformBuffer[which].localToWorld ,float4(1,0,0,0)).xyz;
+    float3 back = mul( _TransformBuffer[which].localToWorld ,float4(0,0,1,0)).xyz;
+    vert.pos += up   * ( hash(float(pID * 41)) - .5) * 1;//  * ( hash(float(pID * 31)) - .5) * .2;
+    vert.pos += right * ( hash(float(pID * 41)) - .5) * 1;;
+    vert.pos += back  * ( hash(float(pID * 21)) - .5) * 1;
+
+    float3 v = float3( hash(float(pID * 20)),hash(float(pID * 42)),hash(float(pID * 32)));
+    v -= .5;
+
+    vert.axis = normalize( v);
+    float3 dir = normalize(mul( _Transform , float4(0,1,0,0)).xyz) * .1;
+    vert.vel = 0;// (v * 1 + dir) * .001;
+    vert.life = 1;// + hash(float(pID));
+
+
+  }else{
+    float3 force = 0;
+
+    //force += normalize(mul( _Transform , float4(0,1,0,0)).xyz) * .0003;
+    force += curlNoise( vert.pos * .1 + float3(0,_Time * .1,0) ) * .0001;
+    float dist = map( vert.pos );
+    float3 nor = getNor( vert.pos ); 
+    if( dist < 4 ){ force += nor  * .0001; }
+    if( dist < 10 ){ force -= cross( nor ,float3(0,1,0)) * .0001 / (1 + 1 * dist); }
+    force -=  dist * cross( nor ,float3(0,1,0)) * .00003 + dist * nor * .00003;
+
+
+    for( int i = 0; i < _VertBuffer_COUNT; i++ ){
+      if( i != pID ){
+        Vert v2 = _VertBuffer[i];
+        float3 delta = vert.pos - v2.pos;
+
+        force += .0001 * normalize(delta) / length(delta);
+
+      }
+    }
+
+      float3 worldP = worldPos( vert.pos );
+      force += float3(0,1,0) * .0001;
+
+      force -= float3(0,vert.pos.y - (worldP.y+2),0) * .00001;
+
+      if( vert.pos.y < worldP.y +2 ){
+        force += float3(0,1,0) * .001;
+      }
+    force *= 40;
+    vert.vel += force;
+
+    vert.vel = lerp( vert.vel , normalize(vert.vel) * .03 , .8);
+    vert.pos += vert.vel;
+
+    //vert.tan = normalize(cross( vert.vel , float3(0,1,0)));
     if( vert.life == 1 ){
       vert.life -= .01;
     }

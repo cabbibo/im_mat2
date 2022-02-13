@@ -1,5 +1,6 @@
 ﻿#pragma kernel Transport
 #pragma kernel ForwardBasis
+#pragma kernel FakedForward
 
 struct Vert{
   float3 pos;
@@ -326,3 +327,99 @@ float3 t2;
   
 }
 
+
+
+/*
+#define NR_THREADS 128
+[numthreads(NR_THREADS,1,1)]
+void FakedForward (uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID) {
+
+  int pID = threadID + u3GroupID.x * NR_THREADS;
+
+   float3 t;
+   float3 b;
+   float3 n;
+
+   int hID = pID;
+
+
+  float3 t0 = normalize(p2(1,hID)  - p2(0,hID));
+  float3 t0_0 = normalize(p2(2,hID) - p2(1,hID));
+
+  float3 dir = t0;
+  float3 tangent0 = float3(0,1,0);//-normalize( cross(t0 ,float3(0,1,0)));
+
+  dir = normalize(cross( t0 , float3(0,1,0) ));
+
+  //if( dot( t0 , _CameraUp ) < 0 ){ tangent0 *= -1; }
+
+  //v0 = normalize( cross(v0 , t0));
+  //setV(v0,0,hID);
+ 
+
+//for( int j = 0; j < _NumVertsPerHair-1; j++ ){
+  
+  int sID1 = safeID(hID * _NumVertsPerHair + 0 , _VertBuffer_COUNT );
+
+  Vert v1 = _VertBuffer[sID1];
+  //v1.pos = v1.pos + tangent0 * r;//_Radius;
+  v1.tangent = tangent0;
+  v1.nor = dir;
+  _VertBuffer[sID1] = v1; 
+
+
+float3 nV;
+float3 t1;
+float3 t2;
+
+
+  for( int i =0; i < _NumVertsPerHair-2; i++ ){
+
+    t1 = normalize(p2(i+1,hID) * 100 - p2(i,hID)* 100);
+    t2 = normalize(p2(i+2,hID) * 100 - p2(i+1,hID) * 100);
+
+    //setT(t1,i);
+
+    b = cross(t1,t2);
+
+    
+
+    if( length(b)==0){
+        nV = getV2(i,hID);
+        //setV(nV,i+1,hID);
+    }else{
+
+
+      b=normalize(b);
+      float r = acos(dot(t2,t1));
+      nV = normalize(normalize(mul( rotationMatrix(normalize(b),r) , float4(getV2(i,hID),0)).xyz));
+      //setV( nV , i+1,hID);
+      //setV( normalize(cross( normalize(cross(nV,b)) , t1 )) , i+1);
+      //setV( normalize(cross( normalize(cross(nV,b)) , t1 )) , i+1);
+
+    }
+
+
+
+    int sID1 = safeID(hID * _NumVertsPerHair  + (i+1) + 0 , _VertBuffer_COUNT );
+
+    Vert v1 = _VertBuffer[sID1];
+    //v1.pos = v1.pos + nV * .2;//_Radius;
+    v1.tangent =enV;//normalize(cross(nV,b));// cross( nV , dir);
+    v1.nor = t1;//normalize(cross( nV , t1 ));
+    _VertBuffer[sID1] = v1; 
+
+  }
+
+   sID1 = safeID(hID * _NumVertsPerHair  + (_NumVertsPerHair-1) + 0 , _VertBuffer_COUNT );
+
+  v1 = _VertBuffer[sID1];
+  //v1.pos = v1.pos + nV * .2;//_Radius;
+  v1.tangent = nV;//normalize(cross(nV,b));// cross( nV , dir);
+  v1.nor = normalize(cross( nV , t1 ));
+  _VertBuffer[sID1] = v1; 
+  
+  
+}
+
+*/

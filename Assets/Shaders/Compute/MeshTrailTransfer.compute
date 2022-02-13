@@ -2,6 +2,7 @@
 #pragma kernel Transfer
 #pragma kernel PerTrailTransfer
 #pragma kernel HeadTransfer
+#pragma kernel CrownTransfer
 
 struct Vert{
     float3 pos;
@@ -365,3 +366,72 @@ void HeadTransfer (uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID) 
     _VertBuffer[sID] = v;
 
 }
+
+
+
+float _CountMultiplier;
+
+int _SpineSelectOffset;
+int _SpineSelectMultiplier;
+
+#define NR_THREADS 128
+[numthreads(NR_THREADS,1,1)]
+void CrownTransfer (uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID) {
+
+    int pID = threadID + u3GroupID.x * NR_THREADS;
+
+
+    int numInstancesPerTrail = _CountMultiplier * _NumVertsPerTrail;
+
+    int inTrailID = pID / _NumVertsPerMesh;
+    int vertID = pID % _NumVertsPerMesh;
+    int trailID = inTrailID / numInstancesPerTrail ;
+    inTrailID = inTrailID % numInstancesPerTrail ;
+
+
+    float val = float(inTrailID)/numInstancesPerTrail;
+
+
+    Vert baseVert  = _BaseBuffer[ safeID(vertID , _BaseBuffer_COUNT) ];
+
+
+
+
+    //val = baseVert.pos.y / _ModelLength;
+    Vert trailParticle  = _SkeletonBuffer[ safeID(inTrailID * _SpineSelectMultiplier + _SpineSelectOffset + _NumVertsPerTrail * trailID , _SkeletonBuffer_COUNT) ];
+    Vert tip  = _SkeletonBuffer[ safeID(_NumVertsPerTrail * trailID , _SkeletonBuffer_COUNT) ];
+    Vert head  = _SkeletonBuffer[ safeID(_NumVertsPerTrail * trailID +(_NumVertsPerTrail-1), _SkeletonBuffer_COUNT) ];
+    
+    float3 pos = trailParticle.pos;
+
+
+    float3 zDir = -normalize(cross(trailParticle.nor,trailParticle.tangent));
+    float3 yDir = trailParticle.tangent;
+    float3 xDir = trailParticle.nor;
+
+    float3 c1 = float3( xDir.x , yDir.x , zDir.x );
+    float3 c2 = float3( xDir.y , yDir.y , zDir.y );
+    float3 c3 = float3( xDir.z , yDir.z , zDir.z );
+
+    float3x3 rotMat = float3x3(c1,c2,c3);
+    pos +=mul(rotMat,baseVert.pos) * _Radius * min(val*4, 1-val); 
+
+    float2 fUV =baseVert.uv;
+        //if( baseParticle.debug.x < 1 ){ fPos  = 0;}
+     float3 fNor = normalize(mul(rotMat,baseVert.nor));
+    float3 fTan = normalize(mul(rotMat,baseVert.tangent));
+
+    int sID = safeID( pID , _VertBuffer_COUNT );
+    Vert v = _VertBuffer[sID];
+
+   
+    v.uv = fUV;
+    v.vel = pos - v.pos;
+    v.debug = float2(val,trailParticle.debug.y);
+    v.pos = pos;//pos;
+    v.nor = fNor;//normalize(tang);
+    v.tangent = fTan;//nor;// * ((float(pID)%2)-.5); //-normalize(cross(nor,tang));
+    _VertBuffer[sID] = v;
+
+}
+

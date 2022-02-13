@@ -9,7 +9,7 @@ public class BindInt : Binder
   public string nameInShader;
 
   public override void Bind(){
-    toBind.BindInt(nameInShader, value);
+    toBind.BindInt(nameInShader, () => value);
   }
 
 
