@@ -1,6 +1,7 @@
 ﻿#pragma kernel Set
 #pragma kernel Force
 #pragma kernel Constraint
+#pragma kernel ForceGrass
 #pragma kernel Resolve
 #pragma kernel PassSafe
 
@@ -37,10 +38,11 @@ struct Vert{
 };
 
 
-struct Base{
+/*struct Base{
     float4x4 ltw;
     float4x4 wtl;
 };
+*/
 
 
 
@@ -68,13 +70,15 @@ uint _BaseBuffer_COUNT;
 #define NR_THREADS 128
 
 
-float3 origin( Base b ){
+/*float3 origin( Base b ){
     return mul( b.ltw , float4(0,0,0,1)).xyz;
 }
 
 float3 normal( Base b ){
    return normalize( mul( b.ltw , float4(0,0,1,0)).xyz);
-}
+}*/
+
+
 [numthreads(NR_THREADS,1,1)]
 void Set (uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID, uint3 id : SV_DispatchThreadID) {
 
@@ -211,6 +215,88 @@ void Force(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID, uint3 id
  // }
   
 }
+
+
+
+
+[numthreads(NR_THREADS,1,1)]
+void ForceGrass(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID, uint3 id : SV_DispatchThreadID) {
+
+  //int pID = id.x + id.y * gridX + id.z * gridX * gridY;
+
+  uint pID = threadID + u3GroupID.x * NR_THREADS;
+  uint bID = pID / _NumVertsPerHair;
+
+
+ // if( pID < _VertBuffer_COUNT && bID < _BaseBuffer_COUNT ){
+
+    pID = safeID( pID , _VertBuffer_COUNT );
+    bID = safeID( bID , _BaseBuffer_COUNT );
+   
+    Vert base = _BaseBuffer[bID ];
+
+    float3 bP1 = base.pos;
+    float3 bN1 = base.nor;
+
+    
+    Vert vert = _VertBuffer[pID];
+
+    vert.length = _HairLength;
+    
+    float l = float(pID % _NumVertsPerHair ) / float(_NumVertsPerHair);
+    vert.uv = float2( l , float(bID)/float(_BaseBuffer_COUNT));
+
+    float3 force = 0;
+  
+
+    if( length( force ) > 40 ){
+      force = normalize(force) *40;
+    }
+ 
+    bool tb = false;
+
+    // If we are at the bottom, 
+    if( vert.uv.x == 0){ 
+      vert.pos = bP1 + bN1 * vert.uv.x * _HairLength;; 
+      tb = true;
+      vert.nor = bN1;
+      vert.oPos = vert.pos;
+
+    }else{
+      Vert vDown = _VertBuffer[ safeID( pID - 1 , _VertBuffer_COUNT )];
+      vert.nor = normalize(vert.pos - vDown.pos);
+    }
+
+
+
+    if( base.debug >0  ){
+      vert.pos = bP1 - bN1 * vert.uv.x * _HairLength * .001;; 
+    }
+
+
+    float2 xz = .1*normalize( vert.pos.xz - _PlayerPosition.xz ) / (.1 + pow(length(vert.pos.xz - _PlayerPosition.xz), 10));
+    force += float3(xz.x,0,xz.y);
+
+    force += bN1 * .2;
+    force += GetRayForce( vert.pos , 2) * .8 * _DOWN;
+
+
+    vert.pos += force * .01;
+
+    vert.length = base.length *_HairLength + .01;
+    
+
+    vert.tan = vert.pos;
+
+    _VertBuffer[pID] = vert;
+
+
+
+
+ // }
+  
+}
+
 
 
 /*float3 compute_delta(float3 v1 , int id)

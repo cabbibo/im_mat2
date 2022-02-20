@@ -314,7 +314,7 @@ void ForwardOffset(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID) 
 
     float4 audio =  sampleAudio( .0 + (1-p.uv.x) * .1);
 
-    float3 fPos = p.pos + (l + u)  * length(audio) * .5 * _Radius +   _Radius;
+    float3 fPos = p.pos + (l + u)  * .5 * _Radius +   _Radius;
 
     float2 fUV = float2( float(row) , float(col) );
 

@@ -1,0 +1,86 @@
+﻿#pragma kernel ParticlesOnTerrain
+
+struct Vert{
+  float3 pos;
+  float3 vel;
+  float3 nor;
+  float3 tan;
+  float2 uv;
+  float2 debug;
+};
+
+
+
+RWStructuredBuffer<Vert> _VertBuffer;
+
+int _VertBuffer_COUNT;
+
+float3 _SetLocation;
+float _InnerRadius;
+float _OuterRadius;
+float _Height;
+
+#include "../Chunks/safeID.cginc"
+#include "../Chunks/ComputeTerrainInfo.cginc"
+#include "../Chunks/hash.cginc"
+#include "../Chunks/snoise.cginc"
+
+float3 _PlayerPosition;
+
+
+
+
+float _Radius;
+float _Size;
+
+
+float3 polarToXY( float r , float a ){
+  return float3( r * cos(a) ,0, r*sin(a));
+}
+
+#define NR_THREADS 128
+[numthreads(NR_THREADS,1,1)]
+void ParticlesOnTerrain (uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID) {
+
+  int pID = safeID( threadID + u3GroupID.x * NR_THREADS , _VertBuffer_COUNT );
+
+
+
+    
+    Vert v = _VertBuffer[pID];
+
+    if( v.debug.x == 0 ){
+        v.pos = _PlayerPosition + polarToXY( hash(float(pID)) * _Radius,hash(float(pID)*10) * 6.28);// * _Size.y;
+        v.debug.x = 1;
+    }
+
+
+    float2 d = v.pos.xz - _PlayerPosition.xz;
+
+    v.debug.x = (_Radius-length( d )) / _Radius;
+
+
+    if( v.debug.y >0  ){
+        v.debug.y -= 1;
+    }
+
+    if( length(d) > _Radius ){
+
+        v.pos -= float3(d.x , 0, d.y) *1.99;
+        v.debug.y = 2;
+
+
+    }
+
+
+  //  v.pos = _PlayerPosition + float3(1,0,0)* hash(float(pID)) * _Size.x+ float3(0,0,1)* hash(float(pID) * 10) * _Size.y;
+    v.pos.y = 0;
+    v.nor = -getNormal( v.pos );
+    v.pos = worldPos(v.pos) ;
+
+    _VertBuffer[pID] = v;
+
+
+
+}
+
