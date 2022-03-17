@@ -2,6 +2,7 @@
 #pragma kernel Force
 #pragma kernel Constraint
 #pragma kernel ForceGrass
+#pragma kernel ForceGrassAudio
 #pragma kernel Resolve
 #pragma kernel PassSafe
 
@@ -284,6 +285,94 @@ void ForceGrass(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID, uin
     vert.pos += force * .01;
 
     vert.length = base.length *_HairLength + .01;
+
+
+    vert.tan = vert.pos;
+
+    _VertBuffer[pID] = vert;
+
+
+
+
+ // }
+  
+}
+
+
+
+#include "../Chunks/audioCompute.cginc"
+
+[numthreads(NR_THREADS,1,1)]
+void ForceGrassAudio(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID, uint3 id : SV_DispatchThreadID) {
+
+  //int pID = id.x + id.y * gridX + id.z * gridX * gridY;
+
+  uint pID = threadID + u3GroupID.x * NR_THREADS;
+  uint bID = pID / _NumVertsPerHair;
+
+
+ // if( pID < _VertBuffer_COUNT && bID < _BaseBuffer_COUNT ){
+
+    pID = safeID( pID , _VertBuffer_COUNT );
+    bID = safeID( bID , _BaseBuffer_COUNT );
+   
+    Vert base = _BaseBuffer[bID ];
+
+    float3 bP1 = base.pos;
+    float3 bN1 = base.nor;
+
+    
+    Vert vert = _VertBuffer[pID];
+
+    vert.length = _HairLength;
+    
+    float l = float(pID % _NumVertsPerHair ) / float(_NumVertsPerHair);
+    vert.uv = float2( l , float(bID)/float(_BaseBuffer_COUNT));
+
+    float3 force = 0;
+  
+
+    if( length( force ) > 40 ){
+      force = normalize(force) *40;
+    }
+ 
+    bool tb = false;
+
+    // If we are at the bottom, 
+    if( vert.uv.x == 0){ 
+      vert.pos = bP1 + bN1 * vert.uv.x * _HairLength;; 
+      tb = true;
+      vert.nor = bN1;
+      vert.oPos = vert.pos;
+
+    }else{
+      Vert vDown = _VertBuffer[ safeID( pID - 1 , _VertBuffer_COUNT )];
+      vert.nor = normalize(vert.pos - vDown.pos);
+    }
+
+
+
+    if( base.debug >0  ){
+      vert.pos = bP1 - bN1 * vert.uv.x * _HairLength * .001;; 
+    }
+
+
+    float2 xz = .1*normalize( vert.pos.xz - _PlayerPosition.xz ) / (.1 + pow(length(vert.pos.xz - _PlayerPosition.xz), 10));
+    force += float3(xz.x,0,xz.y);
+
+    force += bN1 * .2;
+    force += GetRayForce( vert.pos , 2) * .8 * _DOWN;
+
+
+    vert.pos += force * .01;
+
+
+    float n = noise( vert.pos * .1);
+
+    float4 a = sampleAudio(n * .3 + .3 );
+
+    
+    vert.length =  base.length *_HairLength *  (a +.8);
     
 
     vert.tan = vert.pos;
@@ -296,6 +385,9 @@ void ForceGrass(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID, uin
  // }
   
 }
+
+
+
 
 
 

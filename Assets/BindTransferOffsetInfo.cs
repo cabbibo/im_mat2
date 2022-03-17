@@ -7,9 +7,10 @@ public class BindTransferOffsetInfo : Binder
 
     public ParticleTransferVerts verts;
     public int offset;
+    public float amount = 1;
     public override void Bind()
     {
-        toBind.BindFloat("_CountMultiplier",() => 1/verts.countMultiplier);
+        toBind.BindFloat("_CountMultiplier",() => amount/verts.countMultiplier);
         toBind.BindInt("_CountOffset" , () =>offset);
     }
 }

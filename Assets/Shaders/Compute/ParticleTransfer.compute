@@ -296,7 +296,7 @@ void ForwardOffset(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID) 
     int pID = threadID + u3GroupID.x * NR_THREADS;
 
     int particleID = pID / 4;
-    particleID *= 1;
+    particleID *= int(_CountMultiplier);
 
 
     Vert p = _SkeletonBuffer[safeID(particleID,_SkeletonBuffer_COUNT)];

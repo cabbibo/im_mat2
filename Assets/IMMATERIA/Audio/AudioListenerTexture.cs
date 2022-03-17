@@ -63,9 +63,12 @@ public class AudioListenerTexture : Form
         float multiplier = 128;
 
             #if UNITY_EDITOR
+            // If our audio is muted replace data from the lookback audio!
                 mainAudioMuted = UnityEditor.EditorUtility.audioMasterMute;
                 if( mainAudioMuted ){
                     samples = loopbackAudio.SpectrumData;
+
+                    
                     for( int i = 0; i < samples.Length; i++ ){
                         samples[i] = samples[i] * samples[i] * samples[i] * samples[i];
                     }
