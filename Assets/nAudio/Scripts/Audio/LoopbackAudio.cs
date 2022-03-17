@@ -1,4 +1,4 @@
-﻿using Assets.Scripts.Audio;
+using Assets.Scripts.Audio;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
@@ -157,6 +157,7 @@ public class LoopbackAudio : MonoBehaviour
     public float[] GetAllSpectrumData(AudioVisualizationStrategy strategy)
     {
         float[] spectrumData;
+
 
         switch (strategy)
         {
