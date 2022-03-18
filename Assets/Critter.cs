@@ -15,6 +15,8 @@ public class Critter : Cycle
 
     public List<float3> armBasePositions;
 
+    public float3 vel;
+
 
 public float3 forward;
     public override void OnBirthed()
@@ -37,7 +39,9 @@ public float3 forward;
 
         float3 d = target.position - transform.position;
 
-        transform.position = float3(transform.position) + normalize(d) * .01f;
+        vel = normalize(d) * .01f;
+
+        transform.position = float3(transform.position) + vel;
 
 
          for( int i = 0; i < arms.Count; i++ ){
@@ -45,6 +49,8 @@ public float3 forward;
             arms[i].p[0] = transform.TransformPoint( armBasePositions[i] );
 
         }
+
+        transform.LookAt(target.position);
 
     }
 
