@@ -671,7 +671,7 @@ if( !locked ){
             {
 
 
-                print("colliding with object im on");
+           //     print("colliding with object im on");
             }
         }
 

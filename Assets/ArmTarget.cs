@@ -62,14 +62,15 @@ public override void OnBirthed(){
 
 
         // need to pick up and find new target position!
-        if( l > armSize && oL < armSize && onGround == true ){
+        if( l > armSize  && onGround == true ){
 
 
+            print("STEP STARTING");
             stepPickUpTime = Time.time;
             onGround = false;
 
             oldStepPosition = transform.position;
-            targetPosition = data.land.NewPosition( float3(critter.transform.position) + normalize(critter.transform.forward)  * 2 * stepSize );
+            targetPosition = data.land.NewPosition( float3(critter.transform.position) - normalize(float3(delta.x,0,delta.y))  * 2 * stepSize );
 
 
 

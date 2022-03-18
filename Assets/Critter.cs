@@ -39,9 +39,11 @@ public float3 forward;
 
         float3 d = target.position - transform.position;
 
-        vel = normalize(d) * .01f;
+        vel += d * .001f;
 
         transform.position = float3(transform.position) + vel;
+
+        vel *= .5f;
 
 
          for( int i = 0; i < arms.Count; i++ ){
