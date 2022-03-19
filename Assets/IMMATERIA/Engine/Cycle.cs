@@ -690,7 +690,11 @@ void SetStates(){
   public void JumpDeath( Cycle[] c){
     for( int i = 0; i < c.Length; i++ ){
       if( data != null ){
+        if( c[i] != null ){
           c[i].data = data;
+        }else{
+          DebugThis("NO CYCLE REF BAD BAD");
+        }
       }else{
         DebugThis("NO DATA BAD BAD");
       }
