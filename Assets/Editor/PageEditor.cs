@@ -26,6 +26,7 @@ public class PageEditor : CycleEditor
   SerializedProperty story        ;
   SerializedProperty setter      ;
   SerializedProperty focusDistance      ;
+  SerializedProperty lerpBackAmount      ;
 
   // Events
   SerializedProperty startEnter;
@@ -49,6 +50,7 @@ void OnEnable(){
     story        = serializedObject.FindProperty("story"       );
     setter       = serializedObject.FindProperty("setter"      );
     focusDistance       = serializedObject.FindProperty("focusDistance"      );
+    lerpBackAmount       = serializedObject.FindProperty("lerpBackAmount"      );
 
     startEnter  = serializedObject.FindProperty("OnStartEnter");
     startExit   = serializedObject.FindProperty("OnStartExit");
@@ -71,16 +73,17 @@ void OnEnable(){
 
             GUILayout.BeginVertical();
 
-            EditorGUILayout.PropertyField(lerpSpeed    );
-            EditorGUILayout.PropertyField(moveTarget   );
-            EditorGUILayout.PropertyField(lerpTarget   );
-            EditorGUILayout.PropertyField(locked       );
-            EditorGUILayout.PropertyField(mustContinue );
-            EditorGUILayout.PropertyField(fade         );
-            EditorGUILayout.PropertyField(baseHue      );
-            EditorGUILayout.PropertyField(story        );
-            EditorGUILayout.PropertyField(setter       );
-            EditorGUILayout.PropertyField(focusDistance       );
+            EditorGUILayout.PropertyField(lerpSpeed             );
+            EditorGUILayout.PropertyField(moveTarget            );
+            EditorGUILayout.PropertyField(lerpTarget            );
+            EditorGUILayout.PropertyField(locked                );
+            EditorGUILayout.PropertyField(mustContinue          );
+            EditorGUILayout.PropertyField(fade                  );
+            EditorGUILayout.PropertyField(baseHue               );
+            EditorGUILayout.PropertyField(story                 );
+            EditorGUILayout.PropertyField(setter                );
+            EditorGUILayout.PropertyField(focusDistance         );
+            EditorGUILayout.PropertyField(lerpBackAmount        );
 
             GUILayout.EndVertical();
     

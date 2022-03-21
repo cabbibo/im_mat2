@@ -153,8 +153,9 @@
         //col += hsv(dot(v.eye,v.nor) * -.1,.6,1) * (1-length(col));
         col *= shadow;
         col *= 2*aCol * .01;
+        col = saturate(col);
         col *= _BrightnessMultiplier;
-        
+
         return float4( col , 1.);
             }
 

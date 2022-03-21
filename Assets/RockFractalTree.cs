@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class RockFractalTree : Form
+public class RockFractalTree : TransformBuffer
 {
 
 

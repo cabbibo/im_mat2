@@ -25,6 +25,8 @@ public class CameraController : Cycle
     public float lerpStartTime;
     public Transform lerpTarget;
 
+    public float lerpBackAmount;
+
     public float startFollowSpeed;
     public bool following;
     public bool lerping;
@@ -131,10 +133,26 @@ public class CameraController : Cycle
         
         // smoothing function;
         v = v * v * (3 - 2 * v);
-        
-        CameraHolder.position = Vector3.Lerp( startLerpPosition , lerpTarget.position, v);
-        CameraHolder.rotation = Quaternion.Slerp( startLerpRotation , lerpTarget.rotation, v);
-    
+
+     
+        if( lerpBackAmount == 0 ){
+          CameraHolder.position = Vector3.Lerp( startLerpPosition , lerpTarget.position, v);
+          CameraHolder.rotation = Quaternion.Slerp( startLerpRotation , lerpTarget.rotation, v);
+        }else{
+                
+          Vector3 back = lerpTarget.TransformDirection( Vector3.back );
+
+          float dif = (startLerpPosition-lerpTarget.position).magnitude;
+
+          Vector3 p1 = startLerpPosition;
+          Vector3 p2 = startLerpPosition + (startLerpRotation * Vector3.back ) * (dif*lerpBackAmount);
+          Vector3 p3 = lerpTarget.position + back * (dif*lerpBackAmount);
+          Vector3 p4 = lerpTarget.position;
+          
+          CameraHolder.position =   HELP.cubicCurve(v,p1,p2,p3,p4 );//Vector3.Lerp( startLerpPosition , lerpTarget.position, v);
+          CameraHolder.rotation = Quaternion.Slerp( startLerpRotation , lerpTarget.rotation, v);
+
+        }  
     }
 
   
@@ -153,6 +171,21 @@ public class CameraController : Cycle
       startLerpPosition = CameraHolder.position;
       startLerpRotation = CameraHolder.rotation;
       lerpStartTime = Time.time;
+      lerpBackAmount = 0;
+
+    }
+
+
+    public void SetLerpTarget( Transform t , float speed , float lerpBackA){
+
+      following = false;
+      lerping = true;
+      lerpTarget = t;
+      lerpSpeed = speed;
+      startLerpPosition = CameraHolder.position;
+      startLerpRotation = CameraHolder.rotation;
+      lerpStartTime = Time.time;
+      lerpBackAmount = lerpBackA;
 
     }
 

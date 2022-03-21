@@ -120,4 +120,19 @@ public static class HELP{
     public int active;
 
   };
+
+  public static Vector3 cubicCurve( float t , Vector3  c0 , Vector3 c1 , Vector3 c2 , Vector3 c3 ){
+
+  float s  = 1 - t;
+
+  Vector3 v1 = c0 * ( s * s * s );
+  Vector3 v2 = 3 * c1 * ( s * s ) * t;
+  Vector3 v3 = 3 * c2 * s * ( t * t );
+  Vector3 v4 = c3 * ( t * t * t );
+
+  Vector3 value = v1 + v2 + v3 + v4;
+
+  return value;
+
+}
 }

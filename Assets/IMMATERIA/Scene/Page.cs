@@ -17,6 +17,8 @@ public class Page : Cycle
     public float fade;
     public float baseHue;
 
+    public float lerpBackAmount =0;
+
 
     public float focusDistance;
 

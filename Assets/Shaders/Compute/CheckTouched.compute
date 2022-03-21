@@ -1,0 +1,92 @@
+﻿
+
+
+#pragma kernel Cube
+
+#include "../Chunks/noise.cginc"
+#include "../Chunks/snoise.cginc"
+#include "../Chunks/curlNoise.cginc"
+
+
+int _VertsPerVert;
+
+struct Transform{
+    float4x4 ltw;
+    float4x4 wtl;
+};
+
+RWStructuredBuffer<Transform> _TransformBuffer;
+RWStructuredBuffer<float> _DataBuffer;
+
+uint _TransformBuffer_COUNT;
+uint _DataBuffer_COUNT;
+
+#include "../Chunks/safeID.cginc"
+
+
+float3 _RO;
+float3 _RD;
+float _DOWN;
+
+
+// http://iquilezles.org/www/articles/boxfunctions/boxfunctions.htm
+float iBox( float3 ro, float3 rd, float4x4 txx, float3 rad ) 
+{
+    // convert from ray to box space
+	float3 rdd = mul(txx,float4(rd,0.0)).xyz;
+	float3 roo = mul(txx,float4(ro,1.0)).xyz;
+
+	// ray-box intersection in box space
+    float3 m = 1.0/rdd;
+    float3 n = m*roo;
+    float3 k = abs(m)*rad;
+	
+    float3 t1 = -n - k;
+    float3 t2 = -n + k;
+
+	float tN = max( max( t1.x, t1.y ), t1.z );
+	float tF = min( min( t2.x, t2.y ), t2.z );
+	
+	if( tN > tF || tF < 0.0) return -1;
+
+	return tN;
+}
+
+
+
+#define NR_THREADS 1
+[numthreads(NR_THREADS,1,1)]
+void Cube (uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID, uint3 id : SV_DispatchThreadID) {
+
+  //int pID = id.x + id.y * gridX + id.z * gridX * gridY;
+
+    float3 closestPoint;
+    float closestLength = 10000;
+    int closestID = -1;
+    for( int i = 0; i < _TransformBuffer_COUNT; i++ ){
+        Transform t = _TransformBuffer[i];
+
+
+        float d = iBox(_RO,_RD,t.wtl,.5);
+
+        if( d >= 0 ){
+            if( d < closestLength ){
+                closestLength = d;
+                closestID = i;
+            }
+        }
+
+
+    }
+
+    if( _DOWN > 0 ){
+        _DataBuffer[0] = closestID;
+    }else{
+        _DataBuffer[0] = -1;
+    }
+
+
+
+
+  
+}

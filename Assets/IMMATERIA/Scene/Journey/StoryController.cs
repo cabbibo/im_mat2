@@ -240,7 +240,7 @@ public class StoryController : Cycle
         data.textParticles.Release();
 
         // Setting the next page for our camera to move to
-        data.cameraControls.SetLerpTarget(pages[currentPageID].transform, transitionSpeed);
+        data.cameraControls.SetLerpTarget(pages[currentPageID].transform, transitionSpeed,pages[currentPageID].lerpBackAmount);
 
         //print(pages[currentPageID].locked);
         //print(pages[currentPageID].mustContinue);

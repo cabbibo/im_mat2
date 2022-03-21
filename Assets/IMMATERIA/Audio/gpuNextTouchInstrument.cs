@@ -51,7 +51,6 @@ print(this.gameObject.name);
 
   public override void WhileLiving( float tmp ){
     
-    print("sdsd");
     bool inAndNewClosest = ((c.closestID != c.oClosestID) && (c.closest.magnitude < maxDist));
     bool nowIn = ((c.closest.magnitude < maxDist) && (c.oClosest.magnitude >= maxDist));
     bool overPlayTime = ((Time.time - lastPlayTime) > minPlayTime+ randomness * Random.Range(-.99f,.99f));
