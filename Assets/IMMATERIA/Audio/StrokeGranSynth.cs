@@ -48,18 +48,19 @@ public class StrokeGranSynth : Cycle
 
   public override void WhileLiving( float v ){
 
-    if( on){
+   // if( on){
       if( (playPosition - lastPosition ).magnitude  > distToPlay){
         PlayGrain();
         lastPosition = playPosition;
       }    
-    }
+    //}
 
     
 
   }
 
   public void PlayGrain(){
+
     
       randomOffset = speedRandomness * Random.Range( -.5f, .5f);
 

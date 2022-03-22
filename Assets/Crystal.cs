@@ -6,7 +6,7 @@ public class Crystal : Cycle
 {
     
 
-    public SampleSynth synth;
+    public StrokeGranSynth synth;
     
     public Transform touchRepresent;
 
@@ -20,7 +20,6 @@ public class Crystal : Cycle
         data.inputEvents.OnTap.AddListener( OnTap );
 
         epb =  particleEmitter.GetComponent<ExtraParticlesBinder>();
-        SafeInsert(synth);
     }
 
 
@@ -47,6 +46,8 @@ public class Crystal : Cycle
                 synth.speed = (1-uv.y);
                 synth.length = (1-uv.y);
                 synth.pitch = (1-uv.y) * 3 + 1;
+
+                synth.playPosition = data.inputEvents.hit.point;
 
                 particleEmitter.EmitOn();
                 epb._Gravity = data.inputEvents.hit.normal * .001f;

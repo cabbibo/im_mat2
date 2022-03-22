@@ -123,6 +123,8 @@ varyings vert ( appdata vertex ){
      float4 p = vertex.position;
      float3 n =  vertex.normal;//_NormBuffer[id/3];
 
+     p.xyz += tex2Dlod(_AudioMap, float4(p.y,0,0,0) ).xyz * .03;
+
         float3 worldPos = mul (unity_ObjectToWorld, float4(p.xyz,1.0f)).xyz;
         o.pos = UnityObjectToClipPos (float4(p.xyz,1.0f));
         o.nor = n;//normalize(mul (unity_ObjectToWorld, float4(n.xyz,0.0f)));; 
