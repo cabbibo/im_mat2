@@ -88,6 +88,25 @@ public class InputEvents : Cycle
     public List<Cycle> TapWatchers;
 
 
+    // clear it all out!
+    public void Create(){
+        OnSwipe.RemoveAllListeners();
+        OnSwipeHorizontal.RemoveAllListeners();
+        OnSwipeLeft.RemoveAllListeners();
+        OnSwipeRight.RemoveAllListeners();
+        OnEdgeSwipeLeft.RemoveAllListeners();  
+        OnEdgeSwipeRight.RemoveAllListeners(); 
+        OnSwipeVertical.RemoveAllListeners();
+        OnSwipeUp.RemoveAllListeners();
+        OnSwipeDown.RemoveAllListeners();
+        OnTap.RemoveAllListeners();
+        OnDown.RemoveAllListeners();
+        OnUp.RemoveAllListeners();
+        WhileDown.RemoveAllListeners();
+        WhileDownDelta.RemoveAllListeners();
+        WhileDownDelta2.RemoveAllListeners();
+        OnDebugTouch.RemoveAllListeners();
+    }
 
     public void DoRaycast()
     {

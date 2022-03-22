@@ -3,8 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Audio;
 
-
-public class SampleSynth : Cycle
+public class StrokeGranSynth : Cycle
 {
 
     public AudioPlayer player;
@@ -31,6 +30,10 @@ public class SampleSynth : Cycle
   public float randomOffset;
 
 
+  public float distToPlay;
+  public Vector3 playPosition;
+  public Vector3 lastPosition;
+
   public bool on = true;
 
 
@@ -39,15 +42,20 @@ public class SampleSynth : Cycle
     currentStepID = 0;
     lastTime = 0;
     randomOffset = 0;
+    lastPosition = playPosition;
   }
 
 
   public override void WhileLiving( float v ){
-    if(on){
-      if( Time.time - lastTime  > speed + randomOffset ){
+
+    if( on){
+      if( (playPosition - lastPosition ).magnitude  > distToPlay){
         PlayGrain();
-      } 
+        lastPosition = playPosition;
+      }    
     }
+
+    
 
   }
 

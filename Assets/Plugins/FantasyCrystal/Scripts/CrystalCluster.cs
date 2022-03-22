@@ -77,6 +77,8 @@ public class CrystalCluster : MonoBehaviour
             crystal.crystalRadius = Mathf.Lerp(Mathf.Lerp(minWidth,maxWidth,r), crystal.crystalHeight * matchWidthToHeightRatio , matchWidthToHeightVal); 
 
 
+            crystal.crystalID = i;
+
             crystal.cutAngle = Random.Range(cutAngleMin, cutAngleMax);
             crystal.Cut();
 

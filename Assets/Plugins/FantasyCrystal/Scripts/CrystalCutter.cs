@@ -11,6 +11,7 @@ using UnityEngine.Rendering;
 public class CrystalCutter : MonoBehaviour
 {
 
+    public int crystalID;
     
     public float crystalHeight;
     public float crystalRadius;
@@ -382,6 +383,12 @@ private int Vector4Compare(Vector4 value1, Vector4 value2)
                 allTriColors.Add(Color.HSVToRGB((float)faceID/9,1,1));
                 allTriColors.Add(Color.HSVToRGB((float)faceID/9,1,1));
 
+
+
+                allTriUVs.Add(new Vector2(crystalID,face[0].y/crystalHeight));
+                allTriUVs.Add(new Vector2(crystalID,face[i+2].y/crystalHeight));
+                allTriUVs.Add(new Vector2(crystalID,face[i+1].y/crystalHeight));
+
             }
 
 
@@ -404,6 +411,12 @@ private int Vector4Compare(Vector4 value1, Vector4 value2)
         mesh.colors = allTriColors.ToArray();
         mesh.normals = allTriNorms.ToArray();
         mesh.triangles = allTriIDs.ToArray();
+        mesh.uv = allTriUVs.ToArray();
+
+        for( int i = 0; i < 50; i++ ){
+//            print( mesh.uv[i]);
+        }
+
         GetComponent<MeshFilter>().mesh = mesh;
 
     }

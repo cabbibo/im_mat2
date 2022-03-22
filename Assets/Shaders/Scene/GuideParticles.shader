@@ -4,6 +4,7 @@
     _Color ("Color", Color) = (1,1,1,1)
     _MainTex ("Texture", 2D) = "white" {}
     _CubeMap( "Cube Map" , Cube )  = "defaulttexture" {}
+    _BrightnessMultiplier("_BrightnessMultiplier",float)=1
   }
 
     SubShader {
@@ -23,6 +24,7 @@
             #include "AutoLight.cginc"    
             #include "../Chunks/ColorScheme.cginc"
             #include "../Chunks/Reflection.cginc"
+            #include "../Chunks/SampleAudio.cginc"
 
             struct Vert{
           float3 pos;
@@ -43,11 +45,14 @@
     
         float3 _Player;
 
+        float _BrightnessMultiplier;
+
 
         struct varyings {
             float4 pos      : SV_POSITION;
             float3 nor      : TEXCOORD0;
             float2 uv       : TEXCOORD1;
+            float2 uv2       : TEXCOORD3;
             float3 eye      : TEXCOORD5;
             float3 worldPos : TEXCOORD6;
             float3 debug    : TEXCOORD7;
@@ -85,6 +90,7 @@
                 float a =  atan2(center.x, center.y);
                 o.tan = normalize(normalize(fTan) *  -cos(a) +   normalize(cross(fNor,fTan))  * sin(a)) * r;
                 o.uv =  fUV * (1./6.)+ floor(float2(hash(debug.x*10), hash(debug*20)) * 6)/6;
+                o.uv2 = fUV;
                 o.debug = float3(debug.x,debug.y,a);
                 o.vel = v.vel;
 
@@ -116,6 +122,8 @@
 
         col = 2*tCol* GetGlobalColor( v.debug.y * .2 + .8 );//-rM;//v.nor * .5 + .5;// tCol;//*tCol * tex2D(_ColorMap,float2(rM*.1+.7 - v.debug.y * .1 ,.5 )).rgb;// *(1-rM);//hsv(rM*rM*rM * 2.1,.5,rM);// + normalize(refl) * .5+.5;
         //col = v.tan * .5 + .5;
+        float4 audio = SampleAudio(length(v.uv2-.5) * .2 + sin(v.debug.x) * .2 + .2);
+        col *= audio * _BrightnessMultiplier;
 
         //col += hsv(dot(v.eye,v.nor) * -.1,.6,1) * (1-length(col));
         return float4( col , 1.);
