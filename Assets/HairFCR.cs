@@ -84,6 +84,9 @@ public class HairFCR : LifeForm {
     constraint.active = false;
     resolve.active = false;
     pass.active = false;
+
+    print("brith");
+    Set();
   }
 
   public override void Activate(){
@@ -92,6 +95,9 @@ public class HairFCR : LifeForm {
     constraint.active = false;
     resolve.active = false;
     pass.active = false;
+
+    print("Activating");
+    Set();
   }
 
   public override void WhileLiving(float v){
@@ -113,6 +119,8 @@ public class HairFCR : LifeForm {
 
   resolve._SetUpDispatch();
   resolve._DispatchShader();
+
+
     for( int i = 0; i < numIterations; i++ ){
 
       force._SetUpDispatch();

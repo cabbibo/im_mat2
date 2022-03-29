@@ -281,8 +281,9 @@ float smin( float a, float b, float k )
                 }
                 col += saturate(1-floor( (dif - n * .2) * 5));//tex2D(_DepthRampTex,float2(bg.b * .2 + .7,0)  ) + aroundPerson ;//tCol;//refl * .5 + .5;
                 
-
-                col = length(bg) * float3(0.4,0.6 , 1) + (shoreLine+aroundPerson*4) * saturate( length(bg) *4);//tCol;//refl * .5 + .5;
+                //float3 waterBaseColor = float3(0.4,0.6 , 1);
+                float3 waterBaseColor = float3(1,0.6 , .4);
+                col = length(bg) * waterBaseColor + (shoreLine+aroundPerson*4) * saturate( length(bg) *4);//tCol;//refl * .5 + .5;
                 
             
 

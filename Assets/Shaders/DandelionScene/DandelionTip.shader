@@ -45,11 +45,11 @@ Tags { "RenderType"="Opaque" }
 
 
             #include "../Chunks/Struct16.cginc"
-            #include "../Chunks/hash.cginc"
             #include "../Chunks/Reflection.cginc"
             #include "../Chunks/SampleAudio.cginc"
             #include "../Chunks/ColorScheme.cginc"
             #include "../Chunks/PainterlyLight.cginc"
+            #include "../Chunks/FadeIn.cginc"
 
 
             sampler2D _MainTex;
@@ -127,6 +127,9 @@ Tags { "RenderType"="Opaque" }
 
               col *= shadow * shadow;
               col  *= _OverallMultiplier;
+
+              
+                FadeDiscard( v.worldPos * 100);
               
                  // if( v.debug.x > .5 ){ col =float4(1,0,0,1);}
                 return col;
@@ -164,9 +167,9 @@ Tags { "RenderType"="Opaque" }
 
       #include "../Chunks/Struct16.cginc"
 
-      #include "../Chunks/hash.cginc"
       #include "../Chunks/ShadowCasterPos.cginc"
 
+            #include "../Chunks/FadeIn.cginc"
       StructuredBuffer<Vert> _VertBuffer;
       StructuredBuffer<int> _TriBuffer;
 
@@ -199,11 +202,14 @@ Tags { "RenderType"="Opaque" }
         return o;
       }
 
-      float4 frag(v2f i) : COLOR
+      float4 frag(v2f v) : COLOR
       {
 
-        float4 tCol = tex2D(_MainTex, i.uv );
-        if( tCol.a < .5 && i.idInTip < 6 ){ discard; }
+
+
+                FadeDiscard( v.worldPos * 100);
+        float4 tCol = tex2D(_MainTex, v.uv );
+        if( tCol.a < .5 && v.idInTip < 6 ){ discard; }
 
         SHADOW_CASTER_FRAGMENT(i)
       }
@@ -247,12 +253,13 @@ Tags { "RenderType"="Opaque" }
             #include "../Chunks/Struct16.cginc"
 
 
-      #include "../Chunks/hash.cginc"
+            #include "../Chunks/FadeIn.cginc"
 
             struct v2f { 
               float4 pos : SV_POSITION; 
         float2 uv : TEXCOORD0;
         float  idInTip : TEXCOORD2;
+        float3  worldPos : TEXCOORD3;
             };
             float4 _Color;
 
@@ -278,6 +285,7 @@ Tags { "RenderType"="Opaque" }
             float oY = floor(hash( (tipID) * 51 )*6)/6;
             o.uv = (v.uv * 1/6) + float2(oX,oY);
             o.idInTip = idInTip;
+            o.worldPos = v.pos;
             
 
 
@@ -293,6 +301,8 @@ Tags { "RenderType"="Opaque" }
                 col *= 1;   
                 float4 tCol = tex2D(_MainTex,v.uv );
                 if( tCol.a < .5 && v.idInTip < 6 ){ discard; }
+                
+                FadeDiscard( v.worldPos * 100);
 
                 return col;
             }

@@ -57,6 +57,7 @@
             #include "../Chunks/Reflection.cginc"
             #include "../Chunks/SampleAudio.cginc"
             #include "../Chunks/ColorScheme.cginc"
+            #include "../Chunks/FadeIn.cginc"
 
 
             float _WhichColor;
@@ -91,7 +92,7 @@
                 col  +=  (1-saturate(length(col.xyz)*10))* audio.xyz;
                 col *= _OverallMultiplier;
                 
-
+                FadeDiscard( v.world * 100);
 
                 return float4(col,1);
             }
@@ -115,10 +116,6 @@
       Offset 1, 1
       CGPROGRAM
 
-      float DoShadowDiscard( float3 pos , float2 uv ){
-         return 1;
-      }
-
       #pragma target 4.5
       #pragma vertex vert
       #pragma fragment frag
@@ -129,8 +126,16 @@
       sampler2D _MainTex;
 
 
+      #include "../Chunks/FadeIn.cginc"
+      float DoShadowDiscard( float3 pos , float2 uv ){
+        
+         FadeDiscard( pos * 100);
+         return 1;
+      }
+
       #include "../Chunks/struct16.cginc"
       #include "../Chunks/ShadowDiscardFunction.cginc"
+      
       ENDCG
     }
 
@@ -170,9 +175,11 @@
 
             #include "../Chunks/Struct16.cginc"
 
+      #include "../Chunks/FadeIn.cginc"
 
             struct v2f { 
               float4 pos : SV_POSITION; 
+              float3 world : TEXCOORD0;
             };
             float4 _Color;
 
@@ -191,7 +198,7 @@
                 Vert v = _VertBuffer[_TriBuffer[vid]];
                 float3 fPos = v.pos + v.nor * _OutlineAmount;
                 o.pos = mul (UNITY_MATRIX_VP, float4(fPos,1.0f));
-
+                o.world = v.pos;
 
                 return o;
             }
@@ -203,6 +210,8 @@
               
                 fixed4 col =GetGlobalColor( _OutlineColor );
                 col *= 1;
+                
+                FadeDiscard( v.world * 100);
                 return col;
             }
 

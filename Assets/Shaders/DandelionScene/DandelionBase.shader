@@ -33,6 +33,7 @@ Tags { "RenderType"="Opaque" }
             #include "../Chunks/Struct16.cginc"
             #include "../Chunks/SampleAudio.cginc"
             #include "../Chunks/ColorScheme.cginc"
+            #include "../Chunks/FadeIn.cginc"
 
             sampler2D _MainTex;
 
@@ -87,6 +88,8 @@ fixed shadow = UNITY_SHADOW_ATTENUATION(v,v.worldPos) * .5 + .5;
 
                 float4 colorMap = GetGlobalColor( length(tCol) * 1.6 + (1-shadow  * .05)+ .0 + lookupVal* lookupVal * .5 + .03*sin(_Time.y) );
                 fixed4 col = aCol* 2* colorMap;
+
+                FadeDiscard( v.worldPos * 100 );
                 
                    return col;
             }
@@ -122,7 +125,10 @@ fixed shadow = UNITY_SHADOW_ATTENUATION(v,v.worldPos) * .5 + .5;
       float DoShadowDiscard( float3 pos , float2 uv ){
          float lookupVal =  max(min( uv.y * 2,( 1- uv.y ) ) * 1.5,0);//2 * tex2D(_MainTex,uv * float2(4 * saturate(min( uv.y * 4,( 1- uv.y ) )) ,.8) + float2(0,.2));
           float4 tCol = tex2D(_MainTex, uv *   float2( 6,(lookupVal)* 1 ));
+          
           if( ( lookupVal + 1.3) - 1.2*length( tCol ) < .5 ){ return 0;}else{return 1;}
+          
+                FadeDiscard( pos * 100 );
       }
 #include "../Chunks/Struct16.cginc"
       #include "../Chunks/ShadowDiscardFunction.cginc"

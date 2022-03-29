@@ -249,6 +249,7 @@ public class Life : Cycle {
     if ( allBuffersSet ){
       if( debug ) print( "name : " + kernelName + " Num groups : " + numGroups );
       shader.Dispatch( kernel,numGroups ,1,1);
+    
     }
   }
 

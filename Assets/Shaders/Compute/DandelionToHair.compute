@@ -99,7 +99,7 @@ void FlatForce (uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID, uin
 
     //float3 targetPos = base.pos + .01 * ( x *  cos( v  ) + y * -sin(v));
 
-    float3 force = 1.1 * normalize(dir);//( x *  sin( v  ) + y * -cos(v)); //-(vert.pos - targetPos) * 30;
+    float3 force = 11.1 * normalize(dir);//( x *  sin( v  ) + y * -cos(v)); //-(vert.pos - targetPos) * 30;
 
 
 
@@ -168,7 +168,7 @@ void Force (uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID, uint3 i
 
     //float3 targetPos = base.pos + .01 * ( x *  cos( v  ) + y * -sin(v));
 
-    float3 force = 1.01 * normalize(dir);//( x *  sin( v  ) + y * -cos(v)); //-(vert.pos - targetPos) * 30;
+    float3 force = 1111.01 * normalize(dir);//( x *  sin( v  ) + y * -cos(v)); //-(vert.pos - targetPos) * 30;
 
     if( base2.tang.x < 0 ){
       force *= 200;

@@ -112,6 +112,8 @@ void TipTransfer (uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID) {
     float rowVal =  (float(row) / float(_TubeLength));
     float colVal =  (float(col%_TubeWidth)/float(_TubeWidth)) ;
 
+    rowVal += .01;
+
     float3 upPos; float3 doPos;
 
     float3 pos = cubicFromValue( rowVal , particleID , _NumVertsPerHair , upPos , doPos );

@@ -133,6 +133,8 @@ void Transfer (uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID) {
     float rowVal = float(row) / float(_RibbonLength);
     float colVal =  (float(col)/float(2)) ;
 
+    rowVal += .001;
+
     float3 upPos; float3 doPos;
     float3 upTang; float3 doTang;
     float3 tang;
@@ -191,8 +193,8 @@ void GrassTransfer (uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID)
     //Vert baseParticle  = _SkeletonBuffer[ particleID * _NumVertsPerHair ];
     float rowVal = float(row) / float(_RibbonLength);
 
-    rowVal *= .95;
-    rowVal += .025;
+    rowVal *= .9;
+    rowVal += .1;
     float colVal =  (float(col)/float(2)) ;
 
     float3 upPos; float3 doPos;

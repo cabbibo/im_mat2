@@ -130,8 +130,11 @@ void Force(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID, uint3 id
   uint pID = threadID + u3GroupID.x * NR_THREADS;
   uint bID = pID / _NumVertsPerHair;  
   uint hairID = bID;
+
   uint hairInVert = bID % _HairsPerVert;
   bID /= _HairsPerVert;
+
+
 
 
  if( pID < _VertBuffer_COUNT && bID < _BaseBuffer_COUNT ){
@@ -176,23 +179,29 @@ void Force(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID, uint3 id
     float3 terrainPos = worldPos( vert.pos  );
 
     if( vert.pos.y < terrainPos.y + .1){
-      force += float3(0,30,0);
+     // force += float3(0,30,0);
     }
+
+
+float3 left = cross( bN1 , float3(1,0,0));
+
 
     float angle = float(hairInVert)/float(_HairsPerVert) * 6.28;
 
     float3 outVec = x * sin(angle) - y * cos(angle);
 
+
+    force += left * (float(hairInVert)-.5) * .1;
     //force += outVec * 1*vert.uv.x * vert.uv.x  * (1.5-vert.uv.y);
 
-    force += curlNoise(vert.pos * .3 + float3(0,_Time,0)) * .01;
-    force -= bN1 * .03;
+    //force += curlNoise(vert.pos * .3 + float3(0,_Time,0)) * .1;
+    //force -= bN1 * .03;
 
 
     float2 xz = .1*normalize( vert.pos.xz - _PlayerPosition.xz ) / (.1 + pow(length(vert.pos.xz - _PlayerPosition.xz), 10));
-    force += float3(xz.x,0,xz.y);
+    //force += float3(xz.x,0,xz.y);
 
-    vert.length =  _HairLength * (hash(hairID)+1);
+    vert.length =  _HairLength * (1-bUV.x) ;
 
 
     // If we are at the bottom, 
@@ -212,7 +221,6 @@ void Force(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID, uint3 id
      //vert.oPos = vert.pos;
 
 
-    //force += GetRayForce( vert.pos , 2) * 11.8 * _DOWN;
     force += GetRayForce( vert.pos , 2) * .2 * _DOWN;
     
 
