@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEditor;
 
 
 public class Character : Cycle
@@ -664,6 +665,8 @@ if( !locked ){
                 {
                     velocity = Vector3.zero;
                     cantMove = true;
+                    print( hit.collider.gameObject );
+                    EditorGUIUtility.PingObject(hit.collider.gameObject);
                 }
 
             }

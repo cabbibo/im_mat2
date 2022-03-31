@@ -55,6 +55,8 @@ print(this.gameObject.name);
     bool nowIn = ((c.closest.magnitude < maxDist) && (c.oClosest.magnitude >= maxDist));
     bool overPlayTime = ((Time.time - lastPlayTime) > minPlayTime+ randomness * Random.Range(-.99f,.99f));
 
+
+    print( inAndNewClosest );
     if( ( inAndNewClosest || nowIn ) && overPlayTime ){
 
 

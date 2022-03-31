@@ -10,9 +10,13 @@ public class RibbonTransfer : TransferLifeForm {
     HairRibbonVerts v = (HairRibbonVerts)verts;
     transfer.BindInt( "_RibbonLength" , () => v.length );
 
+
     Hair h = (Hair)skeleton;
     transfer.BindInt( "_NumVertsPerHair" , () => h.numVertsPerHair );
 
+  print( "" + gameObject.name);
+    print(v.length );
+    print( h.numVertsPerHair);
     
   }
 

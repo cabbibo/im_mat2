@@ -7,8 +7,8 @@ public class TransformBuffer : Form
 
   public Transform[] transforms;
   public bool dynamic;
-  [HideInInspector]public float[] values;
-  private float[] tmpVals;
+  public float[] values;
+  [HideInInspector]public  float[] tmpVals;
 
   public override void SetStructSize(){ structSize = 32; }
   public override void SetCount(){ count = transforms.Length; }
@@ -18,7 +18,7 @@ public class TransformBuffer : Form
     tmpVals = new float[ 16 ];
     SetInfo();
   }
-  public void SetInfo(){
+  public virtual void SetInfo(){
   
     for( int i = 0; i < transforms.Length; i++ ){
       tmpVals = HELP.GetMatrixFloats(transforms[i].localToWorldMatrix);

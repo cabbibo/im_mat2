@@ -1,5 +1,6 @@
 ﻿#pragma kernel Flow
 #pragma kernel TrailFlow
+#pragma kernel BounceFlow
 
 
 struct Vert{
@@ -186,6 +187,71 @@ if( head.life == 0 || head.life == 1 ){
 
 
     vert.vel *= .7;//* minDist;
+    vert.life = head.life;
+  
+  }
+  
+ // vert.nor = mul(rotation(vert.axis,vert.life*20*(hash(float(pID*123)))+hash(float(pID * 23))),float4(0,0,1,0)).xyz;
+  
+  _VertBuffer[pID] = vert;
+
+}
+
+
+
+
+#define NR_THREADS 128
+[numthreads(NR_THREADS,1,1)]
+void BounceFlow(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID) {
+
+  int pID = threadID + u3GroupID.x * NR_THREADS;
+
+  int idInTrail = pID % _ParticlesPerTrail;
+  int headID = pID / _ParticlesPerTrail;
+
+  pID = safeID(pID,_VertBuffer_COUNT);
+  Vert vert = _VertBuffer[pID];
+  Vert head = _HeadBuffer[safeID( headID , _HeadBuffer_COUNT )];
+
+
+if( head.life == 0 || head.life == 1 ){
+  vert.pos = head.pos;
+}
+  Vert targetVert;
+  if( idInTrail == 0){
+    targetVert = head;
+  }else{
+    targetVert = _VertBuffer[pID-1];
+  }
+
+
+  //head.life -= .0001 / length( head.pos - _VertBuffer[headID + _ParticlesPerTrail-1].pos );
+    _HeadBuffer[headID] = head;
+
+  if( vert.life == 0 ){ vert.life = hash(float(pID)); }
+ //vert.life = head.life;//lerp( vert.life , targetVert.life , .1 );
+
+  if( vert.life < 0  || abs(vert.life-targetVert.life) > .2 ){
+
+    vert.pos = head.pos;
+    vert.life = targetVert.life;
+    //vert.life = hash(float(pID)); 
+
+  }else{
+    
+    float3 force = 0;
+
+    float3 fPos =vert.pos;
+    float3 fTPos =targetVert.pos;
+
+    force += -(fPos - fTPos) * .5;
+
+    
+    vert.vel += force;
+    vert.pos += vert.vel;
+
+
+    vert.vel *= .2;//* minDist;
     vert.life = head.life;
   
   }

@@ -14,6 +14,10 @@ struct Vert{
 struct Trans {
   float4x4 localToWorld;
   float4x4 worldToLocal;
+  float   offset;
+  float   radius;
+  float   height;
+  float   debug;
 };
 
 
@@ -38,18 +42,57 @@ float sdBox( float3 p, float3 b )
          + min(max(d.x,max(d.y,d.z)),0.0); // remove this line for an only partially signed sdf 
 }
 
+
+float sdCapsule( float3 p, float3 a, float3 b, float r )
+{
+    float3 pa = p - a, ba = b - a;
+    float h = clamp( dot(pa,ba)/dot(ba,ba), 0.0, 1.0 );
+    return length( pa - ba*h ) - r;
+}
+
+
+
+float sdCapsule( float3 p, float offset, float height, float r )
+{
+
+    float3 a =  float3(0,offset,0) - float3(0,height/2,0);
+    float3 b =  float3(0,offset,0) + float3(0,height/2,0);
+    float3 pa = p - a, ba = b - a;
+    float h = clamp( dot(pa,ba)/dot(ba,ba), 0.0, 1.0 );
+    return length( pa - ba*h ) - r;
+}
+
+
+
 float map( float3 pos ){
     
     float minDist = 100000;
     
     for( int i = 0; i < _TransformBuffer_COUNT; i++ ){
-      float3 newPos = mul( _TransformBuffer[i].worldToLocal , float4( pos ,1)).xyz;
-      float  dist = sdBox( newPos , float3(.6,.6,.6));
+
+        Trans t = _TransformBuffer[i];
+      float3 newPos = mul( t.worldToLocal , float4( pos ,1)).xyz;
+      float  dist = sdCapsule( newPos , t.offset, t.height , t.radius);
       minDist = min( minDist ,dist);
     }
 
     return minDist;
 }
+
+/*
+float map( float3 pos){
+      
+      
+    Trans t = _TransformBuffer[0];
+    float3 newPos = mul( t.worldToLocal , float4( pos ,1)).xyz;
+    //float3 newPos = mul( t.worldToLocal , float4( pos ,1)).xyz;
+    //float  dist = length( newPos);//sdCapsule( newPos , 0, 1, 1);
+    float  dist = sdCapsule( newPos , 0, 1, 1);
+
+    return dist;
+
+
+}*/
 
 float3 getNor( float3 pos ){
   float3 eps = float3(.001 , 0, 0);
@@ -130,66 +173,74 @@ void BigFish(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID) {
 
   //if( vert.life == 0 ){ vert.life = hash(float(pID)); }
 
-  if( vert.life <= 0 ){
+  if( vert.life <= 0 || length(vert.pos)== 0 ){
 
 
-    int which = int((sin(pID * 1021213) * .5 + .5 ) * float( _TransformBuffer_COUNT));
+    int which = 0;//int((sin(pID * 1021213) * .5 + .5 ) * float( _TransformBuffer_COUNT));
 
 
     vert.pos = mul( _TransformBuffer[which].localToWorld , float4( 0,0,0,1)).xyz;
-
+   // vert.pos = 0;//
 
 
     float3 up = mul( _TransformBuffer[which].localToWorld ,float4(0,1,0,0)).xyz;
     float3 right = mul( _TransformBuffer[which].localToWorld ,float4(1,0,0,0)).xyz;
     float3 back = mul( _TransformBuffer[which].localToWorld ,float4(0,0,1,0)).xyz;
-    vert.pos += up   * ( hash(float(pID * 41)) - .5) * 1;//  * ( hash(float(pID * 31)) - .5) * .2;
-    vert.pos += right * ( hash(float(pID * 41)) - .5) * 1;;
-    vert.pos += back  * ( hash(float(pID * 21)) - .5) * 1;
+    vert.pos += up   * ( hash(float(pID * 41)) - .5) * 10;//  * ( hash(float(pID * 31)) - .5) * .2;
+    vert.pos += right * ( hash(float(pID * 31)) - .5) * 10;;
+    vert.pos += back  * ( hash(float(pID * 21)) - .5) * 10;
 
-    float3 v = float3( hash(float(pID * 20)),hash(float(pID * 42)),hash(float(pID * 32)));
+    /*float3 v = float3( hash(float(pID * 20)),hash(float(pID * 42)),hash(float(pID * 32)));
     v -= .5;
 
     vert.axis = normalize( v);
     float3 dir = normalize(mul( _Transform , float4(0,1,0,0)).xyz) * .1;
-    vert.vel = 0;// (v * 1 + dir) * .001;
+    vert.vel = 0;// (v * 1 + dir) * .001;*/
+
+    vert.vel = 0;
     vert.life = 1;// + hash(float(pID));
 
 
   }else{
     float3 force = 0;
 
-    //force += normalize(mul( _Transform , float4(0,1,0,0)).xyz) * .0003;
-    force += curlNoise( vert.pos * .1 + float3(0,_Time * .1,0) ) * .0001;
+    force += normalize(mul( _Transform , float4(0,1,0,0)).xyz) * .00001;
+
+
+    
+    force += curlNoise( vert.pos * .1 + float3(0,_Time * .1,0) ) * .001;
     float dist = map( vert.pos );
     float3 nor = getNor( vert.pos ); 
-    if( dist < 4 ){ force += nor  * .0001; }
-    if( dist < 10 ){ force -= cross( nor ,float3(0,1,0)) * .0001 / (1 + 1 * dist); }
-    force -=  dist * cross( nor ,float3(0,1,0)) * .00003 + dist * nor * .00003;
+    if( dist < .01 ){ force += nor  * .01; }
+   if( dist < 1 ){ force -= cross( nor ,float3(0,1,0)) * .001 / (1 + 1 * dist); }
+    //force -=  dist * cross( nor ,float3(0,1,0)) * .00003 + dist * nor * .00003;
 
 
-    for( int i = 0; i < _VertBuffer_COUNT; i++ ){
-      if( i != pID ){
-        Vert v2 = _VertBuffer[i];
-        float3 delta = vert.pos - v2.pos;
 
-        force += .0001 * normalize(delta) / length(delta);
 
-      }
-    }
+    force -= nor * .001 * dist;
+
+
 
       float3 worldP = worldPos( vert.pos );
-      force += float3(0,1,0) * .0001;
+
+
+      
+     // force += float3(0,1,0) * .0001;
 
       force -= float3(0,vert.pos.y - (worldP.y+2),0) * .00001;
 
-      if( vert.pos.y < worldP.y +2 ){
-        force += float3(0,1,0) * .001;
+      if( vert.pos.y < worldP.y +.3){
+        force += float3(0,1,0) * .01;
       }
-    force *= 40;
+
+
+    
+
+    //force *= 0.0000001;
     vert.vel += force;
 
-    vert.vel = lerp( vert.vel , normalize(vert.vel) * .03 , .8);
+    vert.vel = lerp( vert.vel , normalize(vert.vel) * .01 , .8);
     vert.pos += vert.vel;
 
     //vert.tan = normalize(cross( vert.vel , float3(0,1,0)));
@@ -197,9 +248,8 @@ void BigFish(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID) {
       vert.life -= .01;
     }
 
-
     vert.vel *= .9;//* minDist;
-    vert.life -= .0000;
+    vert.life -= .00;
   }
   
  // vert.nor = mul(rotation(vert.axis,vert.life*20*(hash(float(pID*123)))+hash(float(pID * 23))),float4(0,0,1,0)).xyz;
@@ -207,4 +257,3 @@ void BigFish(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID) {
   _VertBuffer[pID] = vert;
 
 }
-
