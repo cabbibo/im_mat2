@@ -76,7 +76,7 @@ void Bounce(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID) {
     force -= float3(0,1,0) * .01;
 
 
-    if( vert.pos.y < worldP.y +.3 ){
+    if( vert.pos.y < worldP.y +.1 ){
         force += float3(0,1,0) * .1;
     }
 
@@ -98,7 +98,7 @@ void Bounce(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID) {
 
   }
 
-  vert.nor = float3(0,1,0);
+  vert.nor = float3(1,0,0);
   vert.debug = 1;
   
  // vert.nor = mul(rotation(vert.axis,vert.life*20*(hash(float(pID*123)))+hash(float(pID * 23))),float4(0,0,1,0)).xyz;

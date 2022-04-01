@@ -1,4 +1,10 @@
-﻿#pragma kernel Force
+﻿
+
+#pragma kernel Set
+#pragma kernel Force
+#pragma kernel Constraint
+#pragma kernel Resolve
+#pragma kernel PassSafe
 
 #include "../Chunks/noise.cginc"
 #include "../Chunks/snoise.cginc"
@@ -81,30 +87,30 @@ float3 cubicFromValue( in float val , in int curveLength , out float3 upPos , ou
 
   if( baseUp == 0 ){
 
-    p0 = _SkeletonBuffer[ safeID( baseUp         *2 +1 , _SkeletonBuffer_COUNT) ].pos;
-    p1 = _SkeletonBuffer[ safeID( baseDown       *2 +1 , _SkeletonBuffer_COUNT) ].pos;
-    p2 = _SkeletonBuffer[ safeID( (baseDown + 1) *2 +1 , _SkeletonBuffer_COUNT) ].pos;
+    p0 = _SkeletonBuffer[ safeID( baseUp         *2  , _SkeletonBuffer_COUNT) ].pos;
+    p1 = _SkeletonBuffer[ safeID( baseDown       *2  , _SkeletonBuffer_COUNT) ].pos;
+    p2 = _SkeletonBuffer[ safeID( (baseDown + 1) *2  , _SkeletonBuffer_COUNT) ].pos;
 
     v1 = .5 * ( p2 - p0 );
 
   }else if( baseDown == vPP-1 ){
 
-    p0 = _SkeletonBuffer[ safeID( baseUp       *2 +1 , _SkeletonBuffer_COUNT) ].pos;
-    p1 = _SkeletonBuffer[ safeID( baseDown     *2 +1 , _SkeletonBuffer_COUNT) ].pos;
-    p2 = _SkeletonBuffer[ safeID( (baseUp - 1) *2 +1 , _SkeletonBuffer_COUNT) ].pos;
+    p0 = _SkeletonBuffer[ safeID( baseUp       *2  , _SkeletonBuffer_COUNT) ].pos;
+    p1 = _SkeletonBuffer[ safeID( baseDown     *2  , _SkeletonBuffer_COUNT) ].pos;
+    p2 = _SkeletonBuffer[ safeID( (baseUp - 1) *2  , _SkeletonBuffer_COUNT) ].pos;
 
     v0 = .5 * ( p1 - p2 );
 
   }else{
 
-    p0 = _SkeletonBuffer[ safeID( baseUp    *2 +1 , _SkeletonBuffer_COUNT) ].pos;
-    p1 = _SkeletonBuffer[ safeID( baseDown  *2 +1 , _SkeletonBuffer_COUNT) ].pos;
+    p0 = _SkeletonBuffer[ safeID( baseUp    *2  , _SkeletonBuffer_COUNT) ].pos;
+    p1 = _SkeletonBuffer[ safeID( baseDown  *2  , _SkeletonBuffer_COUNT) ].pos;
 
 
     float3 pMinus = float3(0,0,0);
 
-    pMinus = _SkeletonBuffer[ safeID( (baseUp   - 1) *2+1 , _SkeletonBuffer_COUNT) ].pos;
-    p2 =     _SkeletonBuffer[ safeID( (baseDown + 1) *2+1 , _SkeletonBuffer_COUNT) ].pos;
+    pMinus = _SkeletonBuffer[ safeID( (baseUp   - 1) *2 , _SkeletonBuffer_COUNT) ].pos;
+    p2 =     _SkeletonBuffer[ safeID( (baseDown + 1) *2 , _SkeletonBuffer_COUNT) ].pos;
 
     v1 = .5 * ( p2 - p0 );
     v0 = .5 * ( p1 - pMinus );
@@ -126,6 +132,8 @@ float3 cubicFromValue( in float val , in int curveLength , out float3 upPos , ou
 }
 
 
+int _SpineCount;
+
 
 [numthreads(NR_THREADS,1,1)]
 void Force(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID, uint3 id : SV_DispatchThreadID) {
@@ -140,50 +148,76 @@ void Force(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID, uint3 id
 
     Vert v = _VertBuffer[pID];
 
+
+
+  float3 upPos;
+  float3 doPos;
+  float3 targetPos = cubicFromValue( v.uv.y,_SpineCount, upPos , doPos);
+
+
+  float3 left = normalize(100000*cross( upPos-targetPos , float3(0,1,0)));
+  float3 up = -normalize(100000*cross( upPos-targetPos , left));
+
+
+float x = (v.uv.x-.5) * 2;
+float upVal = 2*sin(x*2)/(10*x);
+
+float y = (v.uv.y-.5) * 2;
+
+
+float widthAlong = pow( 1-y*y, .5);
+float outVal = (v.uv.x-.5) * widthAlong;
+
+
+    targetPos += left * 4 * outVal ;
+    targetPos += up*4 * upVal;
+
+
     float3 force = 0;
 
+  force -= float3(0,.1,0);
+
+     float3 worldP = worldPos( v.pos );
+    force -= float3(0,1,0) * .01;
+
+
+    if( v.pos.y < worldP.y +.3 ){
+        force += float3(0,1,0) * 1.1;
+    }
 
     force += GetRayForce( v.pos , 2) * .8 * _DOWN;
+    
+    force += curlNoise(v.pos * .5) * .1;
+
+    force +=  left * (v.uv.x-.5) * .4;
+    
+    if( length( force ) > 1 ){
+      force = normalize(force);
+    }
 
     v.pos += force * .01;
 
+  
+
  
    
 
 
  
 
- float angle = v.uv.x;
- float radius = v.uv.y;
 
 
 
-float x = radius * sin(6.28* angle);
-float y = radius * cos(6.28* angle);
-
-    float3 upPos;
-    float3 doPos;
-   
-
-
-    float3 targetPos = cubicFromValue( y * .45+ .5,120, upPos , doPos);
-
-
-float3 left = normalize(cross( upPos-targetPos , float3(0,1,0)));
-
-
-
-    float3 outVec = left;
-
-    targetPos += outVec * x * 4 * abs(.5-y);
-
-
-
-
- 
-
-  v.pos -= (v.pos - targetPos) * .001;//* (1-v.uv.y);//*(1-v.uv.y);
+  v.pos -= (v.pos - targetPos) * .04 * (.55-abs(v.uv.x-.5));//* (1-v.uv.y);//*(1-v.uv.y);
   //v.pos -= outVec * .1;
+
+  if( length(v.pos - targetPos) >3 ){
+
+
+
+
+  }
+
 
 //v.pos = targetPos;
 //v.oPos = v.pos;
@@ -195,5 +229,179 @@ float3 left = normalize(cross( upPos-targetPos , float3(0,1,0)));
 
 }
 
+
+
+
+
+[numthreads(NR_THREADS,1,1)]
+void Set (uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID, uint3 id : SV_DispatchThreadID) {
+
+
+  uint pID = threadID + u3GroupID.x * NR_THREADS;
+  if( pID < _VertBuffer_COUNT){
+
+
+    pID = safeID( pID , _VertBuffer_COUNT );
+    Vert v = _VertBuffer[pID];
+
+    float3 sPos = float3( sin( v.uv.x  * 6.28 ) * v.uv.y , .2 ,-cos( v.uv.x  * 6.28 ) * v.uv.y  );
+
+    v.pos =  mul(_Transform, float4(sPos,1) );;
+    v.oPos = v.pos;
+    v.tan = v.pos;
+    _VertBuffer[pID] = v;
+
+  }
+  
+}
+
+
+
+
+
+
+
+
+
+float3 getDelta( float3 p , int id , float connectionLength  ){
+
+
+    Vert v2 = _VertBuffer[id];
+
+    float3 dif = p - v2.tan;
+
+    float l = length( dif );
+
+    float difference = 0;
+
+    float hairL = 1;
+        
+    float f = (l - connectionLength) / l;
+
+    if (isnan(f) || isinf(f))
+    {
+      return (0).xxx;
+    }
+
+    return -f * dif * 0.5;
+
+}
+
+
+[numthreads(NR_THREADS,1,1)]
+void Constraint(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID, uint3 id : SV_DispatchThreadID) {
+  
+  // Get the id using thread / group indices
+  uint pID = threadID + u3GroupID.x * NR_THREADS ;
+
+    Vert v = _VertBuffer[pID];
+
+    float2 connectionInfo = v.connectionInfo;
+
+    int startID = int( connectionInfo.x );
+    
+    v.nor = 0;
+
+    for( int i = 0; i < int(connectionInfo.y); i++ ){
+
+        Connection c = _ConnectionBuffer[startID + i ];
+
+        int id1 = int(c.id1);
+        int id2 = int(c.id2);
+        float l = c.length;
+
+        float3 delta = getDelta(v.tan,id2,l);
+    
+        v.pos += delta * .03;
+
+
+        Vert v2 = _VertBuffer[id2];
+          float3 dif = v.tan - v2.tan;
+          v.nor += normalize(dif);
+
+    }
+
+
+    float3 totalDelta = 0;//float3(0,.0001,0);
+
+
+   
+    _VertBuffer[ pID ] = v;
+
+
+
+}
+
+
+
+
+
+
+
+
+
+[numthreads(NR_THREADS,1,1)]
+void PassSafe(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID, uint3 id : SV_DispatchThreadID) {
+  
+   // Get the id using thread / group indices
+  uint pID = threadID + u3GroupID.x * NR_THREADS ;
+
+  Vert v = _VertBuffer[pID];
+  
+  v.tan = v.pos;
+
+  
+    float2 connectionInfo = v.connectionInfo;
+
+    int startID = int( connectionInfo.x );
+    v.nor = 0;
+    for( int i = 0; i < int(connectionInfo.y); i++ ){
+
+      Connection c = _ConnectionBuffer[startID + i ];
+
+  
+        int id1 = int(c.id1);
+        int id2 = int(c.id2);
+      Vert v2 = _VertBuffer[id2];
+        float3 dif = v.pos - v2.pos;
+
+          v.nor += normalize(dif*1000);//
+          
+         // v.nor +=  v2.pos;
+     
+
+  }
+
+
+    v.nor = normalize(v.nor );
+
+
+  _VertBuffer[pID] = v;
+
+}
+
+
+
+
+[numthreads(NR_THREADS,1,1)]
+void Resolve(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID, uint3 id : SV_DispatchThreadID) {
+  
+  // Get the id using thread / group indices
+  uint pID = threadID + u3GroupID.x * NR_THREADS ;
+  Vert v = _VertBuffer[pID];
+  
+  float3 vel = v.pos - v.oPos;
+  float3 next = v.pos + vel  * .8;
+  
+  v.oPos = v.pos;
+  v.pos = next;
+
+
+    v.nor = 0;
+
+  _VertBuffer[pID] = v;
+
+
+}
 
 

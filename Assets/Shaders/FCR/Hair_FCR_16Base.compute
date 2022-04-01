@@ -694,7 +694,7 @@ void ResolveStale(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID, u
   Vert v = _VertBuffer[pID];
   
   float3 vel = v.pos - v.oPos;
-  float3 next = v.pos + vel  * .7;
+  float3 next = v.pos + vel  * .9;
   
   v.oPos = v.pos;
   v.pos = next;
