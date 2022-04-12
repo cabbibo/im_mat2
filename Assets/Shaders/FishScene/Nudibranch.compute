@@ -1,6 +1,7 @@
 ﻿#pragma kernel Bounce
 
 
+
 struct Vert{
   float3 pos;
   float3 vel;
@@ -18,7 +19,7 @@ RWStructuredBuffer<Vert> _VertBuffer;
 
 float4x4 _Transform;
 
-float3 _Target;
+float4x4 _Target;
 
 
 int _VertBuffer_COUNT;
@@ -80,7 +81,9 @@ void Bounce(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID) {
         force += float3(0,1,0) * .1;
     }
 
-    float3 d = _Target - vert.pos;
+
+    float3 targetPos = mul(_Target,float4(0,0,0,1)).xyz;
+    float3 d = targetPos - vert.pos;
 
     force += d;
 
@@ -98,7 +101,7 @@ void Bounce(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID) {
 
   }
 
-  vert.nor = float3(1,0,0);
+  vert.nor = normalize(mul(_Target,float4(0,0,1,0)).xyz);
   vert.debug = 1;
   
  // vert.nor = mul(rotation(vert.axis,vert.life*20*(hash(float(pID*123)))+hash(float(pID * 23))),float4(0,0,1,0)).xyz;

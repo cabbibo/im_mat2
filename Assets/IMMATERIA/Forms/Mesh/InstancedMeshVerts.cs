@@ -26,7 +26,7 @@ public class InstancedMeshVerts : Form {
     vertsPerMesh = verts.count;
     if( baseForm != null ){ numMesh = (int)((float)baseForm.count * countMultiplier); }
     count = vertsPerMesh * numMesh;
-    print(count );
+//    print(count );
 
   }
 

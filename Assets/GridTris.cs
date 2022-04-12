@@ -14,7 +14,7 @@ public class GridTris : IndexForm
 
   public override void Embody(){
 
-print("embody");
+//print("embody");
     int[] values = new int[count];
     int index = 0;
 

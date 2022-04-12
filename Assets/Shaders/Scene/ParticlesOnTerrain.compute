@@ -50,7 +50,7 @@ void ParticlesOnTerrain (uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_Gro
     Vert v = _VertBuffer[pID];
 
     if( v.debug.x == 0 ){
-        v.pos = _PlayerPosition + polarToXY( hash(float(pID)) * _Radius,hash(float(pID)*10) * 6.28);// * _Size.y;
+        v.pos = _PlayerPosition + polarToXY( pow(hash(float(pID)),.5) * _Radius,hash(float(pID)*10) * 6.28);// * _Size.y;
         v.debug.x = 1;
     }
 

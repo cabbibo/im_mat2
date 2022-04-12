@@ -77,14 +77,22 @@
 
                 fixed shadow = UNITY_SHADOW_ATTENUATION(v,v.world) * .5 + .5;
 
+                float3 normal = -v.nor;// + (v.uv.x -.5) * v.tan;
+
+                
+                //normal -= UNITY_MATRIX_IT_MV[2].xyz;
+                normal = normalize( normal );
+
                 float3 n = MapNormal( v , v.uv * _NormalSize , _NormalDepth );
+
+                
                 float3 reflectionColor = Reflection( v.pos , n );
 
-                float m = dot( n, _WorldSpaceLightPos0.xyz);
+                float m = dot( normal, _WorldSpaceLightPos0.xyz);
                 float baseM = m;
                 m =m;// saturate(( m +1 )/2);
 
-                m *= shadow;
+             //   m *= shadow;
 
                 m = saturate(m);
 
@@ -95,7 +103,7 @@
 
 
                 float3 col  = GetGlobalColor( m * _ColorSize  + _ColorBase + sin(v.debug.x) );
-                float3 p = Painterly( m, v.uv.xy * _PaintSize );
+                float3 p = Painterly( m, v.uv.xy * 10000 );
 
 
 
@@ -135,13 +143,15 @@
                 col *=  audio.xyz * 1;
 
 
-                if( tex.r >  .9 -audio.x * 1.3 ){
+                col = p;
+
+                if( tex.r >  .9  ){
                     discard;
                 }
 
+            col = m;
 
-                //col= tex.r;
-
+                //col= normal * .5 + .5;//tex.r;
                 //col = sin( v.debug.x );
 
 
@@ -290,7 +300,7 @@ v2f vert ( appdata_base input,uint vid : SV_VertexID )
 
                     float4 audio = SampleAudio( v.uv.x *.5 + (sin(v.debug.x)+1) * .1 + tex.r * .1  ) * 2;
 
-                                 if( tex.r >  .9 -audio.x * 1.3 ){
+                                 if( tex.r >  .9 ){
                     discard;
                 }
 

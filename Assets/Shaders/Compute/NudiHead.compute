@@ -1,0 +1,134 @@
+﻿#pragma kernel PushOnHair
+
+
+struct Vert{
+  float3 pos;
+  float3 vel;
+  float3 nor;
+  float3 tang;
+  float2 uv;
+  float2 debug;
+};
+
+
+
+RWStructuredBuffer<Vert> _VertBuffer;
+RWStructuredBuffer<Vert> _SkeletonBuffer;
+RWStructuredBuffer<Vert> _HairBuffer;
+
+int _VertBuffer_COUNT;
+int _SkeletonBuffer_COUNT;
+int _HairBuffer_COUNT;
+
+
+float _Scale;
+int _VertsPerMesh;
+float _Time;
+int _NumVertsPerHair;
+int _NumHairs;
+
+float4x4 _Transform;
+float4x4 _TransformBase;
+
+#include "../Chunks/safeID.cginc"
+#include "../Chunks/nanCheckVert.cginc"
+#include "../Chunks/GetRayForce.cginc"
+#include "../Chunks/snoise.cginc"
+#include "../Chunks/curlNoise.cginc"
+
+#define NR_THREADS 128
+[numthreads(NR_THREADS,1,1)]
+void PushOnHair(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID) {
+
+  int pID = threadID + u3GroupID.x * NR_THREADS;
+
+  if( pID < _VertBuffer_COUNT ){
+    
+    int sID = safeID( pID, _VertBuffer_COUNT );
+    Vert p = _VertBuffer[sID];
+
+    Vert v = _SkeletonBuffer[sID];
+
+    float3 target = mul(_TransformBase , float4( v.pos ,1 )).xyz;
+    float3 tNor = normalize(mul(_TransformBase , float4( v.nor ,0 )).xyz);
+
+    float3 force = 0;
+
+    float closestLength = 100000;
+    float3 closestNor;
+    int closestHair;
+
+    for( int i = 0; i < _NumHairs; i++ ){
+        Vert h = _HairBuffer[i * _NumVertsPerHair];
+        float3 d = h.pos - target;
+
+       // if( length( d) < closestLength ){
+            closestLength = length(d);
+            closestNor = normalize(d);
+            closestHair = i;
+        //}
+        
+
+   
+
+
+        float amount = clamp( -(closestLength - 2) / 2 ,0,1);
+        amount *= amount;
+        
+
+        float fAmount = float(_NumVertsPerHair) * amount * .5;
+        float fFloor = floor(fAmount);
+        float fCeil = ceil(fAmount);
+
+        float3 floorPos =  _HairBuffer[closestHair * _NumVertsPerHair + int(fFloor) ].pos;
+        float3 ceilPos =  _HairBuffer[closestHair * _NumVertsPerHair + int(fCeil) ].pos;
+
+        float3 fTar = floorPos;
+
+        float lerpA = fAmount - fFloor;
+
+        if( fFloor != fCeil ){
+            fTar = lerp( floorPos , ceilPos , lerpA );
+        }
+
+        fTar -= closestNor * .5 *(1-amount);
+
+        target = lerp( target,fTar,pow(amount,.5) * 1);// 30000 * h.nor / pow( length(d) ,10);
+ }
+
+ float match = dot(normalize(v.pos) , float3(0,0,1));
+
+ float3 n = mul(_TransformBase,float4(0,0,1,0));
+ //if( match < 0 ){
+    // target += n * -match * .2;
+ //}
+
+
+
+    force += -(p.pos - target);
+    //force += curlNoise( p.pos * .6 + float3(0,_Time * .1,0)) * .03;
+    //force += curlNoise( p.pos * 4.6 + float3(0,_Time * .1,0)) * .01;
+
+
+    force += GetRayForce( p.pos , 1 ) * .1 * _DOWNTWEEN2;
+    p.vel += force * .01;
+
+    p.pos += p.vel;
+    p.vel *= .95;
+
+    ///p.pos = mul(_Transform , float4( v.pos ,1 )).xyz;
+    p.nor = normalize(mul(_TransformBase , float4( v.nor ,0 )).xyz);
+    p.tang = mul(_TransformBase , float4( v.tang ,1 )).xyz;
+    p.uv  = v.uv;
+
+    p.pos = target;
+
+
+    //p.debug.xy  = v1.debug  * p.triWeights.x +  v2.debug  * p.triWeights.y + v3.debug  * p.triWeights.z;
+
+    _VertBuffer[sID] = p;
+
+
+  }
+
+}

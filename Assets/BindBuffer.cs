@@ -1,18 +1,13 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class BindBuffer : MonoBehaviour
+public class BindBuffer : Binder
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+  public Form particles;
+  public string nameInBuffer;
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+  public override void Bind(){
+    toBind.BindForm( nameInBuffer , particles );
+  }
 }

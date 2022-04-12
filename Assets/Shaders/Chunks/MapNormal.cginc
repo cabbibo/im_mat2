@@ -17,5 +17,5 @@ float3 MapNormal(  v2f v , float2 uv , float val ){
   n.y = dot(v.t2, tnormal);
   n.z = dot(v.t3, tnormal);
 
-  return normalize(lerp(v.nor , n, val));
+  return normalize(lerp(v.nor , -n, val));
 }

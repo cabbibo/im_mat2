@@ -238,8 +238,8 @@ public class GridConnections : Form
         SetData(values);
 
 
-        print( toIndex.count);
-        print(connectionList.Count);
+//        print( toIndex.count);
+  //      print(connectionList.Count);
         // Then we need to INSERT that information into the vert buffer
         for( int i = 0; i < toIndex.count; i++ ){
             VertConnections vc = connectionList[i];

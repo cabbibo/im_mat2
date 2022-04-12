@@ -25,6 +25,7 @@ int _VertsPerMesh;
 float _Time;
 
 float4x4 _Transform;
+float4x4 _TransformBase;
 
 #include "../Chunks/safeID.cginc"
 #include "../Chunks/nanCheckVert.cginc"
@@ -100,3 +101,6 @@ void Goo(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID) {
   }
 
 }
+
+
+

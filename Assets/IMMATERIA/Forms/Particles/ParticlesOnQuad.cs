@@ -55,7 +55,7 @@ public class ParticlesOnQuad: Particles {
 
   public override void Embody(){
 
-    print("embody1");
+//    print("embody1");
 
     float[] triangleAreas = new float[tris.count / 3];
     

@@ -327,6 +327,8 @@ void ForceKeepOnGround(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_Group
 
     float3 worldP = worldPos( vert.pos );
 
+    force -= bN1 * .2 * pow((1-l),5);
+
     force -= float3(0,1,0) * .3;
 
     if( vert.pos.y < worldP.y +.3 ){
@@ -509,6 +511,15 @@ void ForceGrassAudio(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID
  
     bool tb = false;
 
+
+       // if its screwed up set it proper!
+    if( length(vert.pos) == 0 || length(vert.pos-bP1) > 100 ){
+    
+      vert.pos = bP1 + bN1 * vert.uv.x * _HairLength;; 
+      vert.oPos = vert.pos;
+      tb = true;
+    }
+
     // If we are at the bottom, 
     if( vert.uv.x == 0){ 
       vert.pos = bP1 + bN1 * vert.uv.x * _HairLength;; 
@@ -543,7 +554,7 @@ void ForceGrassAudio(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID
     float4 a = sampleAudio(n * .3 + .3 );
 
     
-    vert.length =  base.length *_HairLength *  (a +.8);
+    vert.length =  base.length *_HairLength *  (a * .3 +2);
     
 
     vert.tan = vert.pos;

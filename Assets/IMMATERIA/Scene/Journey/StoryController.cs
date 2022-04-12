@@ -482,7 +482,7 @@ public class StoryController : Cycle
         story.OnEnterOuter.Invoke();
 
 
-        print("we are entering and adding here");
+//        print("we are entering and adding here");
 
         data.inputEvents.OnTap.AddListener(CheckForStart);
         data.inputEvents.OnEdgeSwipeLeft.AddListener(NextPage);

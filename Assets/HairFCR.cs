@@ -85,7 +85,7 @@ public class HairFCR : LifeForm {
     resolve.active = false;
     pass.active = false;
 
-    print("brith");
+//    print("brith");
     Set();
   }
 
@@ -96,7 +96,7 @@ public class HairFCR : LifeForm {
     resolve.active = false;
     pass.active = false;
 
-    print("Activating");
+    //print("Activating");
     Set();
   }
 
@@ -141,7 +141,7 @@ public class HairFCR : LifeForm {
 
 
   public void Set(){
-    print("HIII");
+//    print("HIII");
     set.YOLO();
   }
 

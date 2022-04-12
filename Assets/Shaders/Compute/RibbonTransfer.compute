@@ -220,8 +220,8 @@ void GrassTransfer (uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID)
     float3 fPos = pos + outVec * r;
 
     float2 fUV = float2( float(row+1)/_RibbonLength , colVal*2 );
-    float3 fNor = normalize( outVec );
-    float3 fTan = normalize(cross(fNor,d));
+    float3 fNor = x;//normalize( outVec );
+    float3 fTan = y;//normalize(cross(fNor,d));
 
         //if( baseParticle.debug.x < 1 ){ fPos  = 0;}
     

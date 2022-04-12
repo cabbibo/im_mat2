@@ -11,12 +11,14 @@ struct v2f{
   float3 eye        : TEXCOORD1;
   float3 world      : TEXCOORD2;  
   float2 uv         : TEXCOORD3; 
+  float2 uvBase         : TEXCOORD11; 
   float4 screenPos  : TEXCOORD4;
 
   // For our matrix
   float3 t1         : TEXCOORD5;
   float3 t2         : TEXCOORD6;
   float3 t3         : TEXCOORD7;
+  float3 tan        : TEXCOORD10;
 
             float3 vel : TEXCOORD8;
   
@@ -71,9 +73,11 @@ v2f vert ( uint vid : SV_VertexID )
     Vert v = _VertBuffer[_TriBuffer[vid]];
 
     o.world = v.pos;
+    o.uvBase = v.uv;
     o.uv = convertUV( v.uv , _TextureMapDimensions, v.debug.x );
     o.pos = mul (UNITY_MATRIX_VP, float4(v.pos,1.0f));
     o.nor = v.nor;//normalize(cross(v0.pos - v1.pos , v0.pos - v2.pos ));
+    o.tan = v.tan;
     o.debug = v.debug;
     o.eye = v.pos - _WorldSpaceCameraPos;
     o.screenPos = ComputeScreenPos(o.pos);

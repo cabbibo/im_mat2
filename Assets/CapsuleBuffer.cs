@@ -35,7 +35,7 @@ public class CapsuleBuffer : TransformBuffer
         
         Percolate(startTransform);
 
-        print("count: " + capsules.Count );
+//        print("count: " + capsules.Count );
         count = capsules.Count;
 
     }
