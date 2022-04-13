@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
-namespace IMMATERIA {
 public class Food : Cycle
 {
 
@@ -159,4 +158,4 @@ public class Food : Cycle
 
 
 }
-}
+
