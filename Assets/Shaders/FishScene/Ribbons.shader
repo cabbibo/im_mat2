@@ -108,6 +108,16 @@
                 return o;
             }
 
+
+            
+
+            #include "../Chunks/SampleAudio.cginc"
+      
+            #include "../Chunks/ColorScheme.cginc"
+
+            float _ColorBase;
+            float _ColorSize;
+
             float4 frag(varyings v) : COLOR {
 
 
@@ -134,8 +144,13 @@
               float4 cCol = tex2D(_ColorMap,float2(tCol.x * .3 - tCol.a*.3,0) );
         
               fixed shadow = UNITY_SHADOW_ATTENUATION(v,v.worldPos  ) * .7 + .3 ;
+
               
-              color.xyz = skyColor  * cCol ;// * tCol;;//worldNormal * .5 + .5;//tCol;
+                float3 col  = GetGlobalColor( tCol.x * .3 + _ColorBase + sin(v.debug.x) );
+               // float3 p = Painterly( m, v.uv.xy * 10000 );
+
+              
+              color.xyz = skyColor  * col * SampleAudio(tCol.x * .3 + sin(v.debug.x ) * .1  ) * 10 ;// * tCol;;//worldNormal * .5 + .5;//tCol;
              // color =  float4(v.nor * .5 + .5,1);//v.uv.x;
               if( tCol.a < .3 ){ discard; }    
               return float4( color.xyz * shadow, 1.);

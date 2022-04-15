@@ -33,7 +33,7 @@
           Tags { "RenderType"="Opaque" }
           LOD 100
 
-          //Cull Off
+          Cull Off
           // Lighting/ Texture Pass
           Stencil
           {
@@ -103,9 +103,11 @@
 
                 m = 1-m;
 
-                if( v.uv.x + noise( v.uv.y * 100 ) * 1> .9 ){
-                    discard;
+                if( v.uv.x + noise( v.uv.y * 100 ) * 1> 1.2 ){
+                    //discard;
                 }
+
+                
 
               
 
@@ -149,17 +151,22 @@
                     float4 audio = SampleAudio( v.uv.x *.5 + (sin(v.debug.x)+1) * .1 + tex.r * .1  ) * 2;
                 //col  +=  (1-saturate(length(col.xyz)*10));* audio.xyz * 10;
              
+          //col = tex.rgb;
+           col=GetGlobalColor( m * _ColorSize + tex.r * .2  + _ColorBase );
+           
+               //col.xyz *= reflectionColor * 4;
                 col *=  audio.xyz * 1;
 
 
-                col = p;
+               // col = p;
+
+
+            //col = m;
+
 
                 if( tex.r >  .9  ){
-                  //  discard;
+                    discard;
                 }
-
-            col = m;
-
                 //col= normal * .5 + .5;//tex.r;
                 //col = sin( v.debug.x );
 

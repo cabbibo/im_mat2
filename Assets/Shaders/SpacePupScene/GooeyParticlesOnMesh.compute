@@ -50,6 +50,7 @@ float4x4 _Transform;
 #include "../Chunks/curlNoise.cginc"
 #include "../Chunks/GetRayForce.cginc"
 #include "../Chunks/nanCheckParticle.cginc"
+#include "../Chunks/audioCompute.cginc"
 
 #define NR_THREADS 128
 [numthreads(NR_THREADS,1,1)]
@@ -91,11 +92,15 @@ void Transfer (uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID) {
     targetPos -= v2;
 
     force -= (p.pos - targetPos) * .02* velMatch;
+
+  
     force += curlNoise( p.pos * .1 + _Time * .2 ) * .004;
+
+    force -= sampleAudio( snoise( p.pos  * .1 + float3(0,_Time,0) ) ).x*v.nor *.1;
 
 
     float3 ray = GetRayForce(p.pos);
-   force += .1 * normalize(ray) / length( ray ) ;
+    force += .1 * normalize(ray) / length( ray ) ;
 
    
     if( length(force) > 10 ){ force = normalize(force) * 10; }

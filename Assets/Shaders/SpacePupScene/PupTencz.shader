@@ -122,10 +122,10 @@
             
 
                // col.xyz *= (audio *audio*10 + 1);
-                col.xyz *= reflectionColor * 4;
+                col.xyz *= reflectionColor * 2;
 
-                    float4 audio = SampleAudio(length(reflectionColor.xyz) * .05 + v.uv.x * .2) * 2;
-                col  +=  (1-saturate(length(col.xyz)*10))* audio.xyz;
+                    float4 audio = SampleAudio(length(reflectionColor.xyz) * .05 + v.uv.x * .2) ;
+                col  *= clamp(audio.xyz,0,1)*clamp(audio.xyz,0,1);// (1-saturate(length(col.xyz)*10))* clamp(audio.xyz,0,1);
 
                 //col.xyz = p * p * col;//m;//normalize(_WorldSpaceLightPos0.xyz) * .5+ .5 ;//m;//p;
                 //col = shadow;

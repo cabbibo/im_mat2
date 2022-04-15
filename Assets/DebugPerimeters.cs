@@ -24,10 +24,10 @@ if( debug ){
 
             Vector3 p1;
             Vector3 p2;
-            for( int j = 0; j < 20; j ++){
+            for( int j = 0; j < 80; j ++){
 
-                float a1 = (float)j/20;
-                float a2 = (float)((j+1)%20)/20;
+                float a1 = (float)j/80;
+                float a2 = (float)((j+1)%80)/80;
 
                 a1 *= 2 * Mathf.PI;
                 a2 *= 2 * Mathf.PI;
@@ -41,7 +41,7 @@ if( debug ){
                 p1 = s.transform.position + o1;
                 p2 = s.transform.position + o2;
 
-                Gizmos.DrawLine(p1,p2);
+               // Gizmos.DrawLine(p1,p2);
 
 
                 
@@ -53,6 +53,10 @@ if( debug ){
 
                 p1 = s.transform.position + o1;
                 p2 = s.transform.position + o2;
+
+Gizmos.color = Color.white;
+                
+        //Gizmos.DrawSphere(s.transform.position, 10);
 
                 Gizmos.DrawLine(p1,p2);
 

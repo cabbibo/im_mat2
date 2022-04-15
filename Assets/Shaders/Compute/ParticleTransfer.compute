@@ -1,8 +1,10 @@
 ﻿
 #pragma kernel Transfer
+#pragma kernel BushPlane
 #pragma kernel Forward
 #pragma kernel ForwardOffset
 #pragma kernel ForwardDebugXSize
+#pragma kernel ForwardAudio
 #pragma kernel LifeSize
 #pragma kernel LifeSizeEmitted
 #pragma kernel LifeSizeFade
@@ -365,5 +367,80 @@ void LifeSizeEmittedAudio(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_Gr
     _VertBuffer[safeID(pID,_VertBuffer_COUNT)].uv = fUV;
     _VertBuffer[safeID(pID,_VertBuffer_COUNT)].nor = p.nor;
     _VertBuffer[safeID(pID,_VertBuffer_COUNT)].debug = float2( particleID , p.debug.y );
+
+}
+
+
+
+
+[numthreads(NR_THREADS,1,1)]
+void BushPlane(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID) {
+
+    int pID = threadID + u3GroupID.x * NR_THREADS;
+
+    int particleID = pID / 4;
+
+
+    Vert p = _SkeletonBuffer[safeID(particleID,_SkeletonBuffer_COUNT)];
+
+    int idInParticle = pID % 4;
+    int row = idInParticle / 2;
+    int col = pID % 2;
+
+    float3 l = normalize(cross(p.nor,_CameraForward));
+    float3 u = p.nor;
+
+    l *= (float(col)-.5);
+    u *= float(row);//(float(row)-.5);
+
+    float3 fPos = p.pos + (l + u) *  _Radius * clamp(p.tangent.z -.1,0,1);//clamp(p.tangent.z,0,1);
+    
+
+    float2 fUV = float2( float(row) , float(col) );
+
+    _VertBuffer[safeID(pID,_VertBuffer_COUNT)].pos = fPos;
+    _VertBuffer[safeID(pID,_VertBuffer_COUNT)].vel = p.vel;
+    _VertBuffer[safeID(pID,_VertBuffer_COUNT)].uv = fUV;
+    _VertBuffer[safeID(pID,_VertBuffer_COUNT)].nor = -_CameraForward;//p.nor;
+    _VertBuffer[safeID(pID,_VertBuffer_COUNT)].debug = float2( particleID , p.debug.y );
+
+
+}
+
+
+
+[numthreads(NR_THREADS,1,1)]
+void ForwardAudio(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID) {
+
+    int pID = threadID + u3GroupID.x * NR_THREADS;
+
+    int particleID = pID / 4;
+
+
+    Vert p = _SkeletonBuffer[safeID(particleID,_SkeletonBuffer_COUNT)];
+
+    int idInParticle = pID % 4;
+    int row = idInParticle / 2;
+    int col = pID % 2;
+
+    float3 l = _CameraRight;//normalize(cross(p.nor,float3(0,1,0)));
+    float3 u = _CameraUp;//normalize(cross(p.nor,l));
+
+    l *= (float(col)-.5);
+    u *= (float(row)-.5);
+
+    
+    float4 audio =  sampleAudio( .0 + (1-p.uv.x) * .1);
+
+    float3 fPos = p.pos + (l + u) *  _Radius * (.3+length(audio));
+
+    float2 fUV = float2( float(row) , float(col) );
+
+    _VertBuffer[safeID(pID,_VertBuffer_COUNT)].pos = fPos;
+    _VertBuffer[safeID(pID,_VertBuffer_COUNT)].vel = p.vel;
+    _VertBuffer[safeID(pID,_VertBuffer_COUNT)].uv = fUV;
+    _VertBuffer[safeID(pID,_VertBuffer_COUNT)].nor = _CameraForward;//p.nor;
+    _VertBuffer[safeID(pID,_VertBuffer_COUNT)].debug = float2( particleID , p.debug.y );
+
 
 }

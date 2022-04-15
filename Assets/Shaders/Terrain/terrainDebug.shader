@@ -117,7 +117,7 @@ float4 terrainSampleColor( float4 pos ){
             float3 c2 = _Color.xyz* saturate(max( max( sin( v.worldPosition.x ),0) , max( sin( v.worldPosition.z ),0)) - .9)*2;// * sin(v.worldPosition.z));
 
 
-            o.Emission.xyz = abs(sin(v.worldPosition.y));//getFullColor ( sin( v.worldPosition.y * .01) , v.worldPosition.xz * _MapSize);// cMap1  * v.colorMapData.z + cMap2 * v.colorMapData.w;//(v.nor * .5 + .5) * v.color.w * _Color;//1;///_Color;//saturate(sin(length(dif) * .1 - _Time.y * 3));// / 1000;//lerp( 0 , c2 , l * .1);//_Color * (v.nor * .5 + .5)  - l;// hsv(v.normal.y * .5,1,1);
+            o.Emission.xyz = abs(sin(v.worldPosition.y * 10)*2)-1;//getFullColor ( sin( v.worldPosition.y * .01) , v.worldPosition.xz * _MapSize);// cMap1  * v.colorMapData.z + cMap2 * v.colorMapData.w;//(v.nor * .5 + .5) * v.color.w * _Color;//1;///_Color;//saturate(sin(length(dif) * .1 - _Time.y * 3));// / 1000;//lerp( 0 , c2 , l * .1);//_Color * (v.nor * .5 + .5)  - l;// hsv(v.normal.y * .5,1,1);
 
             //if( ((v.worldPosition.y * .3)+ noise( v.worldPosition * .2 ) * .1)  % 1 < .8 ){ discard; }
             //v.color.w * 1;//float3(1,1,1);//c.rgb;

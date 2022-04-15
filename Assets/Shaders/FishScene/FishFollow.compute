@@ -179,7 +179,7 @@ if( head.life == 0 || head.life == 1 ){
     float3 fPos =vert.pos;
     float3 fTPos =targetVert.pos;
 
-    force += -(fPos - fTPos) * .04;
+    force += -(fPos - fTPos) * .05;
 
     
     vert.vel += force;
@@ -244,14 +244,14 @@ if( head.life == 0 || head.life == 1 ){
     float3 fPos =vert.pos;
     float3 fTPos =targetVert.pos;
 
-    force += -(fPos - fTPos) * .5;
+    force += -(fPos - fTPos) * .03;
 
     
     vert.vel += force;
     vert.pos += vert.vel;
 
 
-    vert.vel *= .2;//* minDist;
+    vert.vel *= .8;//* minDist;
     vert.life = head.life;
   
   }

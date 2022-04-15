@@ -38,10 +38,11 @@ void Placer (uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID, uint3 
     Vert vert = _VertBuffer[pID];
     Vert base = _HairBuffer[bID];    //Vert base2 = _HairBuffer[bID-2];
 
-    float3 targetPos = base.pos - base.nor * .3;
+    float3 targetPos = base.pos + base.nor * .1;
     vert.pos = lerp( vert.pos , targetPos , .9);
     vert.oPos = base.pos - base.oPos;
     vert.nor = base.nor;
+    vert.uv = base.uv;
 
     _VertBuffer[pID] = vert;
 

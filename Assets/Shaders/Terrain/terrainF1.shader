@@ -3,6 +3,8 @@
 
     _Color ("Color", Color) = (1,1,1,1)
 
+    _DebugTex ("Texture", 2D) = "white" {}
+    //_DebugFalloff("falloff" ,)
     _MainTex ("Texture", 2D) = "white" {}
     _NormalMap ("NormalMap", 2D) = "white" {}
     _CubeMap( "Cube Map" , Cube )  = "defaulttexture" {}
@@ -54,11 +56,13 @@
       float3 _PlayerPosition;
       float3 _TerrainHole;
 
+
       bool _Debug;
       float _HueStart;
       float _GrassHueSize;
       float _TextureHueSize;
       sampler2D _MainTex;
+      sampler2D _DebugTex;
       sampler2D _ColorMap;
       sampler2D _NormalMap;
 
@@ -155,7 +159,7 @@ float2 rotateUV(float2 uv, float rotation)
 
         color = GetFullColor( v2 * .13 + .5, v.worldPos.xz * _MapSize);
         color *=  painterly * .7 + .5;
-        color.xyz *= tCol;
+        color.xyz *= tCol * 1;
         color *= FogMultiplier( v.worldPos ) ;
 
 
@@ -166,7 +170,9 @@ float2 rotateUV(float2 uv, float rotation)
         if( holeVal < 2.3){ color = saturate((holeVal - 2) * 4) * color;}
 
         
-        if( _Debug != 0 ){ color.xyz = v.nor * .5 + .5; }
+        if( _Debug != 0 ){ color =   tex2D(_DebugTex,v.worldPos.xz * _PaintSize) * FogMultiplier( v.worldPos * 100); }
+
+
 
         return float4( color.xyz  , 1.);
 

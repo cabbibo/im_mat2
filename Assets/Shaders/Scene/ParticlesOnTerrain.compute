@@ -73,6 +73,9 @@ void ParticlesOnTerrain (uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_Gro
     }
 
 
+
+    v.tan = sampleColor( v.pos ).yzw;
+
   //  v.pos = _PlayerPosition + float3(1,0,0)* hash(float(pID)) * _Size.x+ float3(0,0,1)* hash(float(pID) * 10) * _Size.y;
     v.pos.y = 0;
     v.nor = -getNormal( v.pos );

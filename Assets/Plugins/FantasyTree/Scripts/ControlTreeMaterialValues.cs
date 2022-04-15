@@ -27,7 +27,9 @@ public class ControlTreeMaterialValues : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-
+        barkShown = (Mathf.Sin(Time.time)+ 1) /2;
+        
+        flowersShown = (Mathf.Sin(Time.time + 1.4f)+ 1) /2 ;
         barkMaterial.SetFloat("_AmountShown",barkShown);
       
         flowersMaterial.SetFloat("_AmountShown",flowersShown);

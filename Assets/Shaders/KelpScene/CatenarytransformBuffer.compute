@@ -139,7 +139,7 @@ void Force(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID, uint3 id
 
     float3 force = 0;
     
-    force += float3(0,.1,0);//float3( 0 , base.nor , 0.0 );
+    force += float3(0,-.4,0);//float3( 0 , base.nor , 0.0 );
 
     float3 worldP = worldPos(vert.pos);
 
@@ -155,7 +155,7 @@ void Force(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID, uint3 id
   
     //if( worldP.y+4-vert.pos.y < 0 ){
      //   tb = true;
-        vert.pos = lerp(vert.pos,worldP,.1);
+       // vert.pos = lerp(vert.pos,worldP,.1);
     
     //}
 
@@ -195,9 +195,9 @@ void Force(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID, uint3 id
 
 
 
-    //force += curlNoise( vert.pos * .4 + float3(0,-_Time,0));
+    force += curlNoise( vert.pos * .4 + float3(0,-_Time,0)) * .01;
 
-   //force += GetRayForce( vert.pos , 2) * .8 * _DOWN;
+   force += GetRayForce( vert.pos , 2) * .8 * _DOWN;
 
 
     if( _Delta  < .1 && tb == false ){
@@ -214,8 +214,8 @@ void Force(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID, uint3 id
      
     }
 
-    force = 0;
-      vert.pos += force * .01;
+   // force = 0;
+    vert.pos += force * .01;
 
       vert.tan = vert.pos;
 
