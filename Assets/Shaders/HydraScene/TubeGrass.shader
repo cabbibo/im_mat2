@@ -153,10 +153,10 @@
              
           //col = tex.rgb;
            col=GetGlobalColor( m * _ColorSize + tex.r * .2  + _ColorBase );
-           
+           col *= .1;
                //col.xyz *= reflectionColor * 4;
-                col *=  audio.xyz * 1;
-
+               // col *=  audio.xyz * 1;
+ col += col * audio.xyz * 3;
 
                // col = p;
 

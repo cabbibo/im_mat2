@@ -270,6 +270,7 @@ float l = saturate( (20-dif)/20);
 
         //tCol = grassHeight;
         col *= shadow;//(1-shadow)* (1 + .3 *noise( v.bindPos * 1000));
+        col *= 4;
         return float4( col.xyz  , 1.);
       }
 

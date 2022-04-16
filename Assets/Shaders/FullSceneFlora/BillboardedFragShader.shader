@@ -1,4 +1,4 @@
-﻿Shader "FantasyTree/BillboardedFragShader"
+﻿Shader "Scenes/FullScene/BillboardedLeaves"
 {
 
 
@@ -10,10 +10,13 @@
 
     _SpriteTex ("tex" , 2D )  = "white" {}
     _BaseColor ("BaseColor" , Color )  =(1,1,1,1)
-    _TipColor  ("TipColor" , Color )  = (1,1,1,1)
+    _ColorSize ("ColorSize" , float )  = 0
+    _ColorBase ("ColorBase" , float )  = 0
     _ShadowStrength("_ShadowStrength" , Range(0,1)) = .5
     _AmountShown("AmountShown" , Range(0,1)) = .5
+
     _FallingAmount("falling amount" , Range(0,1)) = .5
+    _TextureMapDimensions(" _TextureMapDimensions" , Vector) = (1,1,0,0)
     [Toggle(WORLD_NORMAL)] _RandomNormal("RandomNormal", Float) = 0
 
   }
@@ -28,6 +31,71 @@
 
 
 
+
+  CGINCLUDE
+
+                  #include "UnityCG.cginc"
+                  #include "AutoLight.cginc"
+
+
+#include "../Chunks/convertUV.cginc"
+
+
+            #include "../Chunks/Reflection.cginc"
+            #include "../Chunks/noise.cginc"
+
+            #include "../Chunks/SampleAudio.cginc"
+            #include "../Chunks/ColorScheme.cginc"
+
+            
+          float _AmountShown;
+          float4 _Color;
+          float _SizeMultiplier;
+          float _ShadowStrength;
+          float4 _BaseColor;
+          float4 _TipColor;
+  float _FallingAmount;
+
+          sampler2D _SpriteTex;
+          int _SpriteSize;
+            
+
+
+
+   // We use this value to blend every
+        // vert from its center position
+        // to its final position, based on 
+        // how much of it should be 'show'
+        // so it looks like its animating in!
+        float3 lerpDown( float timeInBranch, float lerp){
+
+            float lerpVal = lerp;
+
+            lerpVal =  (1.1-lerp)-timeInBranch * .9;
+            lerpVal = lerpVal;
+            lerpVal *= 9;
+            lerpVal = saturate(lerpVal);
+
+            return 1-lerpVal;
+
+        }
+
+
+
+
+    // hue saturation value function
+    float3 hsv(float h, float s, float v){
+      return lerp( float3( 1.0 , 1, 1 ) , clamp( ( abs( frac(
+        h + float3( 3.0, 2.0, 1.0 ) / 3.0 ) * 6.0 - 3.0 ) - 1.0 ), 0.0, 1.0 ), s ) * v;
+    }
+
+
+    float _ColorSize;
+    float _ColorBase;
+
+    float3 _PlayerSoul;
+
+  ENDCG
 
 
 
@@ -59,26 +127,7 @@
             // making it so that we are going
             // to do our own lighting
             #pragma multi_compile_fwdbase nolightmap nodirlightmap nodynlightmap novertexlight
-#pragma shader_feature WORLD_NORMAL
-      #include "UnityCG.cginc"
-      #include "AutoLight.cginc"
-
-
-
-    // little randomness funciton
-      float hash( float n ){
-        return frac(sin(n)*43758.5453);
-      }
-
-
-    // hue saturation value function
-    float3 hsv(float h, float s, float v){
-      return lerp( float3( 1.0 , 1, 1 ) , clamp( ( abs( frac(
-        h + float3( 3.0, 2.0, 1.0 ) / 3.0 ) * 6.0 - 3.0 ) - 1.0 ), 0.0, 1.0 ), s ) * v;
-    }
-
-     
-    
+            #pragma shader_feature WORLD_NORMAL
 
 
             struct v2f { 
@@ -88,46 +137,15 @@
                 float  timeCreated  : TEXCOORD3;
                 float2 uv           : TEXCOORD4;
                 float2 uv2          : TEXCOORD5;
+                float  playerDist          : TEXCOORD6;
                 //LIGHTING_COORDS(5,6)
                 SHADOW_COORDS(7)
             };
 
-          float _AmountShown;
-          float _FallingAmount;
-          float4 _Color;
-          float _SizeMultiplier;
-          float _ShadowStrength;
-          float4 _BaseColor;
-          float4 _TipColor;
 
 
-          sampler2D _SpriteTex;
-          int _SpriteSize;
-            
 
 
-            
-        // We use this value to blend every
-        // vert from its center position
-        // to its final position, based on 
-        // how much of it should be 'show'
-        // so it looks like its animating in!
-        float3 lerpDown( float timeInBranch, float lerp){
-
-            float lerpVal = lerp;
-
-            lerpVal =  (1.1-lerp)-timeInBranch * .9;
-            lerpVal = lerpVal;
-            lerpVal *= 9;
-            lerpVal = saturate(lerpVal);
-
-            return 1-lerpVal;
-
-        }
-        
-
-
-    float3 _PlayerSoul;
         
             v2f vert (  appdata_full v  )
             {
@@ -135,28 +153,19 @@
 
 
           
-                // we stored the center of our quad
-                // as a texture coordinate in the mesh
                 float3 centerPos =  mul(unity_ObjectToWorld,float4(v.texcoord1.xyz,1.0f)).xyz;
 
-
-                // likewise we also stored our scale 
-                // in one of the texture coordinates
                 float scale = v.texcoord2.y;
 
-
-                // Setting up the final position
                 float3 fPos = centerPos;  
 
-
                 float3 d = _PlayerSoul - centerPos;
+
+                o.playerDist = clamp(1 / length(d),0,.4);
 
                 float3 extra = -normalize(d) * clamp(1 / length(d),0,.4);
 
                 fPos += extra;
-
-                //fPos += 
-                
 
                 float3 worldNor = normalize(mul( unity_ObjectToWorld, float4(v.normal,0)).xyz);
 
@@ -181,10 +190,6 @@
                 fPos += _SizeMultiplier * scale * left * (v.texcoord.y-.5);
 
                 float lerpVal = 0;
-
-                // we stored the time that each leaf was
-                // created in a a texturecoord as well
-                // here we are calling that life
                 float life =  v.texcoord2.z; 
                
 
@@ -193,36 +198,16 @@
                 float fLerpVal = saturate(abs(lerpDown(_AmountShown, life)));
                 fPos = lerp( centerPos, fPos , fLerpVal);
 
-                // This section creates a 'animation'
-                // that will be played out as we change the
-                // "FallingAmount" value
-                // its always going to go to y = 0 so won't work for
-                // pretty ground of any sort
-                float falling = _FallingAmount - life * .9;
-                falling = saturate(falling*10);
-                fPos = lerp( fPos , float3(fPos.x + sin( falling * 12 +hash(life * 402) * 1012) * .1 , hash(life) * .1 , fPos.z + cos(falling * 10 + hash(life * 20) * 2012) * .3 ), falling);
-
+      
                 // pass through our base uv
                 o.uv =  v.texcoord.xy;
 
-
-
-                // here we are giving each individual particle
-                // an individual UV so that they can sample
-                // different parts of a texture. the texture
-                // will need to be a X by X grid where X is your
-                // Sprite Size
-                float col = hash( float(life* 10));
-                float row = hash( float(life* 20));
-                o.uv2 = (o.uv + floor(_SpriteSize * float2( col , row )))/_SpriteSize;
-                
-
-                // our fPos is already in world space so we only need to multiply
-                // by a view and projection matrix
+                o.uv2 = convertUV( o.uv,life  );//(o.uv + floor(_SpriteSize * float2( col , row )))/_SpriteSize;
+            
                 o.pos = mul (UNITY_MATRIX_VP, float4(fPos,1.0f));
                 o.world = fPos;
                 o.timeCreated = life;
-TRANSFER_SHADOW(o)
+                TRANSFER_SHADOW(o)
                 
                 
                 TRANSFER_VERTEX_TO_FRAGMENT(o);
@@ -235,24 +220,18 @@ TRANSFER_SHADOW(o)
                 // sample the texture
                 fixed4 col = 1;//float4( i.nor * .5 + .5 , 1);//tex2D(_MainTex, i.uv);
                 
-                // sample our sprite texture
-                // and if the alpha is low enough discard it
-                // since we don't really want to do true transparency here...
                 float4 spriteCol = tex2D(_SpriteTex,v.uv2);
-                if( spriteCol.r > .9){discard;}
+            if( spriteCol.a < .1){discard;}
                 
-                
-                // Using the color from our texture as
-                // the base texture
                 col.xyz = spriteCol.xyz;
-                col.xyz *= lerp(_BaseColor, _TipColor , v.timeCreated );//hsv(v.timeCreated * .2 + .75,.5,1);
-                
+                col  = GetGlobalColor( spriteCol.a * _ColorSize  + _ColorBase + sin(v.timeCreated) + spriteCol.a * .1  + v.playerDist) * (spriteCol.a + v.playerDist);
 
-                // here we get our light attenuation ( aka the shadows )
-                // and make it so it isn't just a 1 -> 0 multiplier but
-                // rather depended on how strong we want our shadows to be
+                col += col * SampleAudio(spriteCol.a * .1 + v.timeCreated * .5) * 3;
+
                 float atten = LIGHT_ATTENUATION(v) * _ShadowStrength + ( 1- _ShadowStrength);   
                 col *= atten;
+
+              //  col = v.playerDist;
 
                 return col;
             }
@@ -298,22 +277,8 @@ TRANSFER_SHADOW(o)
       #pragma fragment frag
       #pragma multi_compile_shadowcaster
       #pragma fragmentoption ARB_precision_hint_fastest
-#pragma shader_feature WORLD_NORMAL
-      #include "UnityCG.cginc"
+    #pragma shader_feature WORLD_NORMAL
 
-
-          float _AmountShown;
-          float4 _Color;
-          float _SizeMultiplier;
-          float _ShadowStrength;
-          float4 _BaseColor;
-          float4 _TipColor;
-  float _FallingAmount;
-
-
-
-          sampler2D _SpriteTex;
-          int _SpriteSize;
             
       struct v2f {
         V2F_SHADOW_CASTER;
@@ -321,60 +286,37 @@ TRANSFER_SHADOW(o)
         float2 uv2 : TEXCOORD2;
         float3 nor : NORMAL;
       };
-      float hash( float n ){
-        return frac(sin(n)*43758.5453);
-      }
+  
 
 
+  #include "../Chunks/ShadowCasterPos.cginc "
 
-  #include "ShadowCasterPos.cginc "
 
-
-   // We use this value to blend every
-        // vert from its center position
-        // to its final position, based on 
-        // how much of it should be 'show'
-        // so it looks like its animating in!
-        float3 lerpDown( float timeInBranch, float lerp){
-
-            float lerpVal = lerp;
-
-            lerpVal =  (1.1-lerp)-timeInBranch * .9;
-            lerpVal = lerpVal;
-            lerpVal *= 9;
-            lerpVal = saturate(lerpVal);
-
-            return 1-lerpVal;
-
-        }
         
-        
-  float3 _PlayerSoul;
   
       v2f vert (  appdata_full v  )
             {
                 v2f o;
 
 
-                // we stored the center of our quad
-                // as a texture coordinate in the mesh
-                float3 centerPos =  mul(unity_ObjectToWorld,float4(v.texcoord1.xyz,1.0f)).xyz;
+                  float3 centerPos =  mul(unity_ObjectToWorld,float4(v.texcoord1.xyz,1.0f)).xyz;
 
+                float scale = v.texcoord2.y;
 
-                // Setting up the final position
                 float3 fPos = centerPos;  
-
 
                 float3 d = _PlayerSoul - centerPos;
 
                 float3 extra = -normalize(d) * clamp(1 / length(d),0,.4);
 
                 fPos += extra;
-                
+
                 float3 worldNor = normalize(mul( unity_ObjectToWorld, float4(v.normal,0)).xyz);
+
 
                 worldNor += extra * 1;
                 worldNor = normalize(worldNor );
+
                 // Getting our left and up directions 
                 // for our billboarded quad
 
@@ -386,23 +328,12 @@ TRANSFER_SHADOW(o)
                   float3 left = UNITY_MATRIX_V[1].xyz;;
                 #endif
 
-                // likewise we also stored our scale 
-                // in one of the texture coordinates
-                float scale = v.texcoord2.y;
-
-
-            
-
                 // making it so our single point turns into
                 // a quad using the billboarded left and up
                 fPos += _SizeMultiplier * scale * up * (v.texcoord.x-.5);
                 fPos += _SizeMultiplier * scale * left * (v.texcoord.y-.5);
 
                 float lerpVal = 0;
-
-                // we stored the time that each leaf was
-                // created in a a texturecoord as well
-                // here we are calling that life
                 float life =  v.texcoord2.z; 
                
 
@@ -411,33 +342,19 @@ TRANSFER_SHADOW(o)
                 float fLerpVal = saturate(abs(lerpDown(_AmountShown, life)));
                 fPos = lerp( centerPos, fPos , fLerpVal);
 
-                // This section creates a 'animation'
-                // that will be played out as we change the
-                // "FallingAmount" value
-                // its always going to go to y = 0 so won't work for
-                // pretty ground of any sort
-                float falling = _FallingAmount - life * .9;
-                falling = saturate(falling*10);
-                fPos = lerp( fPos , float3(fPos.x + sin( falling * 12 +hash(life * 402) * 1012) * .1 , hash(life) * .1 , fPos.z + cos(falling * 10 + hash(life * 20) * 2012) * .3 ), falling);
-
+      
                 // pass through our base uv
                 o.uv =  v.texcoord.xy;
 
-
-
-                // here we are giving each individual particle
-                // an individual UV so that they can sample
-                // different parts of a texture. the texture
-                // will need to be a X by X grid where X is your
-                // Sprite Size
-                float col = hash( float(life* 10));
-                float row = hash( float(life* 20));
-                o.uv2 = (o.uv + floor(_SpriteSize * float2( col , row )))/_SpriteSize;
+                o.uv2 = convertUV( o.uv,life  );//(o.uv + floor(_SpriteSize * float2( col , row )))/_SpriteSize;
+            
               
-       fPos =  mul(unity_WorldToObject, float4(fPos,1)).xyz;
+              
 
-      float4 position = ShadowCasterPos(fPos,v.normal.xyz );
-      o.pos = UnityApplyLinearShadowBias(position);
+              fPos =  mul(unity_WorldToObject, float4(fPos,1)).xyz;
+
+              float4 position = ShadowCasterPos(fPos,v.normal.xyz );
+              o.pos = UnityApplyLinearShadowBias(position);
 
  
         return o;
@@ -452,8 +369,8 @@ TRANSFER_SHADOW(o)
              //}
           
           
-           float4 spritCol = tex2D(_SpriteTex,v.uv2);
-            if( spritCol.r > .9){discard;}
+           float4 spriteCol = tex2D(_SpriteTex,v.uv2);
+            if( spriteCol.a < .1){discard;}
                      
         SHADOW_CASTER_FRAGMENT(v)
       }

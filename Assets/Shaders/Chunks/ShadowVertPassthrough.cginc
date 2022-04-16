@@ -44,25 +44,7 @@ float _NormalDepth;
 float _ColorBase;
 float _ColorSize;
 
-float2 _TextureMapDimensions;
-
-float2 convertUV( float2 uv , float2 dimensions , float id  ){
-
-  // if we haven't assigned, just pass!
-  if( length(dimensions) < 2 ){
-    return uv;
-  }else{
-
-    float xID = floor(((sin( id * 102121 ) +1)/2) * dimensions.x ) / dimensions.x;
-    float yID = floor(((sin( id * 540511 ) +1)/2) * dimensions.y ) / dimensions.y;
-
-    float2 fUV = uv *(1/dimensions) + float2(xID, yID);
-
-    return fUV;
-  }
-
-  
-}
+#include "../Chunks/convertUV.cginc"
 
 v2f vert ( uint vid : SV_VertexID )
 {
@@ -74,7 +56,7 @@ v2f vert ( uint vid : SV_VertexID )
 
     o.world = v.pos;
     o.uvBase = v.uv;
-    o.uv = convertUV( v.uv , _TextureMapDimensions, v.debug.x );
+    o.uv = convertUV( v.uv ,  v.debug.x );
     o.pos = mul (UNITY_MATRIX_VP, float4(v.pos,1.0f));
     o.nor = v.nor;//normalize(cross(v0.pos - v1.pos , v0.pos - v2.pos ));
     o.tan = v.tan;

@@ -76,6 +76,8 @@
 
     float4 _BaseColor;
     float4 _TipColor;
+
+    float3 _PlayerSoul;
            
         void vert (inout appdata_full v,out Input o) {
             
@@ -88,7 +90,19 @@
             // lerping to zero so our shadow bias doesn't
             // falsely draw shapes
             v.normal.xyz = lerp( float3(0,0,0), v.normal , fLerp);
-            v.vertex.xyz=  lerp( v.texcoord1.xyz, v.vertex.xyz , fLerp);
+
+                                // Setting up the final position
+                float3 fPos =  mul( unity_ObjectToWorld ,v.vertex).xyz;  
+
+
+                float3 d = _PlayerSoul - fPos;
+
+                float3 extra = -normalize(d) * clamp(1 / length(d),0,.4);
+
+                fPos += extra;
+            v.vertex.xyz=  mul(unity_WorldToObject , float4( fPos,1)).xyz;
+
+       
           
         }
 

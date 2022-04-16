@@ -59,6 +59,7 @@ Tags { "RenderType"="Opaque" }
               float4 pos : SV_POSITION; 
               float3 nor : NORMAL;
               float2 uv :TEXCOORD0; 
+              float2 baseUV :TEXCOORD6; 
               float3 worldPos :TEXCOORD1;
               float2 debug :TEXCOORD3;
               float id :TEXCOORD4;
@@ -91,6 +92,7 @@ Tags { "RenderType"="Opaque" }
                 float oX = floor(hash( (o.whereInTip.x) * 10 )*6)/6;
                 float oY = floor(hash( (o.whereInTip.x) * 51 )*6)/6;
                 o.uv = (v.uv * 1/6) + float2(oX,oY);
+                o.baseUV = v.uv;
                 o.worldPos = v.pos;
                 o.debug = v.debug;
                 o.id = vid / 12;
@@ -128,6 +130,12 @@ Tags { "RenderType"="Opaque" }
               col *= shadow * shadow;
               col  *= _OverallMultiplier;
 
+
+        
+                float4 audio = SampleAudio(tCol.x  + v.whereInTip.z) * 2;
+                
+              
+                col.xyz  =  col.xyz * .5 + col.xyz * audio.xyz * 4;
               
                 FadeDiscard( v.worldPos * 100);
               

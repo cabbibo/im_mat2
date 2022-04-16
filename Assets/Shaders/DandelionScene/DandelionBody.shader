@@ -89,7 +89,7 @@
                 
                 col = mapColor*p;     
                 col.xyz *= reflectionColor * 4;
-                col  +=  (1-saturate(length(col.xyz)*10))* audio.xyz;
+                col  +=  col.xyz * audio.xyz;
                 col *= _OverallMultiplier;
                 
                 FadeDiscard( v.world * 100);
