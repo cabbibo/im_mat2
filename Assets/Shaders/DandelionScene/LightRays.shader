@@ -272,7 +272,7 @@ Blend One One
                 fixed4 col = dust * fCol * fade * v.emission * dust;// tex2D(_DepthTexture, i.uv).a;
        
 
-                FadeDiscard(v.world *100);
+              //  FadeDiscard(v.world *100);
 
                 //col = 1;
                 return col;

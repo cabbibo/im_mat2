@@ -1,4 +1,6 @@
 ﻿#pragma kernel ParticlesOnTerrain
+#pragma kernel ParticlesOnTerrainNearPosition
+#pragma kernel ParticlesOnTerrainNearPositionNoise
 
 struct Vert{
   float3 pos;
@@ -27,11 +29,9 @@ float _Height;
 
 float3 _PlayerPosition;
 
-
-
-
 float _Radius;
 float _Size;
+float _Time;
 
 
 float3 polarToXY( float r , float a ){
@@ -50,7 +50,7 @@ void ParticlesOnTerrain (uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_Gro
     Vert v = _VertBuffer[pID];
 
     if( v.debug.x == 0 ){
-        v.pos = _PlayerPosition + polarToXY( pow(hash(float(pID)),.5) * _Radius,hash(float(pID)*10) * 6.28);// * _Size.y;
+        v.pos = _PlayerPosition + polarToXY( pow(hash(float(pID)+ _Time),.5) * _Radius,hash(float(pID)*10 + _Time) * 6.28);// * _Size.y;
         v.debug.x = 1;
     }
 
@@ -71,6 +71,113 @@ void ParticlesOnTerrain (uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_Gro
 
 
     }
+
+
+
+    v.tan = sampleColor( v.pos ).yzw;
+
+  //  v.pos = _PlayerPosition + float3(1,0,0)* hash(float(pID)) * _Size.x+ float3(0,0,1)* hash(float(pID) * 10) * _Size.y;
+    v.pos.y = 0;
+    v.nor = -getNormal( v.pos );
+    v.pos = worldPos(v.pos) ;
+
+    _VertBuffer[pID] = v;
+
+
+
+}
+
+
+
+float3 _TargetPosition;
+
+#define NR_THREADS 128
+[numthreads(NR_THREADS,1,1)]
+void ParticlesOnTerrainNearPosition(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID) {
+
+  int pID = safeID( threadID + u3GroupID.x * NR_THREADS , _VertBuffer_COUNT );
+
+
+
+    
+    Vert v = _VertBuffer[pID];
+
+    if( v.debug.x == 0 ){
+        v.pos = _TargetPosition + polarToXY( pow(hash(float(pID)+ _TargetPosition.x),.5) * _Radius,hash(float(pID)*10+ _TargetPosition.x) * 6.28);// * _Size.y;
+        v.debug.x = 1;
+    }
+
+
+    float2 d = v.pos.xz - _TargetPosition.xz;
+
+    v.debug.x = (_Radius-length( d )) / _Radius;
+
+
+    if( v.debug.y >0  ){
+        v.debug.y -= 1;
+    }
+
+    if( length(d) > _Radius ){
+
+        v.pos -= float3(d.x , 0, d.y) *1.99;
+        v.debug.y = 2;
+
+
+    }
+
+
+
+    v.tan = sampleColor( v.pos ).yzw;
+
+  //  v.pos = _PlayerPosition + float3(1,0,0)* hash(float(pID)) * _Size.x+ float3(0,0,1)* hash(float(pID) * 10) * _Size.y;
+    v.pos.y = 0;
+    v.nor = -getNormal( v.pos );
+    v.pos = worldPos(v.pos) ;
+
+    _VertBuffer[pID] = v;
+
+
+
+}
+
+
+
+#define NR_THREADS 128
+[numthreads(NR_THREADS,1,1)]
+void ParticlesOnTerrainNearPositionNoise(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID) {
+
+  int pID = safeID( threadID + u3GroupID.x * NR_THREADS , _VertBuffer_COUNT );
+
+
+
+    
+    Vert v = _VertBuffer[pID];
+
+    if( v.debug.x == 0 ){
+
+        float3 targetPos = _TargetPosition;
+        float greatestN = -100000;
+        for( float i = 0; i<10; i++ ){
+          float3 tPos = polarToXY( pow(hash(float(pID)+ _TargetPosition.x + i),.5) * _Radius,hash(float(pID)*10+ _TargetPosition.x + i) * 6.28);
+
+          float n = snoise(tPos * .3) - .2*length(tPos.xz );
+
+          if( n > greatestN ){
+            greatestN = n;
+            targetPos = tPos;
+          }
+
+
+        }
+        v.pos = _TargetPosition + targetPos;
+        
+    }
+
+
+    float2 d = v.pos.xz - _TargetPosition.xz;
+
+    v.debug.x = (_Radius-length( d )) / _Radius;
+
 
 
 

@@ -207,6 +207,8 @@ public class Book : Cycle
 
 
     public void CloseBook(){
+
+      print("closeBook");
       
       started = false;
       opened = false;
@@ -317,6 +319,9 @@ public class Book : Cycle
   }
 
   public void CloseStory(){
+
+
+    print("closing");
     if( inStory ){
       transitionOutOfStoryTime = Time.time;
     }
@@ -333,7 +338,6 @@ public class Book : Cycle
       if( !started ){
 //        RaycastHit hit;
         if( data.inputEvents.hitTag == "Player" && data.state.inPages == false ){
-          print("Ya Boi");
           OpenBook();
         }
       }

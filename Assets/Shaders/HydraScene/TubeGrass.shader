@@ -76,7 +76,7 @@
             fixed4 frag (v2f v) : SV_Target
             {
 
-                fixed shadow = UNITY_SHADOW_ATTENUATION(v,v.world) * .5 + .5;
+                fixed shadow = UNITY_SHADOW_ATTENUATION(v,v.world) * .8 + .2;
 
                 float3 normal = -v.nor;// + (v.uv.x -.5) * v.tan;
 
@@ -174,7 +174,7 @@
                 //col = audio.xyz;
 
                 //col.xyz = p * p * col;//m;//normalize(_WorldSpaceLightPos0.xyz) * .5+ .5 ;//m;//p;
-                //col = shadow;
+              col *= shadow;
 
 
                 return float4(col,1);
@@ -316,7 +316,7 @@ v2f vert ( appdata_base input,uint vid : SV_VertexID )
 
                     float4 audio = SampleAudio( v.uv.x *.5 + (sin(v.debug.x)+1) * .1 + tex.r * .1  ) * 2;
 
-                                 if( tex.r >  .9 ){
+                 if( tex.r >  .9 ){
                     discard;
                 }
 

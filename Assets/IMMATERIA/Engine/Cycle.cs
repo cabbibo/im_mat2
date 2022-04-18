@@ -680,6 +680,7 @@ void SetStates(){
       }else{
         DebugThis("NO DATA BAD BAD");
       }
+    c._Deactivate();
     c._OnDie();
     c._OnDied();
     c._Destroy();
@@ -699,6 +700,10 @@ void SetStates(){
         DebugThis("NO DATA BAD BAD");
       }
     }
+    for( int i = 0; i < c.Length; i++ ){
+      c[i]._Deactivate();
+    }
+
 
     for( int i = 0; i < c.Length; i++ ){
         c[i]._OnDie();

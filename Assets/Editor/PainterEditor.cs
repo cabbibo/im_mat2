@@ -11,7 +11,7 @@
      void OnSceneGUI()
      {
 
-       Debug.Log("PRSITN444");
+//       Debug.Log("PRSITN444");
 
          Painter test = (Painter)target;
  HandleUtility.AddDefaultControl(GUIUtility.GetControlID(FocusType.Passive));

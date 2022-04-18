@@ -141,6 +141,9 @@ public class Form : Cycle {
 
   public override void WhileDebug(){
 
+   
+
+    if( mpb == null ){ mpb = new MaterialPropertyBlock(); }
     mpb.SetBuffer("_VertBuffer", _buffer);
     mpb.SetInt("_Count",count);
     

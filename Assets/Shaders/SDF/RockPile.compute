@@ -1,0 +1,168 @@
+﻿
+#pragma kernel Map
+
+
+
+
+struct Volume{
+  float dist;
+  float3 nor;
+};
+
+RWStructuredBuffer<Volume> _VolumeBuffer;
+int _VolumeBuffer_COUNT;
+
+float4x4 _Transform;
+float4x4 _InverseTransform;
+
+#include "../Chunks/safeID.cginc"
+
+float3 _Dimensions;
+float3 _Extents;
+float3 _Center;
+
+
+struct Transform{
+  float4x4 ltw;
+  float4x4 wtl;
+};
+
+RWStructuredBuffer<Transform> _TransformBuffer;
+int _TransformBuffer_COUNT;
+
+
+
+
+float3 GetPos( int id){
+    uint xID = id % int(_Dimensions.x);
+    uint yID = (id / (int(_Dimensions.x))) % int(_Dimensions.y);
+    uint zID = id / (int(_Dimensions.x) * int(_Dimensions.y));
+
+    float x = float(xID) / float(_Dimensions.x);
+    float y = float(yID) / float(_Dimensions.y);
+    float z = float(zID) / float(_Dimensions.z);
+
+    float3 p = (float3(x,y,z)-float3(.5 , .5 , .5)) * _Extents *2 + _Center;//_Extents;
+
+  
+   return mul(_Transform, float4( p ,1)).xyz;
+}
+
+
+
+#include "../Chunks/sdfFunctions.cginc"
+#include "../Chunks/snoise.cginc"
+float3 center;
+
+
+int _PileID;
+
+float2 rock( float3 pos , float3 topPlane, float3 bottomPlane, float3 rockSize , int id){
+ 
+ 
+ float res = sdBox( pos , rockSize);
+ 
+ res = opS( sdPlane( pos , normalize(-topPlane) , length(-topPlane)*.5),res);
+ res = opS( sdPlane( pos , normalize(-bottomPlane) , length(-bottomPlane)*.5),res);
+ 
+ for( int i = 0; i <40; i++ ){
+     
+     float fi = float(i + _PileID + id * 1010 );
+     float3 nor = normalize(float3(sin(fi * 213.1 + 121. ),sin(fi * 2513.1 + 551. ),sin(fi * 4223.1 + 31. )));
+     res = opS( sdPlane( pos, nor , abs(sin(fi * 12114. + 1244.)) *length(rockSize) * .1 + length(rockSize) * .3 ) , res);
+ 
+ }
+ 
+ 
+ 
+ return float2(res,1.);
+
+}
+
+
+//--------------------------------
+// Modelling 
+//--------------------------------
+float map( float3 pos ){  
+
+
+float3 p = pos;
+float3 center = mul( _Transform , float4(0,0,0,1)).xyz;
+
+p = pos - center;
+p *= 4;
+    
+ 	float2 res = float2(1000000.,-1.0);//float2( sdSphere( pos - float3( .3 , .3 , -0.4 ) , 1.1 ) , 1. ); 
+    
+    float3 oldTop = float3(0.,1.,0.);
+    float3 basePos = float3(0.,-10.,0.);
+    int to =  _PileID;
+    for( int i = 0; i < 20; i++ ){
+    float3 rockSize = (sin( float(i) * 121213. +41414.+ float(to *313))+4.) *float3(5.,5.,5. ) / (float(i+3));
+    float3 topPlane =  float3(sin(float(i * 12030 +414 + 20 * to)) * .2,1.,sin(float(i * 4410+1244+444 * to)) * .2);
+    
+    topPlane *= (sin(float(i * 12030 +214 +44055 * to)) +3.)/3. * length(rockSize)/4.;
+    float3 bottomPlane = -oldTop;//float3(0.,-1.,0.);
+    
+
+    
+   
+    res = opU( res , rock( p-basePos,topPlane,bottomPlane, rockSize,i) );
+    
+    oldTop = topPlane;
+    
+    basePos += topPlane * 1.1;
+    
+    
+    
+    }
+    float3 topPlane = float3(-.1,.5,.1);
+    float3 bottomPlane = float3(-.1,-.5,-.1);
+    float3 rockSize = float3(4.,5.,4. );
+
+    res.x -= (snoise(p) * .2 + snoise(p * 4) * .1) * .1;
+   // res = opU( res , rock( pos ,topPlane,bottomPlane, rockSize) );
+   // res = opU( res , float2( sdBox( pos- float3( -.8 , -.4 , 0.2 ), float3( .4 , .3 , .2 )) , 2. ));
+    
+    return res.x;
+    
+}
+
+
+
+
+
+
+
+float3 GetNor( float3 pos ){
+  float3 eps = float3(0.0001,0,0);
+  float3 nor = float3( map( pos-eps.xyy) - map( pos+eps.xyy)
+                     , map( pos-eps.yxy) - map( pos+eps.yxy)
+                     , map( pos-eps.yyx) - map( pos+eps.yyx));
+
+  return normalize(nor);
+
+}
+
+
+
+
+#define NR_THREADS 128
+[numthreads(NR_THREADS,1,1)]
+void Map(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID) {
+
+  int pID = threadID + u3GroupID.x * NR_THREADS;
+
+  pID = safeID(pID,_VolumeBuffer_COUNT);
+  Volume v = _VolumeBuffer[pID];
+
+float3 center = mul( _Transform , float4(0,0,0,1)).xyz;
+
+  float3 pos = GetPos( pID );
+  float d = map( pos );
+
+  v.dist = d;// pos.x * 20;//float(pID % int(_Dimensions.x))/ float(_Dimensions.x);
+  v.nor = GetNor(pos);//float3(0,1,0);
+  _VolumeBuffer[pID] = v;
+
+}

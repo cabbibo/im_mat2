@@ -157,6 +157,8 @@
 
                 float scale = v.texcoord2.y;
 
+                float3 outVec =  mul(unity_ObjectToWorld,v.vertex).xyz - centerPos;;
+
                 float3 fPos = centerPos;  
 
                 float3 d = _PlayerSoul - centerPos;
@@ -186,8 +188,10 @@
 
                 // making it so our single point turns into
                 // a quad using the billboarded left and up
-                fPos += _SizeMultiplier * scale * up * (v.texcoord.x-.5);
-                fPos += _SizeMultiplier * scale * left * (v.texcoord.y-.5);
+               // fPos += _SizeMultiplier * scale * up * (v.texcoord.x-.5);
+               // fPos += _SizeMultiplier * scale * left * (v.texcoord.y-.5);
+
+                fPos += outVec;
 
                 float lerpVal = 0;
                 float life =  v.texcoord2.z; 
@@ -299,13 +303,17 @@
                 v2f o;
 
 
-                  float3 centerPos =  mul(unity_ObjectToWorld,float4(v.texcoord1.xyz,1.0f)).xyz;
+                 float3 centerPos =  mul(unity_ObjectToWorld,float4(v.texcoord1.xyz,1.0f)).xyz;
 
                 float scale = v.texcoord2.y;
+
+                float3 outVec =  mul(unity_ObjectToWorld,v.vertex).xyz - centerPos;;
 
                 float3 fPos = centerPos;  
 
                 float3 d = _PlayerSoul - centerPos;
+
+              //  o.playerDist = clamp(1 / length(d),0,.4);
 
                 float3 extra = -normalize(d) * clamp(1 / length(d),0,.4);
 
@@ -330,8 +338,10 @@
 
                 // making it so our single point turns into
                 // a quad using the billboarded left and up
-                fPos += _SizeMultiplier * scale * up * (v.texcoord.x-.5);
-                fPos += _SizeMultiplier * scale * left * (v.texcoord.y-.5);
+               // fPos += _SizeMultiplier * scale * up * (v.texcoord.x-.5);
+               // fPos += _SizeMultiplier * scale * left * (v.texcoord.y-.5);
+
+                fPos += outVec;
 
                 float lerpVal = 0;
                 float life =  v.texcoord2.z; 
@@ -347,9 +357,6 @@
                 o.uv =  v.texcoord.xy;
 
                 o.uv2 = convertUV( o.uv,life  );//(o.uv + floor(_SpriteSize * float2( col , row )))/_SpriteSize;
-            
-              
-              
 
               fPos =  mul(unity_WorldToObject, float4(fPos,1)).xyz;
 

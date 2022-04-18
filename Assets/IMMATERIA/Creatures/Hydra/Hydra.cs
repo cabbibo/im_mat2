@@ -119,7 +119,6 @@ public class Hydra : Cycle
 
    public override void Create(){
 
-     print(tipsGO);
 
     for( int i = 0; i < tipsGO.Length; i++ ){
       
@@ -148,8 +147,6 @@ public class Hydra : Cycle
 
     }
 
-
-    print(tipBuffer);
 
 
     tipBuffer.transforms = new Transform[ numTips * 2 ];

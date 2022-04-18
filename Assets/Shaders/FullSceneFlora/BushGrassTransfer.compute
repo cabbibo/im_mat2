@@ -1,0 +1,134 @@
+﻿
+
+#pragma kernel BushPlane
+#pragma kernel BushPlanePlaced
+
+struct Vert{
+    float3 pos;
+    float3 vel;
+    float3 nor;
+    float3 tangent;
+    float2 uv;
+    float2 debug;
+};
+
+RWStructuredBuffer<Vert> _VertBuffer;
+RWStructuredBuffer<Vert> _SkeletonBuffer;
+
+int _VertBuffer_COUNT;
+int _SkeletonBuffer_COUNT;
+#include "../Chunks/safeID.cginc"
+
+float3 _CameraLeft;
+
+
+float3 _CameraRight;
+float3 _CameraUp;
+float3 _CameraForward;
+float _Radius;
+float _Fade;
+
+float _PlayerRadius;
+
+float _ClosestGPUCollisionID;
+float3 _ClosestGPUCollision;
+
+float _CountMultiplier;
+int _CountOffset;
+
+float3 _PlayerPosition;
+
+#include "../Chunks/audioCompute.cginc"
+
+
+#define NR_THREADS 128
+[numthreads(NR_THREADS,1,1)]
+void BushPlane(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID) {
+
+    int pID = threadID + u3GroupID.x * NR_THREADS;
+
+    int particleID = pID / 4;
+
+
+    Vert p = _SkeletonBuffer[safeID(particleID,_SkeletonBuffer_COUNT)];
+
+    int idInParticle = pID % 4;
+    int row = idInParticle / 2;
+    int col = pID % 2;
+
+    float3 pDif = p.pos - _PlayerPosition;
+
+    float3 nNor = normalize(pDif);
+
+    float3 fNor = normalize(p.nor + nNor / (.3+length(pDif)));
+
+    float3 l = normalize(cross(fNor,_CameraForward));
+    float3 u = fNor;
+
+
+    l *= (float(col)-.5);
+    u *= float(row);//(float(row)-.5);
+
+    float3 fPos = p.pos + (l + u) *  _Radius * clamp(p.tangent.z -.1,0,1) * p.debug.x;//clamp(p.tangent.z,0,1);
+    
+
+    float2 fUV = float2( float(row) , float(col) );
+
+    _VertBuffer[safeID(pID,_VertBuffer_COUNT)].pos = fPos;
+    _VertBuffer[safeID(pID,_VertBuffer_COUNT)].vel = p.vel;
+    _VertBuffer[safeID(pID,_VertBuffer_COUNT)].uv = fUV;
+    _VertBuffer[safeID(pID,_VertBuffer_COUNT)].nor = -_CameraForward;//p.nor;
+    _VertBuffer[safeID(pID,_VertBuffer_COUNT)].debug = float2( particleID , p.debug.y );
+
+
+}
+
+
+
+
+
+#define NR_THREADS 128
+[numthreads(NR_THREADS,1,1)]
+void BushPlanePlaced(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID) {
+
+    int pID = threadID + u3GroupID.x * NR_THREADS;
+
+    int particleID = pID / 4;
+
+
+    Vert p = _SkeletonBuffer[safeID(particleID,_SkeletonBuffer_COUNT)];
+
+    int idInParticle = pID % 4;
+    int row = idInParticle / 2;
+    int col = pID % 2;
+
+    float3 pDif = p.pos - _PlayerPosition;
+
+    float3 nNor = normalize(pDif);
+
+    float3 fNor = normalize(p.nor + nNor / (.3+length(pDif)));
+
+    float3 l = normalize(cross(fNor,_CameraForward));
+    float3 u = fNor;
+
+
+    l *= (float(col)-.5);
+    u *= float(row);//(float(row)-.5);
+
+    float3 fPos = p.pos + (l + u) *  _Radius;// * clamp(p.tangent.z -.1,0,1) * p.debug.x;//clamp(p.tangent.z,0,1);
+    
+
+    float2 fUV = float2( float(row) , float(col) );
+
+    _VertBuffer[safeID(pID,_VertBuffer_COUNT)].pos = fPos;
+    _VertBuffer[safeID(pID,_VertBuffer_COUNT)].vel = p.vel;
+    _VertBuffer[safeID(pID,_VertBuffer_COUNT)].uv = fUV;
+    _VertBuffer[safeID(pID,_VertBuffer_COUNT)].nor = -_CameraForward;//p.nor;
+    _VertBuffer[safeID(pID,_VertBuffer_COUNT)].debug = float2( particleID , p.debug.y );
+
+
+}
+
+
+
+
