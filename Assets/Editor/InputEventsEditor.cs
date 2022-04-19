@@ -88,12 +88,22 @@ cameraSettings.farClip = events.MainCamera.GetComponent<Camera>().farClipPlane;
 
 
 
+          Debug.Log("hmmm");
 
       if( events.Down == 1 && events.oDown == 0 ){
           events.JustDown = 1;
           events.touchID ++;
           events.startTime = Time.time;
           events.startPos = events.p;
+
+          
+          Debug.Log("hmmm");
+          if( events.hit.collider != null ){
+              events.downHitObject = events.hit.collider.gameObject;
+          }else{
+              events.downHitObject = null;
+          }
+
 
           if( events.startPos.x <  (float)Screen.width * events.swipeInCutoff ){
             events.canEdgeSwipe = 1;

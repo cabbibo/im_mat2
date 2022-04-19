@@ -102,13 +102,15 @@ public class MiniMap : TransferLifeForm
 
         for( int i = 0; i < storyMarkers.Length; i++ ){
 
-            storyMarkers[i].transform.position = GetMiniMapPosition( data.journey.monoSetters[i].transform.position );
+            storyMarkers[i].transform.position = GetMiniMapPosition( data.journey.monoSetters[i].transform.position ) + transform.up * .05f;
 
         }
         
         playerMarkerTransform.position = GetMiniMapPosition( data.player.position );
 
-        playerMarkerTransform.LookAt( GetMiniMapPosition( data.player.position + data.player.forward ) );
+        playerMarkerTransform.LookAt( GetMiniMapPosition( data.player.position + data.player.forward * 3 ) );
+        
+        playerMarkerTransform.position = GetMiniMapPosition( data.player.position ) + transform.up * .05f;
 
     }
 

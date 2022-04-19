@@ -139,45 +139,50 @@ float2 rotateUV(float2 uv, float rotation)
 
         float4 color= 0;
         
-        fixed shadow = UNITY_SHADOW_ATTENUATION(v,v.worldPos)  ;
+        fixed shadow = UNITY_SHADOW_ATTENUATION(v,v.worldPos)  ;  
 
-        float3 fNor = tex2D(_NormalMap ,  v.worldPos.xz * _PaintSize );
+        float3 fNor = tex2D(_NormalMap ,  v.fullPos.xz * _PaintSize );
               fNor = normalize(v.nor * fNor.z *2 + float3(1,0,0) * (fNor.x)  + float3(0,0,1) * (fNor.y-.5));//normalize( fNor );
 
         float m = dot(v.nor, _WorldSpaceLightPos0 );
         float v2 = -m * shadow;
 
-        float4 terrainCol =  GetFullColor(.5 -v2 * .5 , v.fullPos.xz * _MapSize);
-        float4 painterly = Painterly( v2, v.worldPos.xz * _PaintSize );
+        float4 terrainCol =  GetFullColor(.5 + (sin( v.fullPos.y * .2) +1) * .2, v.fullPos.xz * _MapSize);
+        float4 painterly = Painterly( v2, v.fullPos.xz * _PaintSize );
         float3 tCol = Reflection(normalize(v.eye),fNor);//texCUBE(_CubeMap,refl);
 
         tCol = length(tCol)*length(tCol)/3;
 
         float4 audio = SampleAudio(length(tCol.xyz) * .2 ) * 2;
 
-        color = GetFullColor( v.debug.x *.5, v.fullPos.xz * _MapSize);
-   // color = sin(v.fullPos.x * _MapSize);
-        if( sin( v.debug.x * 1000) < 0 ){
-            color = 0;
-            discard;
-        }
-
-        if( v.debug.x == 0 ){
-            discard;
-        }
-       /* color *=  painterly * .7 + .5;
-        color.xyz *= tCol;
-        color *= FogMultiplier( v.worldPos ) ;*/
+        color = GetFullColor( v2 * .13 + .5, v.fullPos.xz * _MapSize);
+        color *=  painterly * .7 + .5;
+        color.xyz *= tCol * 1;
+        color *= FogMultiplier( v.worldPos ) ;
 
 
-       /* float holeVal = length( v.worldPos - _TerrainHole)  + noise( v.worldPos * 4.2 + float3(0,_Time.y * .2,0) )  * .2;
+        float holeVal = length( v.fullPos - _TerrainHole)  + noise( v.fullPos * 4.2 + float3(0,_Time.y * .2,0) )  * .2;
         if( holeVal < 2 ){
           discard;
         }
         if( holeVal < 2.3){ color = saturate((holeVal - 2) * 4) * color;}
 
-        
-        if( _Debug != 0 ){ color.xyz = v.nor * .5 + .5; }*/
+        if(v.fullPos.y < 1 ){
+        //  discard;
+        }
+
+        color.xyz =tCol * tCol * 2 *  terrainCol.xyz  * (sin( v.fullPos.y * 2 )+.8) * 4;
+        color.xyz  *= clamp( v.fullPos.y * .1 , 0 , 1);
+
+        if( length(color.xyz) < 0.1 ){
+        //  discard;
+        }
+
+      //  color.xyz = v.fullPos;
+        //if( _Debug != 0 ){ color =   tex2D(_DebugTex,v.worldPos.xz * _PaintSize) * FogMultiplier( v.worldPos * 100); }
+
+
+
 
         return float4( color.xyz  , 1.);
 
@@ -237,14 +242,19 @@ float2 rotateUV(float2 uv, float rotation)
         float4 position = ShadowCasterPos(v.pos, -v.nor);
         o.pos = UnityApplyLinearShadowBias(position);
         o.worldPos = v.pos;
+        o.fullPos = v.vel;
         return o;
       }
 
-      float4 frag(v2f i) : COLOR
+      float4 frag(v2f v) : COLOR
       {
 
-        float holeVal = length( i.worldPos - _TerrainHole)  + noise( i.worldPos * 4.2 + float3(0,_Time.y * .2,0) )  * .2;
-        if( holeVal < 2 ){
+
+
+        float v =  (sin( v.fullPos.y * 2 )+.8) * 4;
+        v *= clamp( v.fullPos.y * .1 , 0 , 1);
+
+        if( v < 0.1 ){
           discard;
         }
         SHADOW_CASTER_FRAGMENT(i)

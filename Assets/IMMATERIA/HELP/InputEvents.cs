@@ -82,6 +82,8 @@ public class InputEvents : Cycle
     public float canEdgeSwipe;
     public bool swipable;
 
+    public GameObject downHitObject;
+
     void Start() { }
 
 
@@ -188,6 +190,14 @@ public class InputEvents : Cycle
                 touchID++;
                 startTime = Time.time;
                 startPos = p;
+
+
+                print( "HIIII: "  + hit.collider );
+                if( hit.collider != null ){
+                    downHitObject = hit.collider.gameObject;
+                }else{
+                    downHitObject = null;
+                }
 
                 if (startPos.x < (float)Screen.width * swipeInCutoff)
                 {

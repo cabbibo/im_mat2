@@ -66,13 +66,21 @@ public class StoryNode : Cycle
 
    public override void OnTap(){
 
-           for( int i = 0; i < miniMap.storyMarkers.Length; i++ ){
-            miniMap.storyMarkers[i].Deselect();
+        for( int i = 0; i < miniMap.storyMarkers.Length; i++ ){
+            if( i != id ){
+                miniMap.storyMarkers[i].Deselect();
+            }
         }
 
-        data.state.PlaySelection();
-        data.state.ConnectMonolith( id );
-        selectedRenderer.enabled = true;
+        if( selectedRenderer.enabled == false){
+            data.state.PlaySelection();
+            data.state.ConnectMonolith( id );
+            selectedRenderer.enabled = true;
+        }else{
+            data.state.PlaySelection();
+            data.state.DisconnectMonolith(id);
+            selectedRenderer.enabled = true;
+        }
 
     
         print("this object got clicked");
