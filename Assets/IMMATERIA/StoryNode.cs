@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 
 public class StoryNode : Cycle
 {
@@ -19,6 +20,8 @@ public class StoryNode : Cycle
    public Renderer completedRenderer;
    public Renderer selectedRenderer;
 
+   public TextMeshPro text;
+
 
     public override void Create(){
         print("hmmm whats up");
@@ -32,6 +35,8 @@ public class StoryNode : Cycle
         visitedRenderer.enabled = false;
         completedRenderer.enabled = false;
         selectedRenderer.enabled = false;
+
+        text.text = setter.gameObject.name;
 
 
 

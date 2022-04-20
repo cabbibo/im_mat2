@@ -114,7 +114,7 @@
         o.pos = mul(UNITY_MATRIX_VP, float4(fPos,1));
         o.eye = _WorldSpaceCameraPos - fPos;
         o.nor = fNor;
-        o.uv =  float2(.9,1)-fUV;
+        o.uv =  fUV;//float2(.9,1)-fUV;
         o.debug = float3(debug.x,debug.y,0);
         o.fullPos = v.vel;
 
@@ -163,16 +163,19 @@ float2 rotateUV(float2 uv, float rotation)
 
         float holeVal = length( v.fullPos - _TerrainHole)  + noise( v.fullPos * 4.2 + float3(0,_Time.y * .2,0) )  * .2;
         if( holeVal < 2 ){
-          discard;
+         // discard;
         }
         if( holeVal < 2.3){ color = saturate((holeVal - 2) * 4) * color;}
 
         if(v.fullPos.y < 1 ){
+          
         //  discard;
         }
 
         color.xyz =tCol * tCol * 2 *  terrainCol.xyz  * (sin( v.fullPos.y * 2 )+.8) * 4;
         color.xyz  *= clamp( v.fullPos.y * .1 , 0 , 1);
+
+        color.xyz += clamp((v.uv.y -.96) * 100,0,10);//length(v.uv - .5);
 
         if( length(color.xyz) < 0.1 ){
         //  discard;
@@ -231,6 +234,7 @@ float2 rotateUV(float2 uv, float rotation)
         V2F_SHADOW_CASTER;
         float3 nor : NORMAL;
         float3 worldPos : TEXCOORD0;
+        float3 fullPos :TEXCOORD1;
       };
 
 
@@ -251,11 +255,11 @@ float2 rotateUV(float2 uv, float rotation)
 
 
 
-        float v =  (sin( v.fullPos.y * 2 )+.8) * 4;
-        v *= clamp( v.fullPos.y * .1 , 0 , 1);
+        float v2 =  (sin( v.fullPos.y * 2 )+.8) * 4;
+        v2 *= clamp( v.fullPos.y * .1 , 0 , 1);
 
         if( v < 0.1 ){
-          discard;
+         // discard;
         }
         SHADOW_CASTER_FRAGMENT(i)
       }

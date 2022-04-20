@@ -9,20 +9,22 @@ public class InputEventsEditor : CycleEditor{
 
   public bool down;
    void OnSceneGUI(){
+      
+     /* Debug.Log("WHAT IS THIS");
 
       InputEvents events = (InputEvents)target;
       HandleUtility.AddDefaultControl(GUIUtility.GetControlID(FocusType.Passive));
-((UnityEditor.SceneView)SceneView.sceneViews[0]).pivot = events.MainCamera.transform.position;
-((UnityEditor.SceneView)SceneView.sceneViews[0]).rotation = events.MainCamera.transform.rotation;
-//((UnityEditor.SceneView)SceneView.sceneViews[0]).cameraDistance = 0;//events.MainCamera.transform.rotation;
+      ((UnityEditor.SceneView)SceneView.sceneViews[0]).pivot = events.MainCamera.transform.position;
+      ((UnityEditor.SceneView)SceneView.sceneViews[0]).rotation = events.MainCamera.transform.rotation;
+      //((UnityEditor.SceneView)SceneView.sceneViews[0]).cameraDistance = 0;//events.MainCamera.transform.rotation;
 
-SceneView.CameraSettings cameraSettings = new SceneView.CameraSettings();
-cameraSettings.fieldOfView = events.MainCamera.GetComponent<Camera>().fieldOfView;
-cameraSettings.nearClip = events.MainCamera.GetComponent<Camera>().nearClipPlane;
-cameraSettings.farClip = events.MainCamera.GetComponent<Camera>().farClipPlane;
-    
+      SceneView.CameraSettings cameraSettings = new SceneView.CameraSettings();
+      cameraSettings.fieldOfView = events.MainCamera.GetComponent<Camera>().fieldOfView;
+      cameraSettings.nearClip = events.MainCamera.GetComponent<Camera>().nearClipPlane;
+      cameraSettings.farClip = events.MainCamera.GetComponent<Camera>().farClipPlane;
+          
 
-((UnityEditor.SceneView)SceneView.sceneViews[0]).cameraSettings = cameraSettings;
+      ((UnityEditor.SceneView)SceneView.sceneViews[0]).cameraSettings = cameraSettings;
 
 
        // Camera.current.transform.position =events.MainCamera.transform.position;
@@ -91,13 +93,14 @@ cameraSettings.farClip = events.MainCamera.GetComponent<Camera>().farClipPlane;
           Debug.Log("hmmm");
 
       if( events.Down == 1 && events.oDown == 0 ){
+
           events.JustDown = 1;
           events.touchID ++;
           events.startTime = Time.time;
           events.startPos = events.p;
 
           
-          Debug.Log("hmmm");
+          Debug.Log("hmmmSUP ITS ME");
           if( events.hit.collider != null ){
               events.downHitObject = events.hit.collider.gameObject;
           }else{
@@ -152,7 +155,7 @@ cameraSettings.farClip = events.MainCamera.GetComponent<Camera>().farClipPlane;
       events.vel = events.p - events.oP;
 
         //print("mouse"); 
-      
+      */
            
    }
 

@@ -11,6 +11,8 @@ public class MiniMap : TransferLifeForm
     public Vector2 mapCenter;
     public Vector3 mapSize;
 
+    public Book book;
+
     public GameObject storyMarkerPrefab;
     public StoryNode[] storyMarkers;
 
@@ -88,21 +90,43 @@ public class MiniMap : TransferLifeForm
      Vector2 centerVel;
     public void DownDelta( Vector2 dir ){
 
-        centerVel -= dir * moveMultiplier;
+    
+        if( data.inputEvents.downHitObject == book.frame.collider.gameObject ){
+    
+            centerVel -= dir * moveMultiplier;
+        }
+
 
     }
 
 
+    public float textSizeMultiplier;
     public override void WhileLiving(float v)
     {
 
         mapCenter += centerVel;
         centerVel *= dampening;
 
+        
+        float iSize = 1/data.land.size;
+
+        if( mapCenter.x < 0 ){ centerVel -= Vector2.left * 1;   }
+        if( mapCenter.x > iSize){ centerVel += Vector2.left * 1;  }
+
+        
+        if( mapCenter.y < 0 ){ centerVel += Vector2.up * 1;  }
+        if( mapCenter.y > iSize){ centerVel -= Vector2.up * 1;  }
+
 
         for( int i = 0; i < storyMarkers.Length; i++ ){
+            Vector3 t1 = Vector3.one;
 
-            storyMarkers[i].transform.position = GetMiniMapPosition( data.journey.monoSetters[i].transform.position ) + transform.up * .05f;
+            float lP = GetLocalPoint(data.journey.monoSetters[i].transform.position).magnitude;
+            lP=Mathf.Clamp((lP - .0f)/(1-.0f),0,1);
+            t1*=(1 / (20+(lP*mapSize.x)));
+            storyMarkers[i].transform.localScale = t1 * textSizeMultiplier;
+            storyMarkers[i].transform.position = GetMiniMapPosition( data.journey.monoSetters[i].transform.position ) + transform.up * .1f;
+
 
         }
         
@@ -115,10 +139,8 @@ public class MiniMap : TransferLifeForm
     }
 
 
-    public Vector3 GetMiniMapPosition( Vector3 pos ){
-
-
-        Vector3 mPos = new Vector3();
+    public Vector3 GetLocalPoint(Vector3 pos){
+       Vector3 mPos = new Vector3();
 
         mPos.x = pos.x - mapCenter.x;
         mPos.y = 0;
@@ -143,8 +165,13 @@ public class MiniMap : TransferLifeForm
 
         mPos.y = data.land.SampleHeight(fullPos);
         mPos.y /= mapSize.y;
+        return mPos;
+
+    }
+    public Vector3 GetMiniMapPosition( Vector3 pos ){
 
 
+        Vector3 mPos = GetLocalPoint(pos);
         return transform.TransformPoint( mPos );
 
 
@@ -152,6 +179,7 @@ public class MiniMap : TransferLifeForm
 
     public override void _Activate()
     {
+        gameObject.SetActive(true);
         print("IM BEIGN ACToVADO");
         playerMarkerTransform.gameObject.SetActive(true);
     }
@@ -159,6 +187,7 @@ public class MiniMap : TransferLifeForm
     public override void _Deactivate()
     {
 
+        gameObject.SetActive(false);
         print("DEAVTIVADO");
         playerMarkerTransform.gameObject.SetActive(false);
         DestroyNodes();

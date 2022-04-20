@@ -216,13 +216,18 @@ public class GlobalEditWindow : EditorWindow
     events.DoRaycast();
 
 
-
       if( events.Down == 1 && events.oDown == 0 ){
+        
           events.JustDown = 1;
           events.touchID ++;
           events.startTime = Time.time;
           events.startPos = events.p;
-
+                if( events.hit.collider != null ){
+                    Debug.Log("ACTUALLYFIRE");
+                    events.downHitObject = events.hit.collider.gameObject;
+                }else{
+                    events.downHitObject = null;
+                }
           if( events.startPos.x <  (float)Screen.width * events.swipeInCutoff ){
             events.canEdgeSwipe = 1;
           }else if( events.startPos.x >  (float)Screen.width - (float)Screen.width * events.swipeInCutoff ){

@@ -82,7 +82,7 @@ public class CrystalCutter : MonoBehaviour
 
     */
 
-    public void Reset(){
+    public virtual  void Reset(){
 
         float h = crystalHeight;
         float r = crystalRadius;
@@ -337,6 +337,12 @@ private int Vector4Compare(Vector4 value1, Vector4 value2)
     }
 
 
+ Vector2 DegreeToUnitVector2(float degrees)
+ {
+      float radians = degrees * Mathf.Deg2Rad; 
+      return new Vector2(Mathf.Sin(radians), Mathf.Cos(radians));
+ }
+
     // This is where we create the mesh!
     // we just ad informations for all of our points
     // we have created and generate the list of 
@@ -347,6 +353,7 @@ private int Vector4Compare(Vector4 value1, Vector4 value2)
         List<Vector3> allTriPoints = new List<Vector3>();
         List<Vector3> allTriNorms = new List<Vector3>();
         List<Vector2> allTriUVs = new List<Vector2>();
+        List<Vector2> allTriUVs2 = new List<Vector2>();
         List<Color> allTriColors = new List<Color>();
 
         List<int> allTriIDs = new List<int>();
@@ -356,13 +363,53 @@ private int Vector4Compare(Vector4 value1, Vector4 value2)
          foreach( var face in faces){
 
              
+            Vector3 center = Vector3.zero;
 
             for(int i = 0; i < face.Count; i++ ){
 
                 allEdgePoints.Add(face[i]);
                 allEdgePoints.Add(face[(i+1)%face.Count]);
 
+                center += face[i];
+
             }
+
+            center /= (float)face.Count;
+
+            float maxDist = 0;
+            for( int i = 0; i< face.Count; i++ ){
+
+                float d = (face[0]-center).magnitude;
+                if( d > maxDist){
+                    maxDist = d;
+                }
+
+            }
+
+            Vector3 nor = -Vector3.Cross( face[1] - face[0] , face[2]- face[0]).normalized; 
+            Vector3 left = Vector3.Cross( nor, face[1] - face[0]).normalized;
+            Vector3 forward = (face[1] - face[0]).normalized;
+
+            Vector4 tangent = new Vector4( forward.x, forward.y,forward.z,1);
+            List<Vector2> uvs = new List<Vector2>();
+
+            for( int i = 0; i< face.Count; i++ ){
+
+                Vector3 d = face[i]-center;
+                float a = Vector3.Angle(d,forward);
+                Vector2 p = DegreeToUnitVector2(a);
+
+
+
+               // float xVal = p.x * d.magnitude/maxDist;// Vector3.Dot(face[i]-center,left)/maxDist;
+                //float yVal =  p.y * d.magnitude/maxDist;//Vector3.Dot(face[i]-center,forward)/maxDist;
+
+                
+                float xVal =  Vector3.Dot(face[i]-center,left);
+                float yVal = Vector3.Dot(face[i]-center,forward);
+                uvs.Add( new Vector2( yVal , xVal  ));
+            }
+
 
 
             for( int i = 0; i < face.Count - 2; i++ ){
@@ -389,6 +436,13 @@ private int Vector4Compare(Vector4 value1, Vector4 value2)
                 allTriUVs.Add(new Vector2(crystalID,face[i+2].y/crystalHeight));
                 allTriUVs.Add(new Vector2(crystalID,face[i+1].y/crystalHeight));
 
+                
+                allTriUVs2.Add(uvs[0]);
+                allTriUVs2.Add(uvs[i+2]);
+                allTriUVs2.Add(uvs[i+1]);
+
+
+
             }
 
 
@@ -412,6 +466,7 @@ private int Vector4Compare(Vector4 value1, Vector4 value2)
         mesh.normals = allTriNorms.ToArray();
         mesh.triangles = allTriIDs.ToArray();
         mesh.uv = allTriUVs.ToArray();
+        mesh.uv2 = allTriUVs2.ToArray();
 
         for( int i = 0; i < 50; i++ ){
 //            print( mesh.uv[i]);
@@ -484,7 +539,7 @@ public List<Vector3> cutDirections;
     this is where to do it!
 
 */
-    public void SetUpGemCut(){
+    public virtual  void SetUpGemCut(){
 
         cutPositions = new List<Vector3>();
         cutDirections = new List<Vector3>();
