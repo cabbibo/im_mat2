@@ -28,6 +28,7 @@ public class GlobalEditWindow : EditorWindow
     public int startSetter;
     public int startStory;
     public int startPage;
+    public int globalColorState;
     public bool startWithStoryState;
     public bool fast;
 
@@ -350,6 +351,7 @@ public class GlobalEditWindow : EditorWindow
         
         fast = EditorGUILayout.Toggle ("Fast", fast);
 
+       // state.globalColorSchemeID = EditorGUILayout.IntField ("GlobalColorScheme", globalColorState);
         state.startStory = startStory;
         state.startSetter = startSetter;
         state.startPage = startPage;

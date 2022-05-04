@@ -192,7 +192,6 @@ public class InputEvents : Cycle
                 startPos = p;
 
 
-                print( "HIIII: "  + hit.collider );
                 if( hit.collider != null ){
                     downHitObject = hit.collider.gameObject;
                 }else{
@@ -483,7 +482,6 @@ public class InputEvents : Cycle
                     if (Screen.width - startPos.x < (float)Screen.width * swipeInCutoff)
                     {
 
-                        print("helllooo");
                         OnEdgeSwipeLeft.Invoke();
                     }
                 }

@@ -19,7 +19,9 @@ public class RockFractalTree : TransformBuffer
 
     public override void SetCount(){
 
-        RebuildFractal();
+        if( alwaysRemake ){
+            RebuildFractal();
+        }
      
     }
 

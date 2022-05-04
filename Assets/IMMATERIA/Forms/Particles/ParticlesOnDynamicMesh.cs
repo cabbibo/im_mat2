@@ -29,7 +29,6 @@ public class ParticlesOnDynamicMesh: Particles {
   public override void Embody(){
 
     Mesh m = mesh.mesh;
-    print( m.vertices.Length);
 
     int[] triangles = m.triangles;
     Vector3[] verts = m.vertices;

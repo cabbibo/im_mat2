@@ -22,6 +22,7 @@
         o.pos = UnityApplyLinearShadowBias(position);
         o.worldPos = v.pos;
         o.uv = v.uv;
+        
         return o;
       }
 

@@ -208,7 +208,6 @@ public class Book : Cycle
 
     public void CloseBook(){
 
-      print("closeBook");
       
       started = false;
       opened = false;

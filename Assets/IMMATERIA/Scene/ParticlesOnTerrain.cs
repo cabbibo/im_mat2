@@ -8,11 +8,12 @@ public class ParticlesOnTerrain : Simulation
     public float radius;
 
 
-    public override void OnBirthed(){
-        print("hmm");
+    public override void Bind(){
         life.BindFloat("_Radius",()=>radius);
         life.BindVector3("_TargetPosition",()=>transform.position);
-        data.BindPlayerData(life);
-        life.YOLO();
+        data.BindPlayerData(life);  
     }
+
+
+
 }

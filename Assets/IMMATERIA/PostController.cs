@@ -14,11 +14,14 @@ public class PostController : MonoBehaviour
     public float bloomValue;
 
     public float bloomChangeSpeed;
+    public float chromaticAbberationIntensity;
+    public float chromaticAbberationChangeSpeed;
 
     public float vignetteIntensity;
     public float vignetteChangeSpeed;
     public PostProcessVolume volume;
-    private Bloom thisBloom;
+    private Bloom bloom;
+    private ChromaticAberration chromaticAbberation;
     private DepthOfField dof;
     private Vignette vignette;
     PostProcessProfile profile;
@@ -26,15 +29,17 @@ public class PostController : MonoBehaviour
     public void OnEnable()
     {
         profile = volume.sharedProfile;
-        volume.profile.TryGetSettings(out thisBloom);
+        volume.profile.TryGetSettings(out bloom);
         volume.profile.TryGetSettings(out dof);
         volume.profile.TryGetSettings(out vignette);
+        volume.profile.TryGetSettings(out chromaticAbberation);
       
     }
 
     void Update(){
-        thisBloom.intensity.value = Mathf.Lerp(thisBloom.intensity.value, bloomValue, bloomChangeSpeed);
+        bloom.intensity.value = Mathf.Lerp(bloom.intensity.value, bloomValue, bloomChangeSpeed);
         dof.focusDistance.value = Mathf.Lerp( dof.focusDistance.value , focusDistance , depthFocusChangeSpeed);
         vignette.intensity.value =  Mathf.Lerp(vignette.intensity.value,vignetteIntensity, vignetteChangeSpeed);
+        chromaticAbberation.intensity.value =  Mathf.Lerp(chromaticAbberation.intensity.value,chromaticAbberationIntensity, chromaticAbberationChangeSpeed);
     }
 }

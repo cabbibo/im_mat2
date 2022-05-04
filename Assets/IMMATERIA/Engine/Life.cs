@@ -274,8 +274,21 @@ public class Life : Cycle {
       if( form._buffer != null ){
 
         if( shader == null ){
-          print("hmmm");
+          print("SOMETHING WRONG W shader");
         }
+
+        if( kernel == null ){
+          print("SOMETHING WRONG W KERNEL");
+        }
+        if( name == null ){
+          print("SOMETHING WRONG W NAME");
+        }
+
+        if( form._buffer == null ){
+          print("WTFFF");
+        }
+
+  //print(gameObject.name);
         
         shader.SetBuffer( kernel , name , form._buffer);
         shader.SetInt(name+"_COUNT" , form.count );

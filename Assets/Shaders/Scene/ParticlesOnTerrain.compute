@@ -152,31 +152,37 @@ void ParticlesOnTerrainNearPositionNoise(uint threadID : SV_GroupIndex, uint3 u3
 
     
     Vert v = _VertBuffer[pID];
+  float3 targetPos = 0;
+        float greatestN = -10;
+    
+    
+    //if( v.debug.x == 0 ){
 
-    if( v.debug.x == 0 ){
+      
+        for( float i = 0; i<100; i++ ){
 
-        float3 targetPos = _TargetPosition;
-        float greatestN = -100000;
-        for( float i = 0; i<10; i++ ){
-          float3 tPos = polarToXY( pow(hash(float(pID)+ _TargetPosition.x + i),.5) * _Radius,hash(float(pID)*10+ _TargetPosition.x + i) * 6.28);
 
-          float n = snoise(tPos * .3) - .2*length(tPos.xz );
+
+          float3 tPos = polarToXY(  pow( (hash( float(pID*22)+ _Time  ) +hash( float(pID*33)+ _Time  )+hash( float(pID*31)+ _Time  ))/3,1) , hash(float(pID*101)*10+ _Time) + hash(float(pID*104)*10+ _Time) +  hash(float(pID*131)*10+ _Time)  * 6.28);
+
+          float n = (snoise(tPos * 10.3)+1) + 2-4*length(tPos.xz );
 
           if( n > greatestN ){
             greatestN = n;
-            targetPos = tPos;
+            targetPos = tPos * _Radius;
           }
 
 
         }
+
         v.pos = _TargetPosition + targetPos;
         
-    }
+  //  }
 
 
     float2 d = v.pos.xz - _TargetPosition.xz;
 
-    v.debug.x = (_Radius-length( d )) / _Radius;
+    v.debug.x = saturate(greatestN/5) + .3;//(greatestN+1) * 11.5 + (_Radius-length( d )) / _Radius;
 
 
 

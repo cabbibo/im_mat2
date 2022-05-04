@@ -207,7 +207,7 @@ public class Data : Cycle
 
 
     public void SetGlobalColorType(float colorSchemeID){
-        Shader.SetGlobalFloat("_GlobalColorSchemeID", colorSchemeID);
+       state.SetGlobalColorType(colorSchemeID);
     }
 
 

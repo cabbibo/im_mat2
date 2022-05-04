@@ -39,6 +39,7 @@ int _CountOffset;
 float3 _PlayerPosition;
 
 #include "../Chunks/audioCompute.cginc"
+#include "../Chunks/snoise.cginc"
 
 
 #define NR_THREADS 128
@@ -115,7 +116,11 @@ void BushPlanePlaced(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID
     l *= (float(col)-.5);
     u *= float(row);//(float(row)-.5);
 
-    float3 fPos = p.pos + (l + u) *  _Radius;// * clamp(p.tangent.z -.1,0,1) * p.debug.x;//clamp(p.tangent.z,0,1);
+    float n = snoise(p.pos);
+
+    float fR = _Radius * p.debug.x;// + _Radius * n;//+ sampleAudio((n+1)/3);
+
+    float3 fPos = p.pos + (l + u) *  fR;// * clamp(p.tangent.z -.1,0,1) * p.debug.x;//clamp(p.tangent.z,0,1);
     
 
     float2 fUV = float2( float(row) , float(col) );

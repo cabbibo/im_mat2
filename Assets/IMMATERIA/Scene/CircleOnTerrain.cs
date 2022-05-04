@@ -36,6 +36,7 @@ public class CircleOnTerrain : Cycle
   }
 
   public override void Bind(){
+
     life.BindPrimaryForm( "_VertBuffer" , verts);
     life.BindVector3( "_SetLocation" , () => this.set );
     life.BindFloat("_Radius", () => this.radius );
@@ -53,6 +54,10 @@ public class CircleOnTerrain : Cycle
     //Debug.Log("no body for some reason" , this.gameObject );
     body.active = true;
     body.mpb.SetFloat("_Radius", radius);
+
+
+
+    this.set = transform.position;
   
     Set();
     
@@ -69,6 +74,7 @@ public class CircleOnTerrain : Cycle
 
     set = transform.position;
     life.active = true;
+    life.YOLO();
 
   }
 

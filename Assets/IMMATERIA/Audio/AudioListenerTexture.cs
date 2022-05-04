@@ -19,6 +19,7 @@ public class AudioListenerTexture : Form
 
     public LoopbackAudio loopbackAudio;
     public float loopbackMultiplier;
+    public float nonloopbackMultiplier;
 
 
     public Color[] pixels;
@@ -61,6 +62,8 @@ public class AudioListenerTexture : Form
 
         bool mainAudioMuted = false;
         float multiplier = 128;
+
+        multiplier *= nonloopbackMultiplier;
 
             #if UNITY_EDITOR
             // If our audio is muted replace data from the lookback audio!

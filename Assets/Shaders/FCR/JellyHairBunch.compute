@@ -157,7 +157,7 @@ void Force(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID, uint3 id
 
     float3 outVec = x * sin(angle) - y * cos(angle);
 
-    force += outVec * 1*vert.uv.x * vert.uv.x  * (1.5-vert.uv.y);
+    force += 3*outVec * 1*vert.uv.x * vert.uv.x  * (1.5-vert.uv.y);
 
     force += curlNoise(vert.pos * .3) * .5;
    // force += bN1 * .03;

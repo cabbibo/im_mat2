@@ -455,6 +455,8 @@ void ForceGrass(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID, uin
     force += GetRayForce( vert.pos , 2) * .8 * _DOWN;
 
 
+    force += curlNoise( vert.pos * .4 + float3(0,-_Time,0));
+
     vert.pos += force * .01;
 
     vert.length = base.length *_HairLength + .01;
@@ -540,10 +542,12 @@ void ForceGrassAudio(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID
 
 
     float2 xz = .1*normalize( vert.pos.xz - _PlayerPosition.xz ) / (.1 + pow(length(vert.pos.xz - _PlayerPosition.xz), 10));
-    //force += float3(xz.x,0,xz.y);
+    force += float3(xz.x,0,xz.y);
 
     force += bN1 * .2;
     force += GetRayForce( vert.pos , 2) * .8 * _DOWN;
+    
+    force += .02*curlNoise( vert.pos * .4 + float3(0,-_Time,0));
 
 //force = 0;
     vert.pos += force * .01;

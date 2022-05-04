@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEditor;
 
 public class ToggleObjects : MonoBehaviour
 {
@@ -16,6 +17,7 @@ public class ToggleObjects : MonoBehaviour
             {
 
                 print(gameObject);
+                 EditorGUIUtility.PingObject(gameObject);
                 print("YOOOOO");
             }
             meshes[i].SetActive(false);

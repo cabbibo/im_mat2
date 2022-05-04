@@ -133,9 +133,12 @@ float4 frag (varyings v) : COLOR {
 
     col *= SampleAudio(n*.1);//(_AudioMap,n * .1);
 
-    col *= saturate(normalize(v.rd).y * .3);
+  //  col = saturate(col);
+    //col *= saturate(normalize(v.rd).y * .3);
 
-    col *= 5;
+    //col *= 5;
+
+
     return fixed4( saturate(col.xyz) * _Lightness , 1);//saturate(float4(col,3*length(col) ));
 
 

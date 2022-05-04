@@ -665,8 +665,8 @@ if( !locked ){
                 {
                     velocity = Vector3.zero;
                     cantMove = true;
-                    print( hit.collider.gameObject );
-                    EditorGUIUtility.PingObject(hit.collider.gameObject);
+                   // print( hit.collider.gameObject );
+                    //EditorGUIUtility.PingObject(hit.collider.gameObject);
                 }
 
             }

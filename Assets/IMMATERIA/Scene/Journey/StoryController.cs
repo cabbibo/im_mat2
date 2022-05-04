@@ -83,7 +83,6 @@ public class StoryController : Cycle
     {
 
 
-        print("Trying to trigger page turn");
 
         // Only Turn page IF:
         // the story is started
@@ -180,7 +179,6 @@ public class StoryController : Cycle
     public void PageTurn()
     {
 
-        print("turning the page!");
         data.framer.frames[data.framer.currentFrame].closeButton.gameObject.GetComponent<FadeMaterial>().FadeOut();
 
         if (setter.audio.startClips.Length == 0)

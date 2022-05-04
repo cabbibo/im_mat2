@@ -98,12 +98,12 @@
 
        
     Pass {
-     //Tags {"Queue"="Transparent+10" "RenderType"="Transparent" }
-      Tags{ "LightMode" = "ForwardBase" }
+      Tags {"Queue"="Geometry"  }
+      //Tags{ "LightMode" = "ForwardBase" }
       Cull Off
-      ZWrite On
+      //ZWrite On
       //  Blend One One
-        ZTest Always
+      //ZTest Always
 
 
 
@@ -186,7 +186,7 @@
 
         d = clamp( (d - _Thickness) * _Falloff , -1, 1) + 1;
         d /= 2;
-        if( d < .1){ discard; }
+        //if( d < .1){ discard; }
 
 
         float3 c = GetGlobalColor(  saturate(v.vel * 200.1) * .12  -.2*v.hueOffset+ .88  ).xyz * d*d*  d * d * d * d * d;
@@ -212,7 +212,7 @@
 
 
 
-    Pass
+  Pass
     {
       Tags{ "LightMode" = "ShadowCaster" }
 
@@ -244,18 +244,6 @@
         float  special  : TEXCOORD13;
       };
 
-
-      v2f vert(appdata_base input, uint id : SV_VertexID)
-      {
-        v2f o;
-        Vert v = _VertBuffer[_TriBuffer[id]];
-
-        float4 position = ShadowCasterPos(v.pos, -v.nor);
-        o.pos = UnityApplyLinearShadowBias(position);
-        o.worldPos = v.pos;
-        o.uv = v.uv;
-        return o;
-      }
  
       v2f vert(uint id : SV_VertexID) {
 
@@ -271,13 +259,14 @@
         o.scaleOffset = v.scaleOffset;
         o.textureVal = v.textureVal;
         o.hueOffset = v.hueOffset;
+        o.special = v.special;
         return o;
       }
 
       float4 frag(v2f v) : COLOR {
     
         float d = GetCutoff( v.uv , v.textureVal );
-        if( d < .2 ){ discard; }
+        //if( d < .2 ){ discard; }
 
         float3 col = d;//float3(1,0,0);
         return float4( col , 1);

@@ -36,6 +36,7 @@ public class State : Cycle
     public bool inBookPages;
 
 
+    public float globalColorSchemeID;
 
 
     public int currentConnectedMonolith;
@@ -117,6 +118,7 @@ public class State : Cycle
 
         
         data.book.CloseBook();
+        SetGlobalColorType(globalColorSchemeID);
 
         //public string 
         if (startInStory || startInPages)
@@ -523,6 +525,12 @@ public class State : Cycle
         ftb.FadeToTexture(fadeTexture,8);
         
 
+    }
+
+    public void SetGlobalColorType(float colorSchemeID){
+        globalColorSchemeID = colorSchemeID;
+//        print("globalColorSchemeID");
+        Shader.SetGlobalFloat("_GlobalColorSchemeID", globalColorSchemeID);
     }
 
     public void end(){

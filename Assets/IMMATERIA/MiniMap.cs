@@ -180,7 +180,6 @@ public class MiniMap : TransferLifeForm
     public override void _Activate()
     {
         gameObject.SetActive(true);
-        print("IM BEIGN ACToVADO");
         playerMarkerTransform.gameObject.SetActive(true);
     }
 
@@ -188,7 +187,6 @@ public class MiniMap : TransferLifeForm
     {
 
         gameObject.SetActive(false);
-        print("DEAVTIVADO");
         playerMarkerTransform.gameObject.SetActive(false);
         DestroyNodes();
     }

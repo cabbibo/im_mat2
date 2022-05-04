@@ -17,6 +17,10 @@
 
     _FallingAmount("falling amount" , Range(0,1)) = .5
     _TextureMapDimensions(" _TextureMapDimensions" , Vector) = (1,1,0,0)
+
+    
+    _AudioDeform("audio deform" , float) = .5
+    _AudioSizeDeform("audio size deform" , float) = .5
     [Toggle(WORLD_NORMAL)] _RandomNormal("RandomNormal", Float) = 0
 
   }
@@ -54,6 +58,8 @@
           float _ShadowStrength;
           float4 _BaseColor;
           float4 _TipColor;
+  float _AudioDeform; 
+  float _AudioSizeDeform; 
   float _FallingAmount;
 
           sampler2D _SpriteTex;
@@ -152,6 +158,9 @@
                 v2f o;
 
 
+                float life =  v.texcoord2.z; 
+
+                float4 t = length(SampleAudioLOD( life ));
           
                 float3 centerPos =  mul(unity_ObjectToWorld,float4(v.texcoord1.xyz,1.0f)).xyz;
 
@@ -166,6 +175,8 @@
                 o.playerDist = clamp(1 / length(d),0,.4);
 
                 float3 extra = -normalize(d) * clamp(1 / length(d),0,.4);
+
+                extra += length(t) * normalize(v.vertex.xyz) * .1 * _AudioDeform;
 
                 fPos += extra;
 
@@ -191,16 +202,16 @@
                // fPos += _SizeMultiplier * scale * up * (v.texcoord.x-.5);
                // fPos += _SizeMultiplier * scale * left * (v.texcoord.y-.5);
 
-                fPos += outVec;
-
                 float lerpVal = 0;
-                float life =  v.texcoord2.z; 
+                fPos += outVec * lerp( 1,(t +1)/2,_AudioSizeDeform)* _SizeMultiplier;;
+
                
 
                 // making it so teh leaves can grow in using our "lerpDown"
                 // function shown above
                 float fLerpVal = saturate(abs(lerpDown(_AmountShown, life)));
                 fPos = lerp( centerPos, fPos , fLerpVal);
+
 
       
                 // pass through our base uv
@@ -303,6 +314,11 @@
                 v2f o;
 
 
+
+
+                float life =  v.texcoord2.z; 
+
+                float4 t = length(SampleAudioLOD( life ));
                  float3 centerPos =  mul(unity_ObjectToWorld,float4(v.texcoord1.xyz,1.0f)).xyz;
 
                 float scale = v.texcoord2.y;
@@ -317,6 +333,7 @@
 
                 float3 extra = -normalize(d) * clamp(1 / length(d),0,.4);
 
+                extra += length(t) * normalize(v.vertex.xyz) * .1* _AudioDeform;;
                 fPos += extra;
 
                 float3 worldNor = normalize(mul( unity_ObjectToWorld, float4(v.normal,0)).xyz);
@@ -341,10 +358,10 @@
                // fPos += _SizeMultiplier * scale * up * (v.texcoord.x-.5);
                // fPos += _SizeMultiplier * scale * left * (v.texcoord.y-.5);
 
-                fPos += outVec;
+                
+                fPos += outVec * lerp( 1,(t +1)/2,_AudioSizeDeform) * _SizeMultiplier;
 
                 float lerpVal = 0;
-                float life =  v.texcoord2.z; 
                
 
                 // making it so teh leaves can grow in using our "lerpDown"

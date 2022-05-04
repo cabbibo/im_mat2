@@ -203,7 +203,6 @@ public class ParticlesOnCircle: Particles {
   public override void Bind(){
     life.BindPrimaryForm( "_ParticleBuffer" , this );
     life.BindForm( "_VertBuffer" , verts );
-
   }
 
   public void Set(){
