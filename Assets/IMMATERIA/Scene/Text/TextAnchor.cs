@@ -160,7 +160,7 @@ public string text;
     int first = 0;
     foreach( string word in words ){
  
-      
+
       // makes sure we skip the first space of the section
       if( first != 0 ){
         column ++;
@@ -173,19 +173,41 @@ public string text;
       char[] letters = word.ToCharArray();
 
  
+      if( debug ){
+        print(word);
+        print(letters.Length);
+      }
 
 
  
       float newLine = 0;
       float wordWidth = 0;
+
       foreach( char c in letters ){ 
+          if( this.debug ){
+            print( wordWidth + ":" + c );
+          }
         if( c == '\n'){
         }else{
           wordWidth += scaledAdvance;// * scale
         }
       }
 
-      if( locationX + wordWidth >= frame.width - scaledPadding*2 ){
+
+      if( locationX + wordWidth >= frame.width - scaledPadding ){
+
+          if( this.debug ){
+
+
+            print(letters.Length);
+            print( locationX );
+            print ( wordWidth );
+            print( frame.width );
+            print( scaledPadding );
+            print("giving new line");
+            print(scaledAdvance);
+            print(column);
+          }
           row ++;
           locationY += scaledLineHeight;
           locationX  = scaledPadding;
@@ -196,6 +218,9 @@ public string text;
       foreach( char c in letters ){ 
 
         if( c == '\n'){
+          if( this.debug ){
+            print("new Line!");
+          }
           row ++;
           locationY += scaledLineHeight;
           locationX  = scaledPadding;
@@ -204,23 +229,25 @@ public string text;
 
           if( NovaMono.info.ContainsKey(c)){
 
-          float[] v1 = NovaMono.info[c];
+            float[] v1 = NovaMono.info[c];
 
 
-         // print( c );
-          glyph g = new glyph(locationX,locationY,count,v1,currentTextureVal,currentScaleOffset,currentHueOffset,currentSpecial);
-          glyphs.Add(g);
+          // print( c );
+            glyph g = new glyph(locationX,locationY,count,v1,currentTextureVal,currentScaleOffset,currentHueOffset,currentSpecial);
+            glyphs.Add(g);
 
 
 
-          locationX += scaledAdvance;
-          column ++;
-          count ++;
+            locationX += scaledAdvance;
+            column ++;
+            count ++;
           }else{
+            if( debug ){
             DebugThis("character not found");
             print( c );
             print( row );
             print( column );
+            }
           }
         }
       }

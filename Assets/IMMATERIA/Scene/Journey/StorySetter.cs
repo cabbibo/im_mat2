@@ -257,6 +257,16 @@ public class StorySetter : Cycle
 
 
 
+public void SetFogCutoff(float fc){
+    fogCutoff = fc;
+
+}
+
+public void SetSkyboxBrightness(float sb){
+    skyboxBrightness = sb;
+}
+
+
 
 
 

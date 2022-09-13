@@ -11,9 +11,10 @@ public class GroundBookTouchAndDrag : Cycle
   public SampleSynth synth;
 
   public override void Activate(){  
+
+    print("activating");
     monolith = GetComponent<Monolith>();
     data.inputEvents.WhileDownDelta.AddListener(WhileDown);
-    
     data.inputEvents.OnDown.AddListener( OnDown );
     data.inputEvents.OnUp.AddListener( OnUp );
     data.extraParticles.GetComponent<ExtraParticlesBinder>().Set( GetComponent<ExtraParticlesSetter>() );
@@ -52,6 +53,8 @@ public void OnUp(){
 
 
   public void WhileDown( Vector2 d ){
+
+    print("hmmm");
 
     if(data.inputEvents.hitTag == "Book" || data.inputEvents.hitTag == "Monolith"){
 

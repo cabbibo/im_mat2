@@ -16,6 +16,8 @@ public sealed class FogPostRenderer : PostProcessEffectRenderer<FogPost>
 {
     public override void Render(PostProcessRenderContext context)
     {
+
+        Debug.Log(settings.fogParams.value.z);
         var sheet = context.propertySheets.Get(Shader.Find("Hidden/Custom/Fog2"));
         sheet.properties.SetFloat("_Blend", settings.blend);
         

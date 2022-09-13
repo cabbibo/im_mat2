@@ -1,4 +1,4 @@
-﻿Shader "Text/OhBoyLoveThisTexts" {
+Shader "Text/OhBoyLoveThisTexts" {
   Properties {
 
     _Color ("Color", Color) = (1,1,1,1)
@@ -17,89 +17,89 @@
 
 
 
-     
-    CGINCLUDE 
-    
-      #pragma target 4.5
-      #pragma vertex vert
-      #pragma fragment frag
-
-      
-        uniform sampler2D _TextMap;
-    
-      uniform sampler2D _CutoffMap;
-
-      
-      float _Thickness;
-      float _Falloff;
-      float _NoiseSize;
-      float _NoisePower;   
-      
-      
-       struct Vert{
-        float3 pos;
-        float3 vel;
-        float3 nor;
-        float3 lock;
-        float2 uv;
-        float2 offset;
-        float textureVal;
-        float scaleOffset;
-        float hueOffset;
-        float special; 
-
-      };
-
-    StructuredBuffer<Vert> _VertBuffer;
-      StructuredBuffer<int> _TriBuffer;
-
-
-
-      #include "../Chunks/ColorScheme.cginc"
   
-      float getD( float2 uv , float textureVal){
-        
-        float4 tCol = tex2D(_TextMap,uv);
+  CGINCLUDE 
+  
+  #pragma target 4.5
+  #pragma vertex vert
+  #pragma fragment frag
 
-        float d = tCol.x;
-        if( textureVal > .5 && textureVal < 1.5 ){
-            d = tCol.y;
-        }else if( textureVal > 1.5 && textureVal < 2.5 ){
-            d = tCol.z;
-        }else if( textureVal > 2.5 && textureVal < 3.5 ){
-            d = tCol.w;
-        }
+  
+  uniform sampler2D _TextMap;
+  
+  uniform sampler2D _CutoffMap;
 
-        return d;
+  
+  float _Thickness;
+  float _Falloff;
+  float _NoiseSize;
+  float _NoisePower;   
+  
+  
+  struct Vert{
+    float3 pos;
+    float3 vel;
+    float3 nor;
+    float3 lock;
+    float2 uv;
+    float2 offset;
+    float textureVal;
+    float scaleOffset;
+    float hueOffset;
+    float special; 
 
-      }
+  };
+
+  StructuredBuffer<Vert> _VertBuffer;
+  StructuredBuffer<int> _TriBuffer;
 
 
-      float GetCutoff(float2 uv , float textureVal){
-        float d;
-        float d2;
 
-        d = getD( uv , textureVal);
-        d2 = tex2D(_CutoffMap,uv * float2(8,1) * _NoiseSize + _Time.x * .004).z;
+  #include "../Chunks/ColorScheme.cginc"
+  
+  float getD( float2 uv , float textureVal){
+    
+    float4 tCol = tex2D(_TextMap,uv);
 
-        d = lerp(d,d*d2,d2 *_NoisePower)*1.2;// * 4;//d-d2 * _NoisePower;//smoothstep( d * 10 , 0,1);
+    float d = tCol.x;
+    if( textureVal > .5 && textureVal < 1.5 ){
+      d = tCol.y;
+      }else if( textureVal > 1.5 && textureVal < 2.5 ){
+      d = tCol.z;
+      }else if( textureVal > 2.5 && textureVal < 3.5 ){
+      d = tCol.w;
+    }
 
-        d = clamp( (d - _Thickness) * _Falloff , -1, 1) + 1;
-        d /= 2;
+    return d;
 
-        return d;
-      }
-    ENDCG
+  }
+
+
+  float GetCutoff(float2 uv , float textureVal){
+    float d;
+    float d2;
+
+    d = getD( uv , textureVal);
+    d2 = tex2D(_CutoffMap,uv * float2(8,1) * _NoiseSize + _Time.x * .004).z;
+
+    d = lerp(d,d*d2,d2 *_NoisePower)*1.2;// * 4;//d-d2 * _NoisePower;//smoothstep( d * 10 , 0,1);
+
+    d = clamp( (d - _Thickness) * _Falloff , -1, 1) + 1;
+    d /= 2;
+
+    return d;
+  }
+  ENDCG
 
   SubShader {
     // COLOR PASS
 
 
 
-       
+    
     Pass {
       Tags {"Queue"="Geometry"  }
-      //Tags{ "LightMode" = "ForwardBase" }
+      Tags{ "LightMode" = "ForwardBase" }
       Cull Off
       //ZWrite On
       //  Blend One One
@@ -107,11 +107,11 @@
 
 
 
-     //CGPROGRAM
-     //#pragma target 4.5
-     //#pragma vertex vert
-     //#pragma fragment frag
-     //#pragma multi_compile_fwdbase nolightmap nodirlightmap nodynlightmap novertexlight
+      //CGPROGRAM
+      //#pragma target 4.5
+      //#pragma vertex vert
+      //#pragma fragment frag
+      //#pragma multi_compile_fwdbase nolightmap nodirlightmap nodynlightmap novertexlight
       CGPROGRAM
 
       #pragma multi_compile_fwdbase nolightmap nodirlightmap nodynlightmap novertexlight
@@ -168,13 +168,13 @@
         return o;
       }
 
-    
+      
       uniform sampler2D _ColorMap;
 
 
 
       float4 frag(varyings v) : COLOR {
-    
+        
         float d;
         float d2;
         float4 tCol = tex2D(_TextMap,v.uv);
@@ -186,7 +186,7 @@
 
         d = clamp( (d - _Thickness) * _Falloff , -1, 1) + 1;
         d /= 2;
-        //if( d < .1){ discard; }
+        if( d < .1){ discard; }
 
 
         float3 c = GetGlobalColor(  saturate(v.vel * 200.1) * .12  -.2*v.hueOffset+ .88  ).xyz * d*d*  d * d * d * d * d;
@@ -212,7 +212,7 @@
 
 
 
-  Pass
+    Pass
     {
       Tags{ "LightMode" = "ShadowCaster" }
 
@@ -225,15 +225,15 @@
       #pragma fragmentoption ARB_precision_hint_fastest
 
       #include "UnityCG.cginc"
-    
+      
 
       #include "../Chunks/ShadowCasterPos.cginc"
-   
+      
 
-  
+      
 
 
- struct v2f {
+      struct v2f {
         V2F_SHADOW_CASTER;
         float3 nor : NORMAL;
         float3 worldPos : TEXCOORD1;
@@ -244,7 +244,7 @@
         float  special  : TEXCOORD13;
       };
 
- 
+      
       v2f vert(uint id : SV_VertexID) {
 
         v2f o;
@@ -264,9 +264,9 @@
       }
 
       float4 frag(v2f v) : COLOR {
-    
+        
         float d = GetCutoff( v.uv , v.textureVal );
-        //if( d < .2 ){ discard; }
+        if( d < .2 ){ discard; }
 
         float3 col = d;//float3(1,0,0);
         return float4( col , 1);
@@ -276,12 +276,12 @@
 
       ENDCG
     }
-  
+    
     
 
 
   }
 
-    FallBack "Diffuse"
+  FallBack "Diffuse"
 
 }

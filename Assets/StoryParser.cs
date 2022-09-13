@@ -117,9 +117,9 @@ public class StoryParser : Cycle
 
                             if( pageID < fullText[chapterID][storyID].Count ){
 
-                                print("SOEMTHIGN IS RIGHT");
-                                print(fullText[chapterID][storyID][pageID]);
-                                print(page.gameObject.name);
+                                //print("SOEMTHIGN IS RIGHT");
+                                //print(fullText[chapterID][storyID][pageID]);
+                                //print(page.gameObject.name);
                                 page.text.text = fullText[chapterID][storyID][pageID];
 
                             }

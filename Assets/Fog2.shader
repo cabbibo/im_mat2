@@ -22,7 +22,11 @@
             float dist = ComputeFogDistance(depth);
             half fog = 1.0 - ComputeFog(dist);
 
-            return  lerp(color, skybox, fog);
+
+            float4 f = lerp(color, skybox, fog);
+
+            f = float4(fog * 1000000,0,1,1);
+            return  f;
         }
 
     ENDHLSL

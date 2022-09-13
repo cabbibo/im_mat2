@@ -224,7 +224,7 @@ public class GlobalEditWindow : EditorWindow
           events.startTime = Time.time;
           events.startPos = events.p;
                 if( events.hit.collider != null ){
-                    Debug.Log("ACTUALLYFIRE");
+                   // Debug.Log("ACTUALLYFIRE");
                     events.downHitObject = events.hit.collider.gameObject;
                 }else{
                     events.downHitObject = null;
