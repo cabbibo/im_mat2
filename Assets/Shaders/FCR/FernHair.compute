@@ -201,7 +201,12 @@ float3 up =  normalize(cross( left , bN1 ));
     float3 outVec = x * sin(angle) - y * cos(angle);
 
 
-    force += left * (float(hairInVert)-.5) * 111.1;
+    float n = noise( vert.pos * 1.1);
+
+    float4 a = sampleAudio(n * .3 + .3 );
+   
+
+    force += left * (float(hairInVert)-.5) * length(a)*length(a) * 10.1;
 
 
     //force += outVec * 1*vert.uv.x * vert.uv.x  * (1.5-vert.uv.y);
@@ -235,15 +240,11 @@ float3 up =  normalize(cross( left , bN1 ));
 
     force += GetRayForce( vert.pos , 2) * .2 * _DOWN;
     
-    float n = noise( vert.pos * 1.1);
-
-    float4 a = sampleAudio(n * .3 + .3 );
-
 
     force += 4*length(a) * float3(0,1,0);
 
 
-    vert.pos += force  * .0001;
+    vert.pos += force  * .0003 * a;
     
 
     vert.tan = vert.pos;
@@ -482,7 +483,7 @@ void Resolve(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID, uint3 
   Vert v = _VertBuffer[pID];
   
   float3 vel = v.pos - v.oPos;
-  float3 next = v.pos + vel  * .9;
+  float3 next = v.pos + vel  * .99;
   
   v.oPos = v.pos;
   v.pos = next;

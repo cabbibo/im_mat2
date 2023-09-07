@@ -104,7 +104,7 @@
                 m = 1-m;
 
                 if( v.uv.x + noise( v.uv.y * 100 ) * 1> 1.2 ){
-                    //discard;
+                    discard;
                 }
 
                 
@@ -316,7 +316,7 @@ v2f vert ( appdata_base input,uint vid : SV_VertexID )
 
                     float4 audio = SampleAudio( v.uv.x *.5 + (sin(v.debug.x)+1) * .1 + tex.r * .1  ) * 2;
 
-                                 if( tex.r >  .9 ){
+                                 if( tex.r < .1 ){
                     discard;
                 }
 

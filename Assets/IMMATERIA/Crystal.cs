@@ -25,6 +25,7 @@ public class Crystal : Cycle
 
     public override  void WhileLiving(float v ){
 
+        print("ya33");
         if( data.inputEvents.hit.transform ){
             if( data.inputEvents.hit.transform.gameObject != this.gameObject){
                 synth.on = false;
@@ -36,6 +37,8 @@ public class Crystal : Cycle
         }
     }
     public void WhileDown( Vector2 d ){
+
+      
 
         if( data.inputEvents.hit.transform != null ){
             if( data.inputEvents.hit.transform.gameObject == this.gameObject){

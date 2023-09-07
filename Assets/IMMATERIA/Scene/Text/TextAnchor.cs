@@ -185,6 +185,7 @@ public string text;
 
       foreach( char c in letters ){ 
           if( this.debug ){
+            print( this.gameObject.name);
             print( wordWidth + ":" + c );
           }
         if( c == '\n'){

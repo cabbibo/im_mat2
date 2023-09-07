@@ -147,7 +147,7 @@ void Force(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID, uint3 id
     float3 bN1 = base.nor;
     float2 bUV = base.uv;
 
-    float3 baseDif = mul( _Transform , float4(0,0,0,1)) -bP1;
+    float3 baseDif = mul( _Transform , float4(0,0,0,1)) - bP1;
 
 
 
@@ -193,10 +193,10 @@ void Force(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID, uint3 id
 
 
     baseDif.y = 0;
-    force += curlNoise(vert.pos * .3 + float3(0,_Time,0)) * .01;
-    force -= bN1 * .2;
+    force += curlNoise(vert.pos * .3 + float3(0,_Time,0)) * .1;
+    force -= bN1 * .1;
     force += bN1 * .21 * vert.uv.x;
-    force +=  -baseDif * .3 * (vert.uv.x+.3);
+    force +=  -baseDif * .1 * (vert.uv.x+.3);
     force +=  -baseDif  * -.3 * (1-vert.uv.x);
 
 
@@ -223,18 +223,20 @@ void Force(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID, uint3 id
      //vert.oPos = vert.pos;
 
 
-    //force += GetRayForce( vert.pos , 2) * 11.8 * _DOWN;
+    force += GetRayForce( vert.pos , 2) * .8 * _DOWN;
     force += GetRayForce( vert.pos , 2) * .2 * _DOWN;
     
     float n = noise( vert.pos * 1.1);
 
     float4 a = sampleAudio(n * .3 + .3 );
 
+   
 
-    force += .1*length(a) * float3(0,1,0);
+
+    force += .001*pow(length(a),10) * 10 * float3(0,1,0);
 
 
-    vert.pos += force  * .001;
+    vert.pos += force  * .002 * a;
     
     vert.tan = vert.pos;//normalize(cross( baseDif, float3(0,1,0)));
 

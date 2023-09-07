@@ -71,7 +71,7 @@ void Flow(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID) {
   pID = safeID(pID,_VertBuffer_COUNT);
   Vert vert = _VertBuffer[pID];
 
-  if( vert.life == 0 ){ vert.life = hash(float(pID)); }
+  if( vert.life == 0 ){ vert.life = hash(float(pID)); vert.pos =   mul( _Transform,float4(0,0,0,1)).xyz;}
 
   if( vert.life < 0 ){
     vert.pos = mul( _Transform,float4(0,0,0,1)).xyz;

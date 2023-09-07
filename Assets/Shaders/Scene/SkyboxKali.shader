@@ -1,11 +1,13 @@
-﻿
-
-Shader "Scenes/Cave/Crystals"
+﻿Shader "IMMAT/skyboxKali"
 {
+
 
     Properties {
 
+   
+        _Cubemap ("Cubemap", Cube) = "" { }
     _BaseColor ("BaseColor", Color) = (1,1,1,1)
+
     
     _NumSteps("Num Trace Steps",int) = 10
     _DeltaStepSize("DeltaStepSize",float) = .01
@@ -31,22 +33,25 @@ Shader "Scenes/Cave/Crystals"
     _NoiseColor ("NoiseColor", Color) = (1,1,1,1)
     _NoiseOffset ("NoiseOffset", Vector) = (0,0,0)
     _NoiseSize("NoiseSize", float) = 1
+    _NoiseSpeed("NoiseSpeed", float) = 1
     _NoiseImportance("NoiseImportance", float) = 1
     _NoiseSharpness("NoiseSharpness",float) = 1
     _NoiseSubtractor("NoiseSubtractor",float)=0
+    _OffsetMultiplier("OffsetMu_OffsetMultiplier",float)=0
+
+    _AudioID("AudioID",float) = 0
+    
+      _AudioPow ("_AudioPow", float) = 2
+      _AudioMultiplier ("_AudioMultiplier",float) =1000
     }
 
 
   SubShader{
 
             // Draw ourselves after all opaque geometry
-        Tags { "Queue" = "Geometry+10" }
+        Tags { "Queue" = "Geometry" }
 
-        // Grab the screen behind the object into _BackgroundTexture
-        GrabPass
-        {
-            "_BackgroundTexture"
-        }
+       
 
       Cull Off
     Pass{
@@ -58,6 +63,8 @@ CGPROGRAM
       #pragma fragment frag
 
       #include "UnityCG.cginc"
+
+    samplerCUBE _CubeMap;
       
     float4 _BaseColor;
     float4 _CenterOrbColor;
@@ -71,6 +78,7 @@ CGPROGRAM
     float _CenterOrbFalloffSharpness;
     float _StepRefractionMultiplier;
     float _NoiseSharpness;
+    float _NoiseSpeed;
     float _Opaqueness;
     float _NoiseSubtractor;
     float _ColorMultiplier;
@@ -83,9 +91,14 @@ CGPROGRAM
     float _ReflectionMultiplier;
     float4 _ReflectionColor;
 
+    float _OffsetMultiplier;
 
-#include "../Chunks/ColorScheme.cginc"
-#include "../Chunks/SampleAudio.cginc"
+    float _AudioID;
+
+    #include "Assets/Shaders/Chunks/SampleAudio.cginc"
+    #include "Assets/Shaders/Chunks/ColorScheme.cginc"
+    #include "Assets/Shaders/Chunks/hsv.cginc"
+
 
       //A simple input struct for our pixel shader step containing a position.
       struct varyings {
@@ -113,6 +126,9 @@ CGPROGRAM
                 float3 normal : NORMAL;
             };
 
+
+
+
 //Our vertex function simply fetches a point from the buffer corresponding to the vertex index
 //which we transform with the view-projection matrix before passing to the pixel program.
 varyings vert ( appdata vertex ){
@@ -122,8 +138,6 @@ varyings vert ( appdata vertex ){
   varyings o;
      float4 p = vertex.position;
      float3 n =  vertex.normal;//_NormBuffer[id/3];
-
-     p.xyz += tex2Dlod(_AudioMap, float4(p.y,0,0,0) ).xyz * .4;
 
         float3 worldPos = mul (unity_ObjectToWorld, float4(p.xyz,1.0f)).xyz;
         o.pos = UnityObjectToClipPos (float4(p.xyz,1.0f));
@@ -139,81 +153,21 @@ varyings vert ( appdata vertex ){
         o.unrefracted = eye;
         o.rd = refract( eye , -n , _IndexOfRefraction);
         o.eye = refract( -normalize(_WorldSpaceCameraPos - worldPos) , normalize(mul (unity_ObjectToWorld, float4(n.xyz,0.0f))) , _IndexOfRefraction);
-        //o.worldNor = mul (unity_ObjectToWorld, float4(n.xyz,0.0f)).xyz;
+    
         o.worldNor = normalize(mul (unity_ObjectToWorld, float4(-n,0.0f)).xyz);
         o.lightDir = normalize(mul( unity_ObjectToWorld , float4(1,-1,0,0)).xyz);
 
         float4 refractedPos = UnityObjectToClipPos( float4(o.ro + o.rd * 1.5,1));
     o.grabPos = ComputeGrabScreenPos(refractedPos);
     
-        //o.triID = float(id)%3;
-
-
-   
-
-
-  
 
   return o;
 
 }
 
 
-// Taken from https://www.shadertoy.com/view/4ts3z2
-float tri(in float x){return abs(frac(x)-.5);}
-float3 tri3(in float3 p){return float3( tri(p.z+tri(p.y*1.)), tri(p.z+tri(p.x*1.)), tri(p.y+tri(p.x*1.)));}
-                                 
-
-// Taken from https://www.shadertoy.com/view/4ts3z2
-float triNoise3D(in float3 p, in float spd )
-{
-    float z=1.4;
-	float rz = 0.;
-    float3 bp = p;
-	for (float i=0.; i<=1.; i++ )
-	{
-        float3 dg = tri3(bp*2.);
-        p += (dg+(_Time.y%100)*.1*spd);
-
-        bp *= 1.8;
-		z *= 1.5;
-		p *= 1.2;
-        //p.xz*= m2;
-        
-        rz+= (tri(p.z+tri(p.x+tri(p.y))))/z;
-        bp += 0.14;
-	}
-	return rz;
-}
 
 
-float t3D( float3 pos ){
-  float3 fPos = pos * .05 + _NoiseOffset;
-
-  // Adds Randomness to noise for each crystal
- // fPos += 100 * mul(unity_ObjectToWorld,float4(0,0,0,1)).xyz;
-  return .7*triNoise3D( fPos,0) + .3*triNoise3D( fPos * 6 , 0 );
-}
-
-float dT3D( float3 pos , float3 lightDir ){
-
-  float eps = .0001;
-
-  
-  return ((t3D(pos) - t3D(pos+ lightDir * eps))/eps+.5);
-}
-
-float3 nT3D( float3 pos ){
-
-  float3 eps = float3(.0001,0,0);
-
-  return t3D(pos) * normalize(
-         float3(  t3D(pos + eps.xyy) - t3D(pos - eps.xyy), 
-                  t3D(pos + eps.yxy) - t3D(pos - eps.yxy),
-                  t3D(pos + eps.yyx) - t3D(pos - eps.yyx) ));
-
-
-}
 
 
 //Pixel function returns a solid color for each point.
@@ -228,72 +182,83 @@ float4 frag (varyings v) : COLOR {
 float3 p = 0;
 
 float totalSmoke = 0;
-  float3 rd = v.rd;
+  float3 rd = normalize(v.rd);
+
+  	//volumetric rendering
+	float s=0.1,fade =1;
+	col =0;
+
+
+  float iterations =12;
+float formuparam = 0.93;
+
+float volsteps = 20;
+float stepsize = .4;
+
+float zoom  = 0.100;
+float tile  = 0.70;
+
+float brightness = 0.0015;
+float darkmatter = 0.300;
+float distfading = 0.730;
+float saturation = 0.850;
+
+float speed = .5;
+float amount = .3;
+float planet = dot( rd , float3(0.6,1,.3));
+
+planet= saturate(planet);
+
+planet = saturate(pow(planet,10) * 100);
+
   for(int i =0 ; i < _NumSteps; i++ ){
-      t+=dt*exp(-2.*c);
-    p = v.ro - rd * t * 2;
+
+
+
+float stepVal = float(i)/float(_NumSteps);
+    	float3 p=v.ro+s*rd*stepsize;
+		//p = abs( tile - p%(tile*2.)); // tiling fold
+		float pa,a=pa=0;
+    p += float3(
+      sin(_Time.x * speed * 1.7  * sin(float(i) * 10) + float(i)*100 +10),
+      sin(_Time.x * speed + float(i)),
+      sin(_Time.x * speed * 1.4  * sin(float(i) * 10) + float(i))
+     ) * amount;
+		for (int j=0; j<iterations; j++) { 
+			p=abs(p)/dot(p,p)-formuparam; // the magic formula
+			a+=abs(length(p)-pa); // absolute sum of average change
+			pa=length(p);
+		}
+		float dm=max(0.,darkmatter-a*a*.001); //dark matter
+	//a*=a*a; // add contrast
     
-  float3 smoke = nT3D( p * _NoiseSize );
-  float3 nor = normalize(smoke);
+    a*= 0.1;
+		if (i>6) fade*=1.-dm; // dark matter, don't render near
+		//v+=float3(dm,dm*.5,0.);
+		//col+=fade;
 
-  float noiseDensity = saturate(length(smoke) - _NoiseSubtractor);
-
-
-    noiseDensity =   pow( noiseDensity , _NoiseSharpness)  * _NoiseImportance;
-
-
-    float centerOrbDensity = ((_CenterOrbImportance)/(pow(length(p-_CenterOrbOffset),_CenterOrbFalloffSharpness) * _CenterOrbFalloff)) ;
-  
-    c= saturate(centerOrbDensity +noiseDensity);   
-    centerOrbDensity -= noiseDensity;
-    totalSmoke += c;
-
-    rd = normalize(rd * (1-c*_StepRefractionMultiplier) + nor *  c*_StepRefractionMultiplier);
-    
-
-
-
-    float4 audio = SampleAudioLOD( noiseDensity * .04 +(.3*float(i)/float(_NumSteps)) + p.y *.1 );
-    float colorValue = lerp( .75, 1 ,  saturate(centerOrbDensity *audio*3 ));
-    float noiseCol = lerp( .75 , 1 ,  saturate(noiseDensity *audio*3));
-    
-  col = .99*col + (GetGlobalColor( colorValue ) * saturate(centerOrbDensity)  ) * audio+ GetGlobalColor( noiseCol)* saturate(noiseDensity) * audio;
-    //col = .99*col  + audio;
-    //lerp( lerp(_BaseColor,_CenterOrbColor , saturate(centerOrbDensity)), _NoiseColor , saturate(noiseDensity));// saturate(dot(v.lightDir , nor)) * .1 *c;//hsv(c,.4, dT3D(p*3,float3(0,-1,0))) * c;//hsv(c * .8 + .3,1,1)*c;;// hsv(smoke,1,1) * saturate(smoke);
-
- 
+    float3 aCol = (pow((SampleAudioLOD( a * .41).xyz),3) * 2.1) *GetGlobalColor( stepVal * .3 );//hsv(stepVal * .3 + .34,1,1);
+    //  aCol = hsv(stepVal * .14+planet * .5 + 1.6,.4,1) * a *a* .1* (sampleAudio( a * .1 , stepVal ).x) * 1;
+     // col += planet * .1*  hsv(stepVal * .14 * a*100 + .8,0,1) * 1 * (.5 * sampleAudio( a * .08 , stepVal ) + .1) * a;// * (sampleAudio( a * .1 , stepVal ).x) * 1;
+		//col+=sampleAudio( a * .05 , stepVal ) * hsv(stepVal * .2 + .5,1,1) * pow((dot( normalize(v.ro), float3(0,1,0))+1)/2,2)*2;//* a*10*a;;// .0001 * hsv(stepVal * 1 , 1,1) * a;//float3(s,s*s,s*s*s*s)*a*brightness*fade; // coloring based on distance
+		
+    col  += a * 10 * aCol;// pow(dm ,3);//* .01;
+    fade*=distfading; // distance fading
+	  s+=stepsize;
+   
   }
 
-
-       // float4 refractedPos = UnityObjectToClipPos( float4(o.ro + o.rd * 1.5,1));
-  float4 refractedPos = ComputeGrabScreenPos(UnityObjectToClipPos(float4(p+rd * _RefractionBackgroundSampleExtraStep,1)));
-float4 backgroundCol = tex2Dproj(_BackgroundTexture, refractedPos);
-
- col /= float(_NumSteps);
- col *= _ColorMultiplier;
+  //col = lerp( col , 1-col, planet);
+col *= (pow( dot( rd , float3(0,1,0)) , 1) + 1)-.5;
+col *= _ColorMultiplier;
+col = saturate( col * .3 )/ .3;
 
 
-  float3 baseCol =_BaseColor.xyz;
 
-       col = lerp(col*backgroundCol,col,saturate(totalSmoke * _Opaqueness));
+//col = col * .001;
 
-       
- float m = dot( normalize(v.unrefracted), normalize(v.nor) );
- col += saturate(pow((1-m),_ReflectionSharpness) * _ReflectionMultiplier)* GetGlobalColor( .2 );//_ReflectionColor;
-
-
- float3 reflection=-v.eye;//normalize(reflect( normalize(-v.eye) , -v.worldNor));
-      half4 skyData = UNITY_SAMPLE_TEXCUBE_LOD(unity_SpecCube0, reflection,0); //UNITY_SAMPLE_TEXCUBE_LOD('cubemap', 'sample coordinate', 'map-map level')
-         half3 skyColor = DecodeHDR (skyData, unity_SpecCube0_HDR); // This is done because the cubemap is stored HDR
-        //col = skyColor;
-
-    //col = v.nor * .5 + .5;
-    // col *= pow((1-m),5) * 60;
-    // col += (v.nor * .5 + .5 ) * .4;
-
+  //col = c;
     return float4( col.xyz , 1);//saturate(float4(col,3*length(col) ));
-
-
 
 
 }
